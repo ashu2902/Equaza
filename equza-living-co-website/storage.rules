@@ -1,0 +1,35 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Public read access for images and lookbook - NO AUTH REQUIRED
+    match /images/{allPaths=**} {
+      allow read: if true; // Public access to product images
+      allow write: if isAdmin();
+    }
+    
+    match /lookbook/{allPaths=**} {
+      allow read: if true; // Public access to download lookbook PDF
+      allow write: if isAdmin();
+    }
+    
+    // Anonymous uploads for customization forms (temp storage)
+    match /uploads/temp/{sessionId}/{allPaths=**} {
+      allow create: if true; // Allow anonymous uploads for customize form
+      allow read: if true; // Allow reading uploaded files
+    }
+    
+    // Admin uploads
+    match /uploads/admin/{allPaths=**} {
+      allow read, write: if isAdmin();
+    }
+    
+    // General uploads
+    match /uploads/general/{allPaths=**} {
+      allow read, write: if isAdmin();
+    }
+    
+    function isAdmin() {
+      return request.auth != null; // Simplified for storage rules
+    }
+  }
+} 
