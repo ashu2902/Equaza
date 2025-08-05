@@ -15,6 +15,7 @@ import { SafeProduct } from '@/types/safe';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
 import { EnquiryModal } from '@/components/forms/EnquiryModal';
+import { submitProductCardEnquiry } from '@/lib/actions/enquiry';
 
 interface SafeProductCardProps {
   product: SafeProduct; // Guaranteed safe data
@@ -50,6 +51,18 @@ export function SafeProductCard({
     }
   };
 
+  const handleEnquirySubmit = async (data: any) => {
+    try {
+      const result = await submitProductCardEnquiry(data);
+      if (result.success) {
+        setIsEnquiryOpen(false);
+      }
+    } catch (error) {
+      console.error('Error submitting enquiry:', error);
+      throw error;
+    }
+  };
+
   return (
     <>
       <motion.div 
@@ -73,19 +86,21 @@ export function SafeProductCard({
         <Link href={`/product/${product.slug}`}>
           <div className="aspect-square relative overflow-hidden">
             {/* Main Image */}
-            <Image
-              src={mainImage.url}
-              alt={mainImage.alt}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className={`object-cover transition-all duration-500 ${
-                isHovered ? 'scale-105' : 'scale-100'
-              }`}
-              priority={priority}
-            />
+            {mainImage && (
+              <Image
+                src={mainImage.url}
+                alt={mainImage.alt}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className={`object-cover transition-all duration-500 ${
+                  isHovered ? 'scale-105' : 'scale-100'
+                }`}
+                priority={priority}
+              />
+            )}
             
             {/* Hover Image (if different from main) */}
-            {hoverImage.url !== mainImage.url && (
+            {hoverImage && mainImage && hoverImage.url !== mainImage.url && (
               <Image
                 src={hoverImage.url}
                 alt={hoverImage.alt}
@@ -186,6 +201,7 @@ export function SafeProductCard({
           isOpen={isEnquiryOpen}
           onClose={() => setIsEnquiryOpen(false)}
           product={product}
+          onSubmit={handleEnquirySubmit}
         />
       )}
     </>

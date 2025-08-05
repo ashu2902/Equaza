@@ -100,7 +100,26 @@ export const getSiteSettings = unstable_cache(
         }
       });
       
-      return { id: docSnap.id, ...convertedData } as SiteSettings;
+      // Ensure all required properties are present with defaults
+      const settings: SiteSettings = {
+        siteName: convertedData.siteName || 'Equza Living Co.',
+        siteDescription: convertedData.siteDescription || 'Premium handcrafted rugs that bring crafted calm to modern spaces',
+        contactEmail: convertedData.contactEmail || 'hello@equzaliving.com',
+        calendlyUrl: convertedData.calendlyUrl || 'https://calendly.com/equza-living',
+        socialLinks: convertedData.socialLinks || {
+          instagram: 'https://instagram.com/equzaliving',
+          pinterest: 'https://pinterest.com/equzaliving',
+        },
+        seoDefaults: convertedData.seoDefaults || {
+          defaultTitle: 'Equza Living Co. - Handcrafted Rugs for Modern Spaces',
+          defaultDescription: 'Discover premium handcrafted rugs that bring crafted calm to modern spaces.',
+          ogImage: '/images/og-default.jpg',
+        },
+        updatedAt: convertedData.updatedAt || Timestamp.now(),
+        updatedBy: convertedData.updatedBy || 'system',
+      };
+      
+      return settings;
     } catch (error) {
       console.error('Error fetching site settings:', error);
       throw new Error('Failed to fetch site settings');
@@ -237,7 +256,16 @@ export const getCurrentLookbook = unstable_cache(
         }
       });
       
-      const lookbook = { id: docSnap.id, ...convertedData } as Lookbook;
+      // Ensure all required properties are present with defaults
+      const lookbook: Lookbook = {
+        version: convertedData.version || '1.0',
+        filename: convertedData.filename || 'lookbook.pdf',
+        url: convertedData.url || '',
+        storageRef: convertedData.storageRef || '',
+        uploadedAt: convertedData.uploadedAt || Timestamp.now(),
+        uploadedBy: convertedData.uploadedBy || 'system',
+        isActive: convertedData.isActive || false,
+      };
       
       // Only return if it's active
       return lookbook.isActive ? lookbook : null;

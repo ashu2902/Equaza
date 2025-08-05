@@ -116,7 +116,7 @@ function SpaceTile({ collection, index }: SpaceTileProps) {
                 <div className="flex items-center justify-between pt-4 border-t border-white/20">
                   <div className="space-y-1">
                     <Typography variant="h4" className="text-white font-medium">
-                      {collection.productCount || 0}+
+                      {collection.productIds?.length || 0}+
                     </Typography>
                     <Typography variant="caption" className="text-white/80">
                       Rug Options
@@ -195,7 +195,7 @@ export function SpaceTilesSection({
               </Typography>
               
               <Typography 
-                variant="subtitle" 
+                variant="subtitle1" 
                 className="text-xl text-gray-600 leading-relaxed"
               >
                 {subtitle}

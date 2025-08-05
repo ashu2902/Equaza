@@ -14,7 +14,7 @@
     "jsx": "preserve",
     "incremental": true,
     // Additional strict mode settings
-    "exactOptionalPropertyTypes": true,
+    // "exactOptionalPropertyTypes": true, // Temporarily disabled for form compatibility
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,

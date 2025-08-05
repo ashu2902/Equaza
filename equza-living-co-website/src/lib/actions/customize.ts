@@ -41,21 +41,15 @@ async function processFileUploads(
 
     const uploadResults = await uploadMultipleFiles(
       files,
-      filePaths,
-      {
-        allowedTypes: ['image/jpeg', 'image/png', 'image/webp'],
-        maxSize: 10 * 1024 * 1024, // 10MB
-        createThumbnails: true,
-        optimizeImages: true,
-      }
+      (file, index) => filePaths[index] || `customize-requests/${leadId}/moodboard-${index + 1}-${Date.now()}`
     );
 
     // Process upload results
-    uploadResults.forEach((result, index) => {
-      if (result.success && result.url) {
-        urls.push(result.url);
+    uploadResults.forEach((url, index) => {
+      if (url) {
+        urls.push(url);
       } else {
-        errors.push(`Failed to upload ${files[index]?.name}: ${result.error || 'Unknown error'}`);
+        errors.push(`Failed to upload ${files[index]?.name}: Unknown error`);
       }
     });
 
@@ -85,7 +79,7 @@ export async function submitCustomizeForm(
     
     if (!validationResult.success) {
       const errors: Record<string, string> = {};
-      validationResult.error.errors.forEach((error) => {
+      validationResult.error.issues.forEach((error) => {
         const field = error.path[0] as string;
         errors[field] = error.message;
       });

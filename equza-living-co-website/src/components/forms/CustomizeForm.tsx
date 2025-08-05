@@ -268,9 +268,9 @@ export const CustomizeForm: FC<CustomizeFormProps> = ({
                         >
                           <input
                             type="checkbox"
-                            checked={field.value.includes(material)}
+                            checked={field.value?.includes(material) || false}
                             onChange={() => {
-                              const updated = handleMaterialToggle(material, field.value);
+                              const updated = handleMaterialToggle(material, field.value || []);
                               field.onChange(updated);
                             }}
                             disabled={formState === 'submitting'}

@@ -9,7 +9,7 @@ import { Container } from '@/components/ui/Container';
 import { Typography } from '@/components/ui/Typography';
 import { FadeIn, SlideUp } from '@/components/ui/MotionWrapper';
 import { SafeCollectionTile } from '@/components/collections/SafeCollectionTile';
-import { SafeCollection } from '@/lib/firebase/safe-firestore';
+import { SafeCollection } from '@/types/safe';
 
 interface StyleCollectionsSectionProps {
   title?: string;

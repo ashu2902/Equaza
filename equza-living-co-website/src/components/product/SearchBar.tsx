@@ -124,9 +124,11 @@ export const SearchBar: FC<SearchBarProps> = ({
       
       case 'Enter':
         e.preventDefault();
-        if (selectedSuggestionIndex >= 0) {
+        if (selectedSuggestionIndex >= 0 && selectedSuggestionIndex < suggestions.length) {
           const suggestion = suggestions[selectedSuggestionIndex];
-          handleSuggestionClick(suggestion);
+          if (suggestion) {
+            handleSuggestionClick(suggestion);
+          }
         } else if (onSearch) {
           onSearch(value);
         }

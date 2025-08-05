@@ -13,6 +13,8 @@ import type {
   Product 
 } from '@/types';
 
+import { getSiteSettingsWithDefaults } from '@/lib/firebase/settings';
+
 export interface EmailResult {
   success: boolean;
   message: string;
@@ -139,7 +141,7 @@ function generateEmailTemplate(
           <ul>
             <li><a href="${process.env.NEXT_PUBLIC_BASE_URL}/collections">Browse Collections</a></li>
             <li><a href="${process.env.NEXT_PUBLIC_BASE_URL}/customize">Custom Rugs</a></li>
-            <li><a href="${config.calendlyUrl || '#'}">Schedule Consultation</a></li>
+            <li><a href="${data.calendlyUrl || 'https://calendly.com/equza-living'}">Schedule Consultation</a></li>
           </ul>
           <p>Best regards,<br>The Equza Living Co. Team</p>
         `,
@@ -221,16 +223,27 @@ export async function sendContactAutoReplyEmail(
   email: string,
   name: string
 ): Promise<EmailResult> {
-  const template = generateEmailTemplate(EMAIL_TEMPLATES.CONTACT_AUTO_REPLY, {
-    name,
-  });
+  try {
+    const settings = await getSiteSettingsWithDefaults();
+    const template = generateEmailTemplate(EMAIL_TEMPLATES.CONTACT_AUTO_REPLY, {
+      name,
+      calendlyUrl: settings.calendlyUrl,
+    });
 
-  return sendEmail(
-    email,
-    template.subject,
-    template.html,
-    template.text
-  );
+    return sendEmail(
+      email,
+      template.subject,
+      template.html,
+      template.text
+    );
+  } catch (error) {
+    console.error('Error sending contact auto-reply email:', error);
+    return {
+      success: false,
+      message: 'Failed to send auto-reply email',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
 }
 
 /**

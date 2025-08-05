@@ -11,7 +11,6 @@ import { SafeProduct } from '@/types/safe';
 import { SafeProductCard } from './SafeProductCard';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
-import { Grid } from '@/components/ui/Grid';
 
 interface SafeProductGridProps {
   products: SafeProduct[]; // Always an array, never null
@@ -62,11 +61,11 @@ export function SafeProductGrid({
           </div>
         )}
         
-        <Grid cols={gridCols} gap={6}>
+        <div className={`grid grid-cols-${gridCols.default} sm:grid-cols-${gridCols.sm || gridCols.default} md:grid-cols-${gridCols.md || gridCols.sm || gridCols.default} lg:grid-cols-${gridCols.lg || gridCols.md || gridCols.sm || gridCols.default} xl:grid-cols-${gridCols.xl || gridCols.lg || gridCols.md || gridCols.sm || gridCols.default} gap-6`}>
           {Array.from({ length: 8 }).map((_, index) => (
             <ProductCardSkeleton key={index} />
           ))}
-        </Grid>
+        </div>
       </div>
     );
   }
@@ -123,7 +122,7 @@ export function SafeProductGrid({
       )}
       
       {/* Product Grid */}
-      <Grid cols={gridCols} gap={6}>
+      <div className={`grid grid-cols-${gridCols.default} sm:grid-cols-${gridCols.sm || gridCols.default} md:grid-cols-${gridCols.md || gridCols.sm || gridCols.default} lg:grid-cols-${gridCols.lg || gridCols.md || gridCols.sm || gridCols.default} xl:grid-cols-${gridCols.xl || gridCols.lg || gridCols.md || gridCols.sm || gridCols.default} gap-6`}>
         {products.map((product, index) => (
           <SafeProductCard
             key={product.id}
@@ -131,7 +130,7 @@ export function SafeProductGrid({
             priority={index < 4} // Prioritize first 4 images
           />
         ))}
-      </Grid>
+      </div>
       
       {/* Load More Button */}
       {showLoadMore && onLoadMore && (

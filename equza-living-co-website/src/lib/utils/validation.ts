@@ -13,7 +13,7 @@ const emailSchema = z
   .email('Please enter a valid email address');
 
 const phoneSchema = z
-  .string()
+  .union([z.string(), z.undefined()])
   .optional()
   .refine(
     (val) => !val || /^[\+]?[1-9][\d]{0,15}$/.test(val),

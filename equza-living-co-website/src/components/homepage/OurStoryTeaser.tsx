@@ -69,7 +69,7 @@ export function OurStoryTeaser() {
                 </Typography>
                 
                 <Typography 
-                  variant="subtitle" 
+                  variant="subtitle1" 
                   className="text-xl leading-relaxed font-poppins"
                   style={{ color: '#4b5563' }}
                 >

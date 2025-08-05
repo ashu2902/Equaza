@@ -105,27 +105,25 @@ export async function uploadSingleFile(
     const filePath = generateFilePath(file.name, context, userId, additionalPath);
 
     // Upload file
-    const result = await uploadFile(file, filePath, {
-      createThumbnails: file.type.startsWith('image/'),
-      optimizeImages: file.type.startsWith('image/'),
-      allowedTypes: FILE_UPLOAD.allowedTypes,
-      maxSize: FILE_UPLOAD.maxSize,
+    const url = await uploadFile({
+      path: filePath,
+      file,
+      metadata: {
+        contentType: file.type,
+        customMetadata: {
+          originalName: file.name,
+          uploadedBy: userId || 'anonymous',
+          context,
+        },
+      },
     });
 
-    if (result.success && result.url) {
-      return {
-        success: true,
-        message: 'File uploaded successfully',
-        url: result.url,
-        filename: file.name,
-      };
-    } else {
-      return {
-        success: false,
-        message: result.error || 'Upload failed',
-        error: result.error,
-      };
-    }
+    return {
+      success: true,
+      message: 'File uploaded successfully',
+      url: url || undefined,
+      filename: file.name,
+    };
 
   } catch (error) {
     console.error('Error uploading file:', error);
@@ -189,7 +187,7 @@ export async function uploadMultipleFileAction(
     // Upload files
     const uploadResults = await uploadMultipleFiles(
       files,
-      (file, index) => filePaths[index]
+      (file, index) => filePaths[index] || `uploads/temp/${Date.now()}-${file.name}`
     );
 
     // Process results

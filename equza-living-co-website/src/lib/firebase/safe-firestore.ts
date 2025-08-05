@@ -116,10 +116,14 @@ export async function getSafeProduct(slug: string): Promise<SafeResult<SafeProdu
       return { data: null, error: 'Product not found', loading: false };
     }
     
-    const product = transformProduct(snapshot.docs[0]);
+    const firstDoc = snapshot.docs[0];
+    if (!firstDoc) {
+      return { data: null, error: 'Product not found', loading: false };
+    }
     
+    const product = transformProduct(firstDoc);
     if (!product) {
-      return { data: null, error: 'Invalid product data', loading: false };
+      return { data: null, error: 'Failed to transform product data', loading: false };
     }
     
     return { data: product, error: null, loading: false };
@@ -222,7 +226,12 @@ export async function getSafeCollection(slug: string): Promise<SafeResult<SafeCo
       return { data: null, error: 'Collection not found', loading: false };
     }
     
-    const coll = transformCollection(snapshot.docs[0]);
+    const firstDoc = snapshot.docs[0];
+    if (!firstDoc) {
+      return { data: null, error: 'Collection not found', loading: false };
+    }
+    
+    const coll = transformCollection(firstDoc);
     
     if (!coll) {
       return { data: null, error: 'Invalid collection data', loading: false };
@@ -368,7 +377,16 @@ export async function getSafeProductBySlug(slug: string): Promise<SafeResult<Saf
       return { data: null, error: 'Product not found', loading: false };
     }
     
-    const product = transformProduct(snapshot.docs[0]);
+    const firstDoc = snapshot.docs[0];
+    if (!firstDoc) {
+      return { data: null, error: 'Product not found', loading: false };
+    }
+    
+    const product = transformProduct(firstDoc);
+    if (!product) {
+      return { data: null, error: 'Failed to transform product data', loading: false };
+    }
+    
     return { data: product, error: null, loading: false };
   } catch (error) {
     return { 
@@ -393,7 +411,16 @@ export async function getSafeCollectionBySlug(slug: string): Promise<SafeResult<
       return { data: null, error: 'Collection not found', loading: false };
     }
     
-    const collection_data = transformCollection(snapshot.docs[0]);
+    const firstDoc = snapshot.docs[0];
+    if (!firstDoc) {
+      return { data: null, error: 'Collection not found', loading: false };
+    }
+    
+    const collection_data = transformCollection(firstDoc);
+    if (!collection_data) {
+      return { data: null, error: 'Failed to transform collection data', loading: false };
+    }
+    
     return { data: collection_data, error: null, loading: false };
   } catch (error) {
     return { 
@@ -436,7 +463,7 @@ export async function getSafeRelatedProducts(productSlug: string, limitCount: nu
     return { data: relatedProducts, error: null, loading: false };
   } catch (error) {
     return { 
-      data: [], 
+      data: null, 
       error: handleFirebaseError(error, 'fetch related products'), 
       loading: false 
     };
@@ -493,13 +520,7 @@ export async function getSafeAdminStats(): Promise<SafeResult<AdminStats>> {
     return { data: stats, error: null, loading: false };
   } catch (error) {
     return { 
-      data: {
-        totalProducts: 0,
-        totalCollections: 0,
-        pendingLeads: 0,
-        totalUsers: 1,
-        recentActivity: []
-      }, 
+      data: null, 
       error: handleFirebaseError(error, 'fetch admin stats'), 
       loading: false 
     };
@@ -528,7 +549,7 @@ export async function getSafeLeads(): Promise<SafeResult<any[]>> {
     return { data: leads, error: null, loading: false };
   } catch (error) {
     return { 
-      data: [], 
+      data: null, 
       error: handleFirebaseError(error, 'fetch leads'), 
       loading: false 
     };
@@ -556,12 +577,12 @@ export async function getSafeAdminCollections(type?: 'style' | 'space'): Promise
     }
     
     const snapshot = await getDocs(collectionsQuery);
-    const collections = transformCollections(snapshot);
+    const collections = transformCollections(snapshot.docs);
 
     return { data: collections, error: null, loading: false };
   } catch (error) {
     return { 
-      data: [], 
+      data: null, 
       error: handleFirebaseError(error, 'fetch collections'), 
       loading: false 
     };
@@ -585,7 +606,7 @@ export async function getSafeAdminProducts(): Promise<SafeResult<SafeProduct[]>>
     return { data: products, error: null, loading: false };
   } catch (error) {
     return { 
-      data: [], 
+      data: null, 
       error: handleFirebaseError(error, 'fetch products'), 
       loading: false 
     };

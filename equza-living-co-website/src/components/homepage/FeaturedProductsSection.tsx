@@ -9,7 +9,7 @@ import { Container } from '@/components/ui/Container';
 import { Typography } from '@/components/ui/Typography';
 import { FadeIn, SlideUp } from '@/components/ui/MotionWrapper';
 import { SafeProductGrid } from '@/components/product/SafeProductGrid';
-import { SafeProduct, SafeResult } from '@/lib/firebase/safe-firestore';
+import { SafeProduct } from '@/types/safe';
 
 interface FeaturedProductsSectionProps {
   title?: string;

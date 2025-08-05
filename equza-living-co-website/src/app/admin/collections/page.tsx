@@ -122,7 +122,7 @@ function CollectionCard({ collection, type }: { collection: any; type: 'style' |
         <div className="flex items-center justify-between text-xs text-gray-500">
           <div className="flex items-center">
             <Package className="h-3 w-3 mr-1" />
-            {collection.productCount || 0} products
+                                      {collection.productIds?.length || 0} products
           </div>
           <div className="flex items-center">
             <Calendar className="h-3 w-3 mr-1" />

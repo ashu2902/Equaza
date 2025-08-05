@@ -230,7 +230,7 @@ function LeadsList({ leads }: { leads: any[] }) {
   }
 
   return (
-    <Grid cols={{ default: 1, lg: 2, xl: 3 }} gap={6}>
+    <Grid cols={3} gap="lg">
       {leads.map((lead, index) => (
         <SlideUp key={lead.id} delay={index * 0.05}>
           <LeadCard lead={lead} />
@@ -289,7 +289,7 @@ export default async function AdminLeadsPage() {
 
         {/* Stats Overview */}
         <FadeIn delay={0.1}>
-          <Grid cols={{ default: 2, sm: 4 }} gap={4}>
+          <Grid cols={4} gap="sm">
             <Card>
               <CardContent className="p-4 text-center">
                 <p className="text-2xl font-bold text-gray-900">{stats.total}</p>

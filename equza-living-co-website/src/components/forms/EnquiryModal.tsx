@@ -7,18 +7,19 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send, CheckCircle, AlertCircle, Loader2, MessageSquare, X } from 'lucide-react';
 import { enquiryFormSchema } from '@/lib/utils/validation';
 import { EnquiryFormData, Product } from '@/types';
+import { SafeProduct } from '@/types/safe';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Typography } from '@/components/ui/Typography';
-import { Modal } from '@/components/ui/Modal';
+import { Modal, ModalContent } from '@/components/ui/Modal';
 import { FormField } from './FormField';
 
 interface EnquiryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: EnquiryFormData) => Promise<void>;
-  product?: Product;
+  product?: Product | SafeProduct;
   productId?: string;
   className?: string;
 }
@@ -107,12 +108,15 @@ export const EnquiryModal: FC<EnquiryModalProps> = ({
 
   return (
     <Modal
-      isOpen={isOpen}
-      onClose={handleClose}
-      className={`max-w-lg ${className}`}
-      showCloseButton={formState !== 'submitting'}
+      open={isOpen}
+      onOpenChange={(open) => !open && handleClose()}
     >
-      <div className="space-y-6">
+      <ModalContent
+        className={`max-w-lg ${className}`}
+        showCloseButton={formState !== 'submitting'}
+        onClose={handleClose}
+      >
+        <div className="space-y-6">
         {/* Header */}
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0 w-10 h-10 bg-stone-100 rounded-lg flex items-center justify-center">
@@ -141,7 +145,7 @@ export const EnquiryModal: FC<EnquiryModalProps> = ({
           <div className="flex items-center gap-3 p-3 bg-stone-50 rounded-lg border">
             {product.images.length > 0 && (
               <img
-                src={product.images.find(img => img.isMain)?.url || product.images[0].url}
+                src={product.images.find(img => img.isMain)?.url || product.images[0]?.url || '/images/placeholder-rug.jpg'}
                 alt={product.name}
                 className="w-12 h-12 object-cover rounded"
               />
@@ -338,7 +342,8 @@ export const EnquiryModal: FC<EnquiryModalProps> = ({
             </motion.form>
           )}
         </AnimatePresence>
-      </div>
+        </div>
+      </ModalContent>
     </Modal>
   );
 };

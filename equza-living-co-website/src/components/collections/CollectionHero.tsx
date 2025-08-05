@@ -3,13 +3,13 @@
 import { FC } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Collection } from '@/types';
+import { SafeCollection } from '@/types/safe';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
 
 interface CollectionHeroProps {
-  collection: Collection;
+  collection: SafeCollection;
   productCount?: number;
   className?: string;
   onExploreProducts?: () => void;

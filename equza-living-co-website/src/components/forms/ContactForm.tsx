@@ -146,7 +146,7 @@ export const ContactForm: FC<ContactFormProps> = ({
                 id="contact-name"
                 {...register('name')}
                 placeholder="Enter your full name"
-                error={errors.name?.message}
+                error={!!errors.name?.message}
                 disabled={formState === 'submitting'}
               />
             </div>
@@ -161,7 +161,7 @@ export const ContactForm: FC<ContactFormProps> = ({
                 type="email"
                 {...register('email')}
                 placeholder="Enter your email address"
-                error={errors.email?.message}
+                error={!!errors.email?.message}
                 disabled={formState === 'submitting'}
               />
             </div>
@@ -176,7 +176,7 @@ export const ContactForm: FC<ContactFormProps> = ({
                 type="tel"
                 {...register('phone')}
                 placeholder="Enter your phone number (optional)"
-                error={errors.phone?.message}
+                error={!!errors.phone?.message}
                 disabled={formState === 'submitting'}
               />
             </div>
@@ -191,7 +191,7 @@ export const ContactForm: FC<ContactFormProps> = ({
                 {...register('message')}
                 placeholder="Tell us about your project or how we can help you..."
                 rows={5}
-                error={errors.message?.message}
+                error={!!errors.message?.message}
                 disabled={formState === 'submitting'}
               />
               <div className="text-right">

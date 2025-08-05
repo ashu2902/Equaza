@@ -71,7 +71,7 @@ export function CustomRugBanner() {
                 </Typography>
                 
                 <Typography 
-                  variant="subtitle" 
+                  variant="subtitle1" 
                   className="text-xl leading-relaxed max-w-lg font-poppins"
                   style={{ color: '#e5e5e5' }}
                 >

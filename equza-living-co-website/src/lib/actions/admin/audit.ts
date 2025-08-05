@@ -8,7 +8,7 @@
 import { revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { Timestamp, addDoc, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { db, auth } from '@/lib/firebase/config';
 import { checkAdminStatus } from '@/lib/firebase/auth';
 
 export interface AuditLogEntry {
@@ -47,11 +47,12 @@ export interface AuditLogQuery {
  */
 async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string; email?: string }> {
   try {
-    const adminStatus = await checkAdminStatus();
+    const isAdmin = await checkAdminStatus();
+    const user = auth?.currentUser;
     return {
-      isAdmin: adminStatus.isAdmin,
-      userId: adminStatus.userId,
-      email: adminStatus.email,
+      isAdmin,
+      userId: user?.uid,
+      email: user?.email ?? undefined,
     };
   } catch (error) {
     console.error('Error verifying admin auth:', error);

@@ -88,7 +88,7 @@ export function ContactSection({ siteSettings }: ContactSectionProps) {
               </Typography>
               
               <Typography 
-                variant="subtitle" 
+                variant="subtitle1" 
                 className="text-xl leading-relaxed font-poppins"
                 style={{ color: '#4b5563' }}
               >
@@ -115,10 +115,9 @@ export function ContactSection({ siteSettings }: ContactSectionProps) {
                       <ScaleIn key={method.title} delay={0.3 + index * 0.1}>
                         <Link 
                           href={method.href}
-                          className="group block p-6 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300"
-                          style={{ 
-                            borderColor: '#e5e7eb',
-                            '&:hover': { borderColor: '#98342d' }
+                          className="group block p-6 bg-white rounded-xl border border-gray-200 hover:shadow-lg hover:border-stone-600 transition-all duration-300"
+                          style={{
+                            borderColor: '#e5e7eb'
                           }}
                         >
                           <div className="flex items-start space-x-4">

@@ -6,11 +6,12 @@
  */
 
 import { useState, useCallback, Suspense } from 'react';
-import { SafeProduct, ProductFilters } from '@/types/safe';
+import { SafeProduct } from '@/types/safe';
+import { ProductFilters } from '@/types';
 import { Typography } from '@/components/ui/Typography';
-import { ProductGrid } from '@/components/product/ProductGrid';
+import { SafeProductGrid } from '@/components/product/SafeProductGrid';
 import { FilterSidebar } from '@/components/product/FilterSidebar';
-import { SortOptions } from '@/components/product/SortOptions';
+import { SortOptions, SortOption } from '@/components/product/SortOptions';
 import { LoadingSkeleton } from '@/components/homepage/LoadingSkeleton';
 import { SlideUp } from '@/components/ui/MotionWrapper';
 
@@ -24,13 +25,13 @@ export function CollectionProductsClient({
   productsError 
 }: CollectionProductsClientProps) {
   const [filters, setFilters] = useState<ProductFilters>({});
-  const [sortOption, setSortOption] = useState<string>('name-asc');
+  const [sortOption, setSortOption] = useState<SortOption>('name-asc');
 
   const handleFiltersChange = useCallback((newFilters: ProductFilters) => {
     setFilters(newFilters);
   }, []);
 
-  const handleSortChange = useCallback((newSort: string) => {
+  const handleSortChange = useCallback((newSort: SortOption) => {
     setSortOption(newSort);
   }, []);
 
@@ -78,9 +79,9 @@ export function CollectionProductsClient({
       case 'name-desc':
         return b.name.localeCompare(a.name);
       case 'price-asc':
-        return (a.price?.current || 0) - (b.price?.current || 0);
+        return (a.price?.startingFrom || 0) - (b.price?.startingFrom || 0);
       case 'price-desc':
-        return (b.price?.current || 0) - (a.price?.current || 0);
+        return (b.price?.startingFrom || 0) - (a.price?.startingFrom || 0);
       case 'newest':
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       default:
@@ -139,9 +140,9 @@ export function CollectionProductsClient({
             </Typography>
             
             <Suspense fallback={<div className="h-10 w-48 bg-gray-100 rounded animate-pulse"></div>}>
-              <SortOptions 
+                            <SortOptions
                 value={sortOption}
-                onSortChange={handleSortChange}
+                onChange={handleSortChange}
                 className="w-full sm:w-auto"
               />
             </Suspense>
@@ -159,12 +160,17 @@ export function CollectionProductsClient({
               </Typography>
             </div>
           ) : (
-            <Suspense fallback={<LoadingSkeleton />}>
-              <ProductGrid 
+            <Suspense fallback={<LoadingSkeleton variant="tiles" />}>
+              <SafeProductGrid 
                 products={sortedProducts}
-                columns={3}
-                showQuickView={true}
                 className="gap-6"
+                gridCols={{ 
+                  default: 1, 
+                  sm: 2, 
+                  md: 2, 
+                  lg: 3, 
+                  xl: 3 
+                }}
               />
             </Suspense>
           )}

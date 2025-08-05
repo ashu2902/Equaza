@@ -76,7 +76,7 @@ function CollectionTile({ collection, index }: CollectionTileProps) {
                 {/* Product Count */}
                 <div className="flex items-center justify-between pt-2">
                   <Typography variant="caption" className="text-white/80">
-                    {collection.productCount || 0} Products
+                    {collection.productIds?.length || 0} Products
                   </Typography>
                   
                   <div className={`flex items-center space-x-1 transform transition-transform duration-300 ${
@@ -130,8 +130,8 @@ export function CollectionTilesSection({
                 {title}
               </Typography>
               
-              <Typography 
-                variant="subtitle" 
+                            <Typography
+                variant="subtitle1"
                 className="text-xl text-gray-600 leading-relaxed"
               >
                 {subtitle}

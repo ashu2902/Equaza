@@ -16,6 +16,7 @@ import {
   getLeadById 
 } from '@/lib/firebase/leads';
 import { checkAdminStatus } from '@/lib/firebase/auth';
+import { auth } from '@/lib/firebase/config';
 
 export interface AdminLeadResult {
   success: boolean;
@@ -37,10 +38,11 @@ export interface BulkLeadResult {
  */
 async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string }> {
   try {
-    const adminStatus = await checkAdminStatus();
+    const isAdmin = await checkAdminStatus();
+    const userId = auth?.currentUser?.uid;
     return {
-      isAdmin: adminStatus.isAdmin,
-      userId: adminStatus.userId,
+      isAdmin,
+      userId,
     };
   } catch (error) {
     console.error('Error verifying admin auth:', error);

@@ -13,7 +13,7 @@ import { ChevronRight, ArrowLeft } from 'lucide-react';
 
 // Firebase and Types
 import { getSafeCollectionBySlug, getSafeProductsByCollection } from '@/lib/firebase/safe-firestore';
-import { isDataResult } from '@/types/safe';
+import { isDataResult, ErrorResult } from '@/types/safe';
 
 // Components
 import { Container } from '@/components/ui/Container';
@@ -75,8 +75,8 @@ async function getCollectionPageData(slug: string) {
     console.error('Failed to fetch collection page data:', error);
     
     return {
-      collection: { data: null, error: 'Failed to load collection', loading: false },
-      products: { data: null, error: 'Failed to load products', loading: false },
+      collection: { data: null, error: 'Failed to load collection', loading: false } as ErrorResult,
+      products: { data: null, error: 'Failed to load products', loading: false } as ErrorResult,
     };
   }
 }
@@ -140,7 +140,6 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
         <SectionErrorBoundary sectionName="collection hero">
           <CollectionHero 
             collection={collection}
-            showBreadcrumb={false}
             className="py-16 md:py-24"
           />
         </SectionErrorBoundary>

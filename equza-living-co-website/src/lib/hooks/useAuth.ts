@@ -60,7 +60,7 @@ export function useAuth() {
           console.log('🔑 useAuth: Admin claim value:', tokenResult.claims.admin);
           
           const isAdmin = tokenResult.claims.admin === true;
-          const adminRole = tokenResult.claims.adminRole || null;
+          const adminRole = typeof tokenResult.claims.adminRole === 'string' ? tokenResult.claims.adminRole : null;
           
           if (isAdmin) {
             console.log('✅ useAuth: User has admin privileges via JWT claims');

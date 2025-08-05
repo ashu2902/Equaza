@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { ProductImage } from '@/types';
 import { Button } from '@/components/ui/Button';
-import { Modal } from '@/components/ui/Modal';
+import { Modal, ModalContent } from '@/components/ui/Modal';
 
 interface ImageGalleryProps {
   images: ProductImage[];
@@ -132,14 +132,16 @@ export const ImageGallery: FC<ImageGalleryProps> = ({
           onClick={openModal}
           onMouseMove={handleMouseMove}
         >
-          <Image
-            src={currentImage.url}
-            alt={currentImage.alt}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-            priority
-            sizes="(max-width: 768px) 100vw, 50vw"
-          />
+          {currentImage && (
+            <Image
+              src={currentImage.url}
+              alt={currentImage.alt}
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              priority
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+          )}
           
           {/* Zoom Indicator */}
           <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -221,11 +223,14 @@ export const ImageGallery: FC<ImageGalleryProps> = ({
 
       {/* Full Screen Modal */}
       <Modal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        className="max-w-7xl"
-        showCloseButton={false}
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
       >
+        <ModalContent
+          className="max-w-7xl"
+          showCloseButton={false}
+          onClose={closeModal}
+        >
         <div className="relative">
           {/* Modal Header */}
           <div className="flex items-center justify-between p-4 border-b">
@@ -273,19 +278,21 @@ export const ImageGallery: FC<ImageGalleryProps> = ({
                   transition={{ duration: 0.3 }}
                   className="relative w-full h-full"
                 >
-                  <Image
-                    src={currentImage.url}
-                    alt={currentImage.alt}
-                    fill
-                    className={`
-                      object-contain transition-transform duration-300
-                      ${isZoomed ? 'scale-200' : 'scale-100'}
-                    `}
-                    style={isZoomed ? {
-                      transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`
-                    } : undefined}
-                    sizes="100vw"
-                  />
+                  {currentImage && (
+                    <Image
+                      src={currentImage.url}
+                      alt={currentImage.alt}
+                      fill
+                      className={`
+                        object-contain transition-transform duration-300
+                        ${isZoomed ? 'scale-200' : 'scale-100'}
+                      `}
+                      style={isZoomed ? {
+                        transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`
+                      } : undefined}
+                      sizes="100vw"
+                    />
+                  )}
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -343,6 +350,7 @@ export const ImageGallery: FC<ImageGalleryProps> = ({
             </div>
           )}
         </div>
+        </ModalContent>
       </Modal>
     </div>
   );

@@ -93,11 +93,11 @@ function transformSpecifications(rawSpecs: any): SafeProductSpecifications {
   const rawSizes = Array.isArray(rawSpecs.availableSizes) ? rawSpecs.availableSizes : [];
   const availableSizes = rawSizes
     .map(transformProductSize)
-    .filter((size): size is SafeProductSize => size !== null);
+    .filter((size: SafeProductSize | null): size is SafeProductSize => size !== null);
   
   return {
-    materials: Array.isArray(rawSpecs.materials) 
-      ? rawSpecs.materials.filter(m => typeof m === 'string' && m.trim().length > 0)
+        materials: Array.isArray(rawSpecs.materials)
+      ? rawSpecs.materials.filter((m: any) => typeof m === 'string' && m.trim().length > 0)
       : [],
     weaveType: rawSpecs.weaveType || 'Hand-Knotted',
     availableSizes,
@@ -155,8 +155,10 @@ export function transformProduct(doc: DocumentSnapshot): SafeProduct | null {
   
   // Ensure exactly one main image exists
   const mainImages = safeImages.filter(img => img.isMain);
-  if (mainImages.length === 0) {
-    safeImages[0].isMain = true;
+  if (mainImages.length === 0 && safeImages.length > 0) {
+    if (safeImages[0]) {
+      safeImages[0].isMain = true;
+    }
   } else if (mainImages.length > 1) {
     // Keep only the first main image, make others non-main
     let foundFirst = false;

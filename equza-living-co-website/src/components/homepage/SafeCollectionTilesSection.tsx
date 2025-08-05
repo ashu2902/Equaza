@@ -11,7 +11,6 @@ import { SafeCollection } from '@/types/safe';
 import { SafeCollectionTile } from '@/components/collections/SafeCollectionTile';
 import { Typography } from '@/components/ui/Typography';
 import { Container } from '@/components/ui/Container';
-import { Grid } from '@/components/ui/Grid';
 import { FadeIn } from '@/components/ui/MotionWrapper';
 
 interface SafeCollectionTilesSectionProps {
@@ -46,14 +45,11 @@ export function SafeCollectionTilesSection({
             </Typography>
           </div>
           
-          <Grid 
-            cols={{ default: 1, sm: 2, lg: type === 'space' ? 3 : 3 }} 
-            gap={8}
-          >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {Array.from({ length: type === 'space' ? 3 : 6 }).map((_, index) => (
               <CollectionTileSkeleton key={index} />
             ))}
-          </Grid>
+          </div>
         </Container>
       </section>
     );
@@ -122,15 +118,7 @@ export function SafeCollectionTilesSection({
           </div>
         </FadeIn>
         
-        <Grid 
-          cols={{ 
-            default: 1, 
-            sm: 2, 
-            lg: 3,
-            xl: 3
-          }} 
-          gap={8}
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
           {collections.map((collection, index) => (
             <SafeCollectionTile
               key={collection.id}
@@ -139,7 +127,7 @@ export function SafeCollectionTilesSection({
               priority={index < 3}
             />
           ))}
-        </Grid>
+        </div>
       </Container>
     </section>
   );

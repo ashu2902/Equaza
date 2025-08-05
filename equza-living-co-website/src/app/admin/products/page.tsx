@@ -203,7 +203,7 @@ function ProductsList({ products }: { products: any[] }) {
   }
 
   return (
-    <Grid cols={{ default: 1, sm: 2, lg: 3, xl: 4 }} gap={6}>
+    <Grid cols={4} gap="lg">
       {products.map((product, index) => (
         <SlideUp key={product.id || product.slug} delay={index * 0.05}>
           <ProductCard product={product} />
@@ -222,9 +222,9 @@ export default async function AdminProductsPage() {
   // Calculate stats
   const stats = {
     total: products.length,
-    published: products.filter(p => p.status === 'published').length,
-    draft: products.filter(p => p.status === 'draft').length,
-    featured: products.filter(p => p.featured).length
+    published: products.filter(p => p.isActive).length,
+    draft: products.filter(p => !p.isActive).length,
+    featured: products.filter(p => p.isFeatured).length
   };
 
   return (
@@ -266,7 +266,7 @@ export default async function AdminProductsPage() {
 
         {/* Stats Overview */}
         <FadeIn delay={0.1}>
-          <Grid cols={{ default: 2, sm: 4 }} gap={4}>
+          <Grid cols={4} gap="sm">
             <Card className="!bg-white !border-[#98342d]/20 !text-[#98342d]">
               <CardContent className="p-4 text-center">
                 <p className="text-2xl font-bold text-[#98342d]">{stats.total}</p>

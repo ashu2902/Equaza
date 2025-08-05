@@ -75,8 +75,8 @@ const validateCollectionData = (data: Partial<Collection>): void => {
 };
 
 // Cache tags helper
-const getCacheTags = (type?: 'style' | 'space') => {
-  const tags = [CACHE_TAGS.collections];
+const getCacheTags = (type?: 'style' | 'space'): string[] => {
+  const tags: string[] = [CACHE_TAGS.collections];
   if (type) tags.push(`collections-${type}`);
   return tags;
 };

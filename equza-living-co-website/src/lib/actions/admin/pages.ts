@@ -15,6 +15,7 @@ import {
   getSiteSettings 
 } from '@/lib/firebase/settings';
 import { checkAdminStatus } from '@/lib/firebase/auth';
+import { auth } from '@/lib/firebase/config';
 
 export interface AdminPageResult {
   success: boolean;
@@ -34,10 +35,11 @@ export interface AdminSettingsResult {
  */
 async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string }> {
   try {
-    const adminStatus = await checkAdminStatus();
+    const isAdmin = await checkAdminStatus();
+    const userId = auth?.currentUser?.uid;
     return {
-      isAdmin: adminStatus.isAdmin,
-      userId: adminStatus.userId,
+      isAdmin,
+      userId,
     };
   } catch (error) {
     console.error('Error verifying admin auth:', error);

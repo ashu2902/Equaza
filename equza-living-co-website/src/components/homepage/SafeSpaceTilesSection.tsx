@@ -21,7 +21,6 @@ import { SafeImage } from '@/components/ui/SafeImage';
 import { SafeCollection } from '@/types/safe';
 import { Typography } from '@/components/ui/Typography';
 import { Container } from '@/components/ui/Container';
-import { Grid } from '@/components/ui/Grid';
 import { FadeIn, SlideUp } from '@/components/ui/MotionWrapper';
 
 interface SafeSpaceTilesSectionProps {
@@ -108,11 +107,11 @@ export function SafeSpaceTilesSection({
             </Typography>
           </div>
           
-          <Grid cols={{ default: 1, md: 2, lg: 3 }} gap={8}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {Array.from({ length: 3 }).map((_, index) => (
               <SpaceTileSkeleton key={index} />
             ))}
-          </Grid>
+          </div>
         </Container>
       </section>
     );
@@ -174,7 +173,7 @@ export function SafeSpaceTilesSection({
           </div>
         </FadeIn>
         
-        <Grid cols={{ default: 1, md: 2, lg: 3 }} gap={8}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {spaceCollections.map((collection, index) => (
             <SafeSpaceTile
               key={collection.id}
@@ -183,7 +182,7 @@ export function SafeSpaceTilesSection({
               priority={index === 0}
             />
           ))}
-        </Grid>
+        </div>
       </Container>
     </section>
   );

@@ -13,7 +13,7 @@ import {
   getSafeSpaceCollections,
   getSafeFeaturedProducts 
 } from '@/lib/firebase/safe-firestore';
-import { isDataResult } from '@/types/safe';
+import { isDataResult, ErrorResult } from '@/types/safe';
 
 // Safe components with error boundaries
 import { HeroSection } from '@/components/homepage/HeroSection';
@@ -69,10 +69,10 @@ getSafeFeaturedProducts(9)
     
     // Return error state for all sections
     return {
-      homepage: { data: null, error: 'Failed to load homepage data', loading: false },
-      styleCollections: { data: null, error: 'Failed to load style collections', loading: false },
-      spaceCollections: { data: null, error: 'Failed to load space collections', loading: false },
-      featuredProducts: { data: null, error: 'Failed to load featured products', loading: false }
+      homepage: { data: null, error: 'Failed to load homepage data', loading: false } as ErrorResult,
+      styleCollections: { data: null, error: 'Failed to load style collections', loading: false } as ErrorResult,
+      spaceCollections: { data: null, error: 'Failed to load space collections', loading: false } as ErrorResult,
+      featuredProducts: { data: null, error: 'Failed to load featured products', loading: false } as ErrorResult
     };
   }
 }
@@ -135,14 +135,14 @@ export default async function HomePage() {
 
           {/* Lookbook Section */}
           <SectionErrorBoundary sectionName="lookbook section">
-            <Suspense fallback={<LoadingSkeleton />}>
-              <LookbookSection />
+            <Suspense fallback={<LoadingSkeleton variant="lookbook" />}>
+              <LookbookSection lookbook={null} siteSettings={null} />
             </Suspense>
           </SectionErrorBoundary>
 
           {/* Contact Section */}
           <SectionErrorBoundary sectionName="contact section">
-            <ContactSection />
+            <ContactSection siteSettings={null} />
           </SectionErrorBoundary>
         </div>
       </div>

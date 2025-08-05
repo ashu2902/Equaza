@@ -122,7 +122,10 @@ export const SortOptions: FC<SortOptionsProps> = ({
         } else {
           const currentIndex = options.findIndex(option => option.id === value);
           const nextIndex = currentIndex < options.length - 1 ? currentIndex + 1 : 0;
-          onChange(options[nextIndex].id);
+          const nextOption = options[nextIndex];
+          if (nextOption) {
+            onChange(nextOption.id);
+          }
         }
         break;
       case 'ArrowUp':
@@ -132,7 +135,10 @@ export const SortOptions: FC<SortOptionsProps> = ({
         } else {
           const currentIndex = options.findIndex(option => option.id === value);
           const prevIndex = currentIndex > 0 ? currentIndex - 1 : options.length - 1;
-          onChange(options[prevIndex].id);
+          const prevOption = options[prevIndex];
+          if (prevOption) {
+            onChange(prevOption.id);
+          }
         }
         break;
     }
@@ -158,7 +164,7 @@ export const SortOptions: FC<SortOptionsProps> = ({
         {options.map((option) => (
           <Button
             key={option.id}
-            variant={value === option.id ? 'primary' : 'outline'}
+            variant={value === option.id ? 'default' : 'outline'}
             size="sm"
             onClick={() => onChange(option.id)}
             disabled={disabled}
@@ -199,7 +205,7 @@ export const SortOptions: FC<SortOptionsProps> = ({
       >
         <div className="flex items-center gap-2">
           <ArrowUpDown className="w-4 h-4 text-stone-600" />
-          <span>{currentOption.label}</span>
+          <span>{currentOption?.label || 'Sort by'}</span>
         </div>
         <ChevronDown 
           className={`w-4 h-4 text-stone-600 transition-transform ${

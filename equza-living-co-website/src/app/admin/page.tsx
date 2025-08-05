@@ -96,7 +96,7 @@ const quickActions = [
 /**
  * Dashboard Stats Component
  */
-function DashboardStats({ stats, error }: { stats: any; error?: string }) {
+function DashboardStats({ stats, error }: { stats: any; error?: string | null }) {
   if (error) {
     return (
       <Card>
@@ -157,7 +157,7 @@ function DashboardStats({ stats, error }: { stats: any; error?: string }) {
   ];
 
   return (
-    <Grid cols={{ default: 1, sm: 2, lg: 4 }} gap={6}>
+    <Grid cols={4} gap="lg">
       {statCards.map((stat, index) => (
         <SlideUp key={stat.title} delay={index * 0.1}>
           <Card className="bg-white border-[#98342d]/20 hover:shadow-lg transition-shadow">
@@ -309,7 +309,7 @@ export default async function AdminDashboardPage() {
           <Typography variant="h4" className="text-[#98342d] mb-6">
             Quick Actions
           </Typography>
-          <Grid cols={{ default: 1, sm: 2, lg: 4 }} gap={6}>
+          <Grid cols={4} gap="lg">
             {quickActions.map((action, index) => (
               <SlideUp key={action.title} delay={index * 0.1}>
                 <Card className="bg-white border-[#98342d]/20 hover:shadow-lg hover:border-[#98342d]/30 transition-all">

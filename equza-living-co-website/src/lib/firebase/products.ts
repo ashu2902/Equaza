@@ -86,8 +86,8 @@ const validateProductData = (data: Partial<Product>): void => {
 };
 
 // Cache tags helper
-const getCacheTags = (filters?: ProductFilters) => {
-  const tags = [CACHE_TAGS.products];
+const getCacheTags = (filters?: ProductFilters): string[] => {
+  const tags: string[] = [CACHE_TAGS.products];
   if (filters?.collectionId) tags.push(CACHE_TAGS.collectionProducts(filters.collectionId));
   if (filters?.isFeatured) tags.push(CACHE_TAGS.featuredProducts);
   return tags;

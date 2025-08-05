@@ -13,7 +13,7 @@ import { ArrowLeft, Sparkles, Palette, Ruler, Heart } from 'lucide-react';
 // Components
 import { Container } from '@/components/ui/Container';
 import { Typography } from '@/components/ui/Typography';
-import { CustomizeForm } from '@/components/forms/CustomizeForm';
+import { CustomizeFormSection } from './CustomizeFormSection';
 import { ErrorBoundary, SectionErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { FadeIn, SlideUp, ScaleIn } from '@/components/ui/MotionWrapper';
 
@@ -284,9 +284,7 @@ export default function CustomizePage() {
                     </Typography>
                   </div>
 
-                  <Suspense fallback={<CustomizeFormSkeleton />}>
-                    <CustomizeForm />
-                  </Suspense>
+                  <CustomizeFormSection />
                 </div>
               </SlideUp>
             </Container>

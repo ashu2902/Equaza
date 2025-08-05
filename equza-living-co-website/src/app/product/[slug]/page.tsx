@@ -13,7 +13,7 @@ import { ChevronRight, ArrowLeft, Star } from 'lucide-react';
 
 // Firebase and Types
 import { getSafeProductBySlug, getSafeRelatedProducts } from '@/lib/firebase/safe-firestore';
-import { isDataResult } from '@/types/safe';
+import { isDataResult, ErrorResult } from '@/types/safe';
 
 // Components
 import { Container } from '@/components/ui/Container';
@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/Button';
 import { ProductDetail } from '@/components/product/ProductDetail';
 import { ProductSpecs } from '@/components/product/ProductSpecs';
 import { ImageGallery } from '@/components/product/ImageGallery';
-import { ProductGrid } from '@/components/product/ProductGrid';
+import { SafeProductGrid } from '@/components/product/SafeProductGrid';
 import { EnquiryModal } from '@/components/forms/EnquiryModal';
 import { ErrorBoundary, SectionErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { FadeIn, SlideUp } from '@/components/ui/MotionWrapper';
@@ -80,8 +80,8 @@ async function getProductPageData(slug: string) {
     console.error('Failed to fetch product page data:', error);
     
     return {
-      product: { data: null, error: 'Failed to load product', loading: false },
-      relatedProducts: { data: null, error: 'Failed to load related products', loading: false },
+      product: { data: null, error: 'Failed to load product', loading: false } as ErrorResult,
+      relatedProducts: { data: null, error: 'Failed to load related products', loading: false } as ErrorResult,
     };
   }
 }
@@ -367,12 +367,17 @@ export default async function ProductPage({ params }: ProductPageProps) {
                       </Typography>
                     </div>
 
-                    <Suspense fallback={<LoadingSkeleton />}>
-                      <ProductGrid 
+                    <Suspense fallback={<LoadingSkeleton variant="tiles" />}>
+                      <SafeProductGrid 
                         products={relatedProducts}
-                        columns={4}
-                        showQuickView={true}
                         className="gap-6"
+                        gridCols={{ 
+                          default: 1, 
+                          sm: 2, 
+                          md: 3, 
+                          lg: 4, 
+                          xl: 4 
+                        }}
                       />
                     </Suspense>
                   </div>

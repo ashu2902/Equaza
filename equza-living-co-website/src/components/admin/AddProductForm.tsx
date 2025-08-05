@@ -392,7 +392,7 @@ export function AddProductForm({
             // Upload files directly from client
             const uploadUrls = await uploadMultipleFiles(
               formData.images,
-              (file, index) => filePaths[index]
+              (file, index) => filePaths[index] || `products/${Date.now()}-${index}-${file.name}`
             );
             
             console.log('📸 AddProductForm: Upload URLs received:', uploadUrls);
@@ -402,7 +402,7 @@ export function AddProductForm({
               .map((url, index) => ({
                 url: url,
                 alt: `${formData.name} - Image ${index + 1}`,
-                storageRef: filePaths[index],
+                storageRef: filePaths[index] || `products/${Date.now()}-${index}`,
                 isMain: index === 0, // First image is main
                 sortOrder: index
               }))
@@ -505,7 +505,7 @@ export function AddProductForm({
       )}
 
       {/* Form */}
-      <Grid cols={{ default: 1, lg: 3 }} gap={8}>
+      <Grid cols={3} gap="lg">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Basic Information */}
@@ -587,7 +587,7 @@ export function AddProductForm({
                 </div>
 
                 {formData.priceVisible && (
-                  <Grid cols={{ default: 1, sm: 2 }} gap={4}>
+                  <Grid cols={2} gap="md">
                     <div>
                       <Label htmlFor="price" className="text-[#98342d]/80">Starting Price *</Label>
                       <Input 
@@ -646,7 +646,7 @@ export function AddProductForm({
                   {errors.materials && <p className="text-red-500 text-xs mt-1">{errors.materials}</p>}
                 </div>
 
-                <Grid cols={{ default: 1, sm: 2 }} gap={4}>
+                <Grid cols={2} gap="md">
                   <div>
                     <Label htmlFor="weaveType" className="text-[#98342d]/80">Weave Type *</Label>
                     <Input 

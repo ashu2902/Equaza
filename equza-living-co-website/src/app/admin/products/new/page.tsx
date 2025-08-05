@@ -14,6 +14,11 @@ import { AddProductForm } from '@/components/admin/AddProductForm';
 // Data
 import { getSafeCollections } from '@/lib/firebase/safe-firestore';
 import { COLLECTIONS } from '@/lib/utils/constants';
+import { Timestamp } from 'firebase/firestore';
+
+// Types
+import type { Collection, CollectionImage } from '@/types';
+import type { SafeCollection } from '@/types/safe';
 
 export const metadata: Metadata = {
   title: 'Add Product | Admin | Equza Living Co.',
@@ -22,13 +27,32 @@ export const metadata: Metadata = {
 };
 
 /**
+ * Convert SafeCollection to Collection
+ */
+function convertSafeCollectionToCollection(safeCollection: SafeCollection): Collection {
+  return {
+    ...safeCollection,
+    heroImage: {
+      url: safeCollection.heroImage.url,
+      alt: safeCollection.heroImage.alt,
+      storageRef: safeCollection.heroImage.storageRef || '' // Use existing or empty
+    } as CollectionImage,
+    createdAt: Timestamp.fromDate(new Date(safeCollection.createdAt)),
+    updatedAt: Timestamp.fromDate(new Date(safeCollection.updatedAt))
+  };
+}
+
+/**
  * Get form data for the Add Product page
  */
 async function getFormData() {
   try {
     // Get collections from database
     const collectionsResult = await getSafeCollections();
-    const collections = collectionsResult.data || [];
+    const safeCollections = collectionsResult.data || [];
+    
+    // Convert SafeCollection[] to Collection[]
+    const collections = safeCollections.map(convertSafeCollectionToCollection);
     
     // Available room types from constants and existing data
     const roomTypes = [
@@ -58,17 +82,17 @@ async function getFormData() {
       collections,
       roomTypes,
       materials,
-      styleCollections: COLLECTIONS.styles,
-      spaceCollections: COLLECTIONS.spaces,
+      styleCollections: [...COLLECTIONS.styles],
+      spaceCollections: [...COLLECTIONS.spaces],
     };
   } catch (error) {
     console.error('Error loading form data:', error);
     return {
-      collections: [],
+      collections: [] as Collection[],
       roomTypes: [],
       materials: [],
-      styleCollections: COLLECTIONS.styles,
-      spaceCollections: COLLECTIONS.spaces,
+      styleCollections: [...COLLECTIONS.styles],
+      spaceCollections: [...COLLECTIONS.spaces],
     };
   }
 }
