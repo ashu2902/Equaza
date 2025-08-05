@@ -45,7 +45,7 @@ node scripts/set-admin-claims.mjs test@email.com
 3. **Sign in** with test@email.com
 4. **Should work!** 🎉
 
-## Troubleshooting
+## Troubleshooting Steps
 
 ### If script fails with "Missing environment variables":
 - Double-check your `.env.local` file has the Firebase Admin credentials
