@@ -79,21 +79,17 @@ export default function CollectionsPage() {
           <section className="py-16 md:py-24">
             <Container size="lg">
               <FadeIn>
-                <div className="text-center max-w-3xl mx-auto">
+                <div className="max-w-3xl mx-auto">
                   <Typography
                     variant="h1"
-                    className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6"
-                    style={{ 
-                      fontFamily: 'Libre Baskerville',
-                      color: '#98342d'
-                    }}
+                    className="text-5xl md:text-6xl lg:text-6xl font-normal mb-4 text-left font-libre-baskerville"
+                    style={{ color: '#98342d' }}
                   >
                     Collections
                   </Typography>
                   <Typography
                     variant="body"
-                    className="text-lg md:text-xl text-gray-600 leading-relaxed"
-                    style={{ fontFamily: 'Poppins' }}
+                    className="text-lg md:text-xl text-gray-600 leading-relaxed text-left"
                   >
                     Discover our curated collections of handcrafted rugs, each telling its own story through traditional artistry and contemporary design.
                   </Typography>
@@ -105,7 +101,7 @@ export default function CollectionsPage() {
 
         {/* Collections Content */}
         <SectionErrorBoundary sectionName="collections content">
-          <section className="pb-16 md:pb-24">
+          <section className="pb-10 md:pb-14 lg:pb-18">
             {loading ? (
               <div style={{ padding: '45px 48px' }}>
                 <LoadingSkeleton variant="tiles" />
@@ -230,21 +226,17 @@ function CollectionsTabsSection({
         {/* Tab Content */}
         <div className="space-y-8">
           {/* Tab Description */}
-          <div className="text-center space-y-4">
+          <div className="space-y-4 mx-auto max-w-7xl px-4">
             <Typography
               variant="h2"
-              className="text-3xl md:text-4xl font-bold"
-              style={{ 
-                fontFamily: 'Libre Baskerville',
-                color: '#98342d'
-              }}
+              className="text-3xl md:text-4xl font-normal text-left font-libre-baskerville"
+              style={{ color: '#98342d' }}
             >
               {activeTab === 'style' ? 'Rugs by Style' : 'Rugs by Space'}
             </Typography>
             <Typography 
               variant="body" 
-              className="text-gray-600 max-w-2xl mx-auto"
-              style={{ fontFamily: 'Poppins' }}
+              className="text-gray-600 max-w-2xl text-left"
             >
               {activeTab === 'style' 
                 ? 'Explore our diverse style collections, each with its own personality and aesthetic. From bold contemporary designs to timeless traditional patterns.'

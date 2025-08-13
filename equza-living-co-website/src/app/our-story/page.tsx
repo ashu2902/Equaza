@@ -123,7 +123,7 @@ const founders = [
 
 function HeroSection() {
   return (
-    <div className="relative min-h-screen flex items-center" style={{backgroundColor: '#f1eee9'}}>
+    <div className="relative min-h-[70vh] md:min-h-screen flex items-center" style={{backgroundColor: '#f1eee9'}}>
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-black/40 z-10"></div>
@@ -149,16 +149,14 @@ function HeroSection() {
           </FadeIn>
           
           <SlideUp delay={0.2}>
-            <Typography variant="h1" className="text-white mb-6">
-              Our Story
-            </Typography>
+            <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-white mb-4">Our Story</h1>
           </SlideUp>
           
           <SlideUp delay={0.4}>
-            <Typography variant="lead" className="text-white/90 mb-8 max-w-3xl">
+            <p className="text-white/90 mb-8 max-w-3xl text-lg leading-relaxed">
               From a passion for heritage crafts to becoming guardians of traditional artistry, 
               our journey is woven with threads of respect, authenticity, and timeless beauty.
-            </Typography>
+            </p>
           </SlideUp>
           
           <SlideUp delay={0.6}>
@@ -179,7 +177,7 @@ function HeroSection() {
 
 function MissionSection() {
   return (
-    <div className="py-24 bg-white">
+    <div className="py-10 md:py-14 lg:py-18 bg-white">
       <Container>
         <div className="max-w-4xl mx-auto text-center">
           <SlideUp>
@@ -219,7 +217,7 @@ function MissionSection() {
 
 function TimelineSection() {
   return (
-    <div className="py-24" style={{backgroundColor: '#f1eee9'}}>
+    <div className="py-10 md:py-14 lg:py-18" style={{backgroundColor: '#f1eee9'}}>
       <Container>
         <div className="text-center mb-16">
           <SlideUp>
@@ -311,7 +309,7 @@ function TimelineSection() {
 
 function FoundersSection() {
   return (
-    <div className="py-24 bg-white">
+    <div className="py-10 md:py-14 lg:py-18 bg-white">
       <Container>
         <div className="text-center mb-16">
           <SlideUp>
@@ -365,7 +363,7 @@ function FoundersSection() {
 
 function ImpactSection() {
   return (
-    <div className="py-24" style={{backgroundColor: '#f1eee9'}}>
+    <div className="py-10 md:py-14 lg:py-18" style={{backgroundColor: '#f1eee9'}}>
       <Container>
         <div className="text-center mb-16">
           <SlideUp>
@@ -410,7 +408,7 @@ function ImpactSection() {
 
 function CallToActionSection() {
   return (
-    <div className="py-24 bg-white">
+    <div className="py-10 md:py-14 lg:py-18 bg-white">
       <Container>
         <div className="text-center max-w-4xl mx-auto">
           <SlideUp>

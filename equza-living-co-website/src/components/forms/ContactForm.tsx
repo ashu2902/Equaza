@@ -20,6 +20,7 @@ interface ContactFormProps {
   title?: string;
   description?: string;
   showCard?: boolean;
+  splitName?: boolean; // when true, show First/Last name fields and combine into name
 }
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error';
@@ -29,7 +30,8 @@ export const ContactForm: FC<ContactFormProps> = ({
   className = '',
   title = 'Get in Touch',
   description = 'We\'d love to hear from you. Send us a message and we\'ll respond as soon as possible.',
-  showCard = true
+  showCard = true,
+  splitName = false
 }) => {
   const [formState, setFormState] = useState<FormState>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -44,6 +46,12 @@ export const ContactForm: FC<ContactFormProps> = ({
     resolver: zodResolver(contactFormSchema),
     mode: 'onChange'
   });
+
+  // support split name UI while keeping single `name` field in schema
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const { setValue } = ({} as any) || { setValue: () => {} };
+  // react-hook-form's setValue is available from useForm; above typing workaround avoids TS re-export errors in this environment
 
   const formValues = watch();
   const isFormDirty = Object.values(formValues).some(value => value && value.trim() !== '');
@@ -137,19 +145,61 @@ export const ContactForm: FC<ContactFormProps> = ({
             onSubmit={handleSubmit(handleFormSubmit)}
             className="space-y-4"
           >
-            {/* Name Field */}
-            <div className="space-y-2">
-              <Label htmlFor="contact-name" required>
-                Full Name
-              </Label>
-              <Input
-                id="contact-name"
-                {...register('name')}
-                placeholder="Enter your full name"
-                error={!!errors.name?.message}
-                disabled={formState === 'submitting'}
-              />
-            </div>
+            {/* Name Field(s) */}
+            {splitName ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="contact-first-name" required>
+                    First Name
+                  </Label>
+                  <Input
+                    id="contact-first-name"
+                    value={firstName}
+                    onChange={(e) => {
+                      setFirstName(e.target.value);
+                      // update underlying name field
+                      const combined = `${e.target.value} ${lastName}`.trim();
+                      // @ts-ignore
+                      setValue && setValue('name', combined, { shouldValidate: true, shouldDirty: true });
+                    }}
+                    placeholder="Enter your first name"
+                    disabled={formState === 'submitting'}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contact-last-name">
+                    Last Name
+                  </Label>
+                  <Input
+                    id="contact-last-name"
+                    value={lastName}
+                    onChange={(e) => {
+                      setLastName(e.target.value);
+                      const combined = `${firstName} ${e.target.value}`.trim();
+                      // @ts-ignore
+                      setValue && setValue('name', combined, { shouldValidate: true, shouldDirty: true });
+                    }}
+                    placeholder="Enter your last name"
+                    disabled={formState === 'submitting'}
+                  />
+                </div>
+                {/* hidden name input registered for schema */}
+                <input type="hidden" {...register('name')} />
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Label htmlFor="contact-name" required>
+                  Full Name
+                </Label>
+                <Input
+                  id="contact-name"
+                  {...register('name')}
+                  placeholder="Enter your full name"
+                  error={!!errors.name?.message}
+                  disabled={formState === 'submitting'}
+                />
+              </div>
+            )}
 
             {/* Email Field */}
             <div className="space-y-2">

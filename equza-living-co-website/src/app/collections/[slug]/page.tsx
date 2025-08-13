@@ -140,13 +140,13 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
         <SectionErrorBoundary sectionName="collection hero">
           <CollectionHero 
             collection={collection}
-            className="py-16 md:py-24"
+            className="py-10 md:py-14 lg:py-18"
           />
         </SectionErrorBoundary>
 
         {/* Products Section */}
         <SectionErrorBoundary sectionName="products section">
-          <section className="py-16 md:py-24">
+          <section className="py-10 md:py-14 lg:py-18">
             <Container size="lg">
               <div className="space-y-8">
                 {/* Back to Collections Link */}
@@ -160,23 +160,19 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
                   </Link>
                 </SlideUp>
 
-                {/* Section Header */}
+                {/* Section Header - left aligned per hierarchy doc */}
                 <SlideUp delay={0.2}>
-                  <div className="text-center mb-12">
+                  <div className="mb-8">
                     <Typography 
                       variant="h2" 
-                      className="text-3xl md:text-4xl font-bold mb-4"
-                      style={{ 
-                        fontFamily: 'Libre Baskerville',
-                        color: '#98342d'
-                      }}
+                      className="text-3xl md:text-4xl font-normal mb-2 text-left font-libre-baskerville"
+                      style={{ color: '#98342d' }}
                     >
                       {collection.name} Collection
                     </Typography>
                     <Typography 
                       variant="body" 
-                      className="text-gray-600 max-w-2xl mx-auto"
-                      style={{ fontFamily: 'Poppins' }}
+                      className="text-gray-600 max-w-2xl text-left"
                     >
                       {products.length} handcrafted rugs featuring unique designs and premium materials
                     </Typography>

@@ -100,7 +100,7 @@ const artisanStats = [
 
 function HeroSection() {
   return (
-    <div className="relative min-h-screen flex items-center" style={{backgroundColor: '#f1eee9'}}>
+    <div className="relative min-h-[70vh] md:min-h-screen flex items-center" style={{backgroundColor: '#f1eee9'}}>
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-black/30 z-10"></div>
@@ -126,16 +126,14 @@ function HeroSection() {
           </FadeIn>
           
           <SlideUp delay={0.2}>
-            <Typography variant="h1" className="text-white mb-6">
-              Hands of Heritage
-            </Typography>
+            <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-white mb-4">Hands of Heritage</h1>
           </SlideUp>
           
           <SlideUp delay={0.4}>
-            <Typography variant="lead" className="text-white/90 mb-8 max-w-2xl">
+            <p className="text-white/90 mb-8 max-w-2xl text-lg leading-relaxed">
               Every rug tells a story of ancient techniques, patient hands, and timeless traditions. 
               Journey with us through the sacred art of handcrafted excellence.
-            </Typography>
+            </p>
           </SlideUp>
           
           <SlideUp delay={0.6}>
@@ -156,7 +154,7 @@ function HeroSection() {
 
 function ArtisanStatsSection() {
   return (
-    <div className="py-24" style={{backgroundColor: '#f1eee9'}}>
+    <div className="py-10 md:py-14 lg:py-18" style={{backgroundColor: '#f1eee9'}}>
       <Container>
         <div className="text-center mb-16">
           <SlideUp>
@@ -195,7 +193,7 @@ function ArtisanStatsSection() {
 
 function LocationsSection() {
   return (
-    <div className="py-24 bg-white">
+    <div className="py-10 md:py-14 lg:py-18 bg-white">
       <Container>
         <div className="text-center mb-16">
           <SlideUp>
@@ -257,7 +255,7 @@ function LocationsSection() {
 
 function ProcessSection() {
   return (
-    <div className="py-24" style={{backgroundColor: '#f1eee9'}}>
+    <div className="py-10 md:py-14 lg:py-18" style={{backgroundColor: '#f1eee9'}}>
       <Container>
         <div className="text-center mb-16">
           <SlideUp>
@@ -321,7 +319,7 @@ function ProcessSection() {
 
 function CallToActionSection() {
   return (
-    <div className="py-24 bg-white">
+    <div className="py-10 md:py-14 lg:py-18 bg-white">
       <Container>
         <div className="text-center max-w-4xl mx-auto">
           <SlideUp>

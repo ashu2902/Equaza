@@ -13,6 +13,7 @@ import {
   getSafeSpaceCollections,
   getSafeFeaturedProducts 
 } from '@/lib/firebase/safe-firestore';
+import { getHomePageData, type HomePageData } from '@/lib/firebase/pages';
 import { isDataResult, ErrorResult } from '@/types/safe';
 
 // Safe components with error boundaries
@@ -23,8 +24,15 @@ import { SafeSpaceTilesSection } from '@/components/homepage/SafeSpaceTilesSecti
 import { CustomRugBanner } from '@/components/homepage/CustomRugBanner';
 import { OurStoryTeaser } from '@/components/homepage/OurStoryTeaser';
 import { LookbookSection } from '@/components/homepage/LookbookSection';
+import { LookbookCompact } from '@/components/homepage/LookbookCompact';
 import { ContactSection } from '@/components/homepage/ContactSection';
 import { ErrorBoundary, SectionErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { FeatureStrip } from '@/components/homepage/FeatureStrip';
+import { DualCardHighlight } from '@/components/homepage/DualCardHighlight';
+import { SideBySideShowcase } from '@/components/homepage/SideBySideShowcase';
+import { BandCTA } from '@/components/homepage/BandCTA';
+import { ImageBannerCTA } from '@/components/homepage/ImageBannerCTA';
+import { BrandStoryBlock } from '@/components/homepage/BrandStoryBlock';
 
 // Loading components
 import { LoadingSkeleton } from '@/components/homepage/LoadingSkeleton';
@@ -50,19 +58,22 @@ async function getHomepageData() {
       homepageResult,
       styleCollectionsResult,
       spaceCollectionsResult,
-      featuredProductsResult
+      featuredProductsResult,
+      homeCms
     ] = await Promise.all([
       getSafeHomepageData(),
       getSafeStyleCollections(6),
       getSafeSpaceCollections(3),
-getSafeFeaturedProducts(9)
+      getSafeFeaturedProducts(9),
+      getHomePageData()
     ]);
 
     return {
       homepage: homepageResult,
       styleCollections: styleCollectionsResult,
       spaceCollections: spaceCollectionsResult,
-      featuredProducts: featuredProductsResult
+      featuredProducts: featuredProductsResult,
+      homeCms
     };
   } catch (error) {
     console.error('Failed to fetch homepage data:', error);
@@ -99,8 +110,23 @@ export default async function HomePage() {
           />
         </SectionErrorBoundary>
 
-        {/* Content sections with 90px gaps as per Figma */}
-        <div className="flex flex-col gap-[90px]">
+        {/* Feature Strip below hero */}
+        <div className="py-6">
+          <SectionErrorBoundary sectionName="feature strip">
+            <FeatureStrip
+              items={(data.homeCms?.features && data.homeCms.features.length > 0)
+                ? data.homeCms.features.map((f: any) => ({ icon: f.icon, label: f.label }))
+                : [
+                    { icon: '⭐', label: 'Signature Styles' },
+                    { icon: '🌱', label: 'Ethical Craftsmanship' },
+                    { icon: '🌍', label: 'Global Standards' },
+                  ]}
+            />
+          </SectionErrorBoundary>
+        </div>
+
+        {/* Content sections with standardized spacing rhythm */}
+        <div className="flex flex-col gap-10 md:gap-14 lg:gap-18">
           {/* Rugs by Style Collections */}
           <SectionErrorBoundary sectionName="style collections">
             <StyleCollectionsSection
@@ -112,16 +138,77 @@ export default async function HomePage() {
             />
           </SectionErrorBoundary>
 
-          {/* Rugs by Space Collections */}
-          <SectionErrorBoundary sectionName="space collections">
-            <SafeSpaceTilesSection
-              title="Rugs by Space"
-              subtitle="Find the perfect rug for every room in your home, from living areas to intimate bedrooms"
-              spaceCollections={spaceCollections}
-              loading={false}
-              error={data.spaceCollections.error}
+          {/* Living Room highlight (copy + image) */}
+          <SectionErrorBoundary sectionName="room highlight">
+            <DualCardHighlight
+              copy={{
+                title: data.homeCms?.roomHighlight?.title || 'Living Room',
+                description:
+                  data.homeCms?.roomHighlight?.description ||
+                  'Threads that tie your living space together in form of rugs',
+                cta: {
+                  label: data.homeCms?.roomHighlight?.cta?.label || 'Check out designs',
+                  href: data.homeCms?.roomHighlight?.cta?.href || '/collections/living-room',
+                },
+              }}
+              media={{ image: { src: data.homeCms?.roomHighlight?.image?.src || '', alt: data.homeCms?.roomHighlight?.image?.alt || 'Living room decor' } }}
             />
           </SectionErrorBoundary>
+
+          {/* Techniques showcase */}
+          <SectionErrorBoundary sectionName="techniques showcase">
+            <SideBySideShowcase
+              items={(
+                data.homeCms?.techniques && data.homeCms.techniques.length === 2
+              )
+                ? (data.homeCms.techniques as any).map((t: any) => ({
+                    title: t.title,
+                    image: { src: t.image?.src || '', alt: t.image?.alt || t.title },
+                    href: t.href,
+                  })) as any
+                : [
+                    { title: 'Hand-knotted', image: { src: '', alt: 'Hand-knotted' }, href: '/collections/hand-knotted' },
+                    { title: 'Hand tufted', image: { src: '', alt: 'Hand tufted' }, href: '/collections/hand-tufted' },
+                  ]}
+            />
+          </SectionErrorBoundary>
+
+          {/* Primary CTA band */}
+          <SectionErrorBoundary sectionName="primary cta band">
+            <BandCTA
+              headline={data.homeCms?.primaryCta?.headline || 'You Imagine It, We Weave It.'}
+              cta={{
+                label: data.homeCms?.primaryCta?.label || 'Customize Now »',
+                href: data.homeCms?.primaryCta?.href || '/customize',
+              }}
+            />
+          </SectionErrorBoundary>
+
+          {/* Brand story block (compact) */}
+          <SectionErrorBoundary sectionName="brand story">
+            <BrandStoryBlock
+              title={data.homeCms?.story?.title || 'EQUZA LIVING CO.'}
+              body={data.homeCms?.story?.body || 'We carefully curate and craft expressions with master weavers. Each piece carries a legacy of traditional craftsmanship blended with modern sensibilities.'}
+              cta={{ label: data.homeCms?.story?.ctaLabel || 'Know More', href: data.homeCms?.story?.href || '/our-story' }}
+            />
+          </SectionErrorBoundary>
+
+          {/* Craftsmanship banner */}
+          <SectionErrorBoundary sectionName="craftsmanship banner">
+            <ImageBannerCTA
+              title={data.homeCms?.craftsmanship?.title || 'Hands of Heritage'}
+              image={{
+                src: data.homeCms?.craftsmanship?.image?.src || '',
+                alt: data.homeCms?.craftsmanship?.image?.alt || 'Craftsmanship',
+              }}
+              cta={{
+                label: data.homeCms?.craftsmanship?.cta?.label || 'Explore the Craft',
+                href: data.homeCms?.craftsmanship?.cta?.href || '/craftsmanship',
+              }}
+            />
+          </SectionErrorBoundary>
+
+          {/* Rugs by Space moved lower/not in PDF primary flow; keep but below heritage */}
 
           {/* Custom Rug Banner */}
           <SectionErrorBoundary sectionName="custom rug banner">
@@ -133,10 +220,14 @@ export default async function HomePage() {
             <OurStoryTeaser />
           </SectionErrorBoundary>
 
-          {/* Lookbook Section */}
+          {/* Lookbook Section (compact per PDF) */}
           <SectionErrorBoundary sectionName="lookbook section">
             <Suspense fallback={<LoadingSkeleton variant="lookbook" />}>
-              <LookbookSection lookbook={null} siteSettings={null} />
+              <LookbookCompact
+                thumbnail={data.homeCms?.lookbook?.thumbnail || null}
+                caption={data.homeCms?.lookbook?.caption || null}
+                pdfUrl={data.homeCms?.lookbook?.pdfStorageRef || null}
+              />
             </Suspense>
           </SectionErrorBoundary>
 

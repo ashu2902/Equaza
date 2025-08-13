@@ -177,7 +177,7 @@ const processSteps = [
 
 function HeroSection() {
   return (
-    <div className="relative min-h-screen flex items-center" style={{backgroundColor: '#f1eee9'}}>
+    <div className="relative min-h-[70vh] md:min-h-screen flex items-center" style={{backgroundColor: '#f1eee9'}}>
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-black/40 z-10"></div>
@@ -203,16 +203,14 @@ function HeroSection() {
           </FadeIn>
           
           <SlideUp delay={0.2}>
-            <Typography variant="h1" className="text-white mb-6">
-              Trade Partnership
-            </Typography>
+            <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-white mb-4">Trade Partnership</h1>
           </SlideUp>
           
           <SlideUp delay={0.4}>
-            <Typography variant="lead" className="text-white/90 mb-8 max-w-3xl">
+            <p className="text-white/90 mb-8 max-w-3xl text-lg leading-relaxed">
               Partner with us to bring authentic handcrafted rugs to your customers. 
               Join our network of designers, retailers, and industry professionals.
-            </Typography>
+            </p>
           </SlideUp>
           
           <SlideUp delay={0.6}>
@@ -233,7 +231,7 @@ function HeroSection() {
 
 function BenefitsSection() {
   return (
-    <div className="py-24 bg-white">
+    <div className="py-10 md:py-14 lg:py-18 bg-white">
       <Container>
         <div className="text-center mb-16">
           <SlideUp>
@@ -283,7 +281,7 @@ function BenefitsSection() {
 
 function PartnerTypesSection() {
   return (
-    <div className="py-24" style={{backgroundColor: '#f1eee9'}}>
+    <div className="py-10 md:py-14 lg:py-18" style={{backgroundColor: '#f1eee9'}}>
       <Container>
         <div className="text-center mb-16">
           <SlideUp>
@@ -336,7 +334,7 @@ function PartnerTypesSection() {
 
 function TestimonialsSection() {
   return (
-    <div className="py-24 bg-white">
+    <div className="py-10 md:py-14 lg:py-18 bg-white">
       <Container>
         <div className="text-center mb-16">
           <SlideUp>
@@ -405,7 +403,7 @@ function TestimonialsSection() {
 
 function ProcessSection() {
   return (
-    <div className="py-24" style={{backgroundColor: '#f1eee9'}}>
+    <div className="py-10 md:py-14 lg:py-18" style={{backgroundColor: '#f1eee9'}}>
       <Container>
         <div className="text-center mb-16">
           <SlideUp>
@@ -459,7 +457,7 @@ function ProcessSection() {
 
 function ApplicationSection() {
   return (
-    <div className="py-24 bg-white">
+    <div className="py-10 md:py-14 lg:py-18 bg-white">
       <Container>
         <div className="text-center mb-16">
           <SlideUp>
@@ -491,7 +489,7 @@ function ApplicationSection() {
 
 function ContactSection() {
   return (
-    <div className="py-24" style={{backgroundColor: '#f1eee9'}}>
+    <div className="py-10 md:py-14 lg:py-18" style={{backgroundColor: '#f1eee9'}}>
       <Container>
         <div className="text-center mb-16">
           <SlideUp>

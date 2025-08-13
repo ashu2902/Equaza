@@ -8,7 +8,7 @@
 import { Container } from '@/components/ui/Container';
 import { Typography } from '@/components/ui/Typography';
 import { FadeIn, SlideUp } from '@/components/ui/MotionWrapper';
-import { SafeCollectionTile } from '@/components/collections/SafeCollectionTile';
+import { SafeCollectionTileCompact } from '@/components/collections/SafeCollectionTileCompact';
 import { SafeCollection } from '@/types/safe';
 
 interface StyleCollectionsSectionProps {
@@ -168,14 +168,10 @@ export function StyleCollectionsSection({
               </Typography>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-              {collections.map((collection, index) => (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+              {collections.slice(0, 4).map((collection, index) => (
                 <SlideUp key={collection.id} delay={index * 0.1}>
-                  <SafeCollectionTile 
-                    collection={collection}
-                    index={index}
-                    priority={index < 3}
-                  />
+                  <SafeCollectionTileCompact collection={collection} priority={index < 2} />
                 </SlideUp>
               ))}
             </div>

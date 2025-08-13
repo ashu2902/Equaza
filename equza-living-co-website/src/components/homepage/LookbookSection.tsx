@@ -146,14 +146,14 @@ export function LookbookSection({ lookbook, siteSettings }: LookbookSectionProps
             {/* Download CTA */}
             <SlideUp delay={0.6}>
               <div className="space-y-4">
-                <Button 
+                 <Button 
                   asChild 
                   variant="secondary"
                   size="lg" 
                   className="px-8 py-4 text-white hover:opacity-90 font-poppins"
                   style={{ backgroundColor: '#98342d' }}
                 >
-                  <Link href={lookbook?.url || '/lookbook'}>
+                   <Link href={lookbook?.url || '/lookbook'} target="_blank" rel="noopener">
                     <span className="flex items-center space-x-2">
                       <Download className="w-5 h-5" />
                       <span>Download Free Lookbook</span>

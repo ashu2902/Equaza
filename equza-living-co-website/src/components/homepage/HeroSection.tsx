@@ -130,31 +130,7 @@ export function HeroSection({ featuredProducts, siteSettings }: HeroSectionProps
         </div>
       </div>
 
-      {/* Elegant Product Info Card - Blended Design */}
-      <div className="absolute bottom-8 left-8 z-10 max-w-sm">
-        <div className="bg-white/90 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-white/20">
-          <div className="space-y-3">
-            <Typography variant="h4" className="font-serif font-normal text-lg" style={{ color: '#98342d' }}>
-              {currentProduct?.name || 'Heritage Medallion'}
-            </Typography>
-            <Typography variant="body2" className="text-gray-700 text-sm leading-relaxed">
-              A classic traditional rug featuring an intricate central medallion pattern.
-            </Typography>
-            <div className="pt-2">
-              <Link 
-                href={currentProduct ? `/product/${currentProduct.slug}` : '/collections'}
-                className="inline-flex items-center text-sm font-medium transition-all duration-200 hover:translate-x-1"
-                style={{ color: '#98342d' }}
-              >
-                View Details
-                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* PDF variant: no bottom-left product card */}
 
       {/* Elegant Slide Indicators */}
       {featuredProducts.length > 1 && (

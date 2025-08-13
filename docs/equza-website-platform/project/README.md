@@ -51,7 +51,7 @@ Equza Living Co. is a premium handcrafted rug company platform built with modern
    cp .env.example .env.local
    
    # Edit .env.local with your configuration
-   # See ENVIRONMENT_SETUP.md for detailed instructions
+   # See ../setup/ENVIRONMENT_SETUP.md for detailed instructions
    ```
 
 4. **Configure Firebase**
@@ -104,7 +104,7 @@ src/
 
 ## 🌍 Environment Variables
 
-See `ENVIRONMENT_SETUP.md` for detailed environment configuration instructions.
+See `../setup/ENVIRONMENT_SETUP.md` for detailed environment configuration instructions.
 
 ### Required Variables
 - `NEXT_PUBLIC_FIREBASE_*` - Firebase configuration
@@ -191,7 +191,7 @@ The project uses a comprehensive design system built with Tailwind CSS:
 
 ## 📚 Documentation
 
-- `ENVIRONMENT_SETUP.md` - Environment configuration guide
+- `../setup/ENVIRONMENT_SETUP.md` - Environment configuration guide
 - `docs/` - Detailed project documentation
 - Component documentation in respective files
 
@@ -214,3 +214,4 @@ For technical support, please contact the development team or create an issue in
 ---
 
 **Built with ❤️ for Equza Living Co.**
+
