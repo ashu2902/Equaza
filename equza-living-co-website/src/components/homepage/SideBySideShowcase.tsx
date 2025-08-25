@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import SafeImage from '@/components/ui/SafeImage';
+import { SafeImage } from '@/components/ui/SafeImage';
 import { cn } from '@/lib/utils/cn';
 
 export interface ShowcaseItem {
