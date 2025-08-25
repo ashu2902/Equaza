@@ -79,17 +79,19 @@ export default function CollectionsPage() {
           <section className="py-16 md:py-24">
             <Container size="lg">
               <FadeIn>
-                <div className="max-w-3xl mx-auto">
+                <div className="max-w-3xl mx-auto text-center">
                   <Typography
                     variant="h1"
-                    className="text-5xl md:text-6xl lg:text-6xl font-normal mb-4 text-left font-libre-baskerville"
+                    className="text-5xl md:text-6xl lg:text-6xl font-normal mb-4 font-libre-baskerville"
+                    align="center"
                     style={{ color: '#98342d' }}
                   >
                     Collections
                   </Typography>
                   <Typography
                     variant="body"
-                    className="text-lg md:text-xl text-gray-600 leading-relaxed text-left"
+                    className="text-lg md:text-xl text-gray-600 leading-relaxed mx-auto"
+                    align="center"
                   >
                     Discover our curated collections of handcrafted rugs, each telling its own story through traditional artistry and contemporary design.
                   </Typography>
@@ -160,7 +162,7 @@ function CollectionsTabsSection({
 
   return (
     <SlideUp delay={0.2}>
-      <div className="w-full max-w-7xl mx-auto px-4 space-y-12">
+      <Container size="xl" className="space-y-12">
         {/* Tab Navigation - Fixed Toggle Switch */}
         <div className="flex justify-center">
           <div 
@@ -226,17 +228,19 @@ function CollectionsTabsSection({
         {/* Tab Content */}
         <div className="space-y-8">
           {/* Tab Description */}
-          <div className="space-y-4 mx-auto max-w-7xl px-4">
+          <div className="space-y-4 text-center">
             <Typography
               variant="h2"
-              className="text-3xl md:text-4xl font-normal text-left font-libre-baskerville"
+              className="text-3xl md:text-4xl font-normal font-libre-baskerville"
+              align="center"
               style={{ color: '#98342d' }}
             >
               {activeTab === 'style' ? 'Rugs by Style' : 'Rugs by Space'}
             </Typography>
             <Typography 
               variant="body" 
-              className="text-gray-600 max-w-2xl text-left"
+              className="text-gray-600 max-w-2xl mx-auto"
+              align="center"
             >
               {activeTab === 'style' 
                 ? 'Explore our diverse style collections, each with its own personality and aesthetic. From bold contemporary designs to timeless traditional patterns.'
@@ -254,26 +258,25 @@ function CollectionsTabsSection({
                 </Typography>
               </div>
             ) : (
-              <div className="space-y-6 w-full">
+              <div className="space-y-6 w-full text-center">
                 <Typography 
                   variant="body" 
-                  className="text-center text-gray-600"
+                  className="text-gray-600"
                   style={{ fontFamily: 'Poppins' }}
+                  align="center"
                 >
                   Showing {styleCollections.length} collections
                 </Typography>
-                <div className="w-full flex justify-center">
-                  <Suspense fallback={<LoadingSkeleton variant="tiles" />}>
-                    <SafeCollectionTilesSection
-                      title="Our Style Collections"
-                      subtitle="Discover rugs organized by aesthetic and design philosophy"
-                      collections={styleCollections}
-                      loading={false}
-                      error={null}
-                      type="style"
-                    />
-                  </Suspense>
-                </div>
+                <Suspense fallback={<LoadingSkeleton variant="tiles" />}>
+                  <SafeCollectionTilesSection
+                    title="Our Style Collections"
+                    subtitle="Discover rugs organized by aesthetic and design philosophy"
+                    collections={styleCollections}
+                    loading={false}
+                    error={null}
+                    type="style"
+                  />
+                </Suspense>
               </div>
             )
           ) : (
@@ -284,31 +287,30 @@ function CollectionsTabsSection({
                 </Typography>
               </div>
             ) : (
-              <div className="space-y-6 w-full">
+              <div className="space-y-6 w-full text-center">
                 <Typography 
                   variant="body" 
-                  className="text-center text-gray-600"
+                  className="text-gray-600"
                   style={{ fontFamily: 'Poppins' }}
+                  align="center"
                 >
                   Showing {spaceCollections.length} collections
                 </Typography>
-                <div className="w-full flex justify-center">
-                  <Suspense fallback={<LoadingSkeleton variant="tiles" />}>
-                    <SafeCollectionTilesSection
-                      title="Our Space Collections"
-                      subtitle="Find the perfect rug for every room in your home"
-                      collections={spaceCollections}
-                      loading={false}
-                      error={null}
-                      type="space"
-                    />
-                  </Suspense>
-                </div>
+                <Suspense fallback={<LoadingSkeleton variant="tiles" />}>
+                  <SafeCollectionTilesSection
+                    title="Our Space Collections"
+                    subtitle="Find the perfect rug for every room in your home"
+                    collections={spaceCollections}
+                    loading={false}
+                    error={null}
+                    type="space"
+                  />
+                </Suspense>
               </div>
             )
           )}
         </div>
-      </div>
+      </Container>
     </SlideUp>
   );
 }

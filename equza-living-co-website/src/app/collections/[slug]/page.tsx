@@ -160,19 +160,21 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
                   </Link>
                 </SlideUp>
 
-                {/* Section Header - left aligned per hierarchy doc */}
+                {/* Section Header */}
                 <SlideUp delay={0.2}>
-                  <div className="mb-8">
+                  <div className="mb-8 text-center">
                     <Typography 
                       variant="h2" 
-                      className="text-3xl md:text-4xl font-normal mb-2 text-left font-libre-baskerville"
+                      className="text-3xl md:text-4xl font-normal mb-2 font-libre-baskerville"
+                      align="center"
                       style={{ color: '#98342d' }}
                     >
                       {collection.name} Collection
                     </Typography>
                     <Typography 
                       variant="body" 
-                      className="text-gray-600 max-w-2xl text-left"
+                      className="text-gray-600 max-w-2xl mx-auto"
+                      align="center"
                     >
                       {products.length} handcrafted rugs featuring unique designs and premium materials
                     </Typography>

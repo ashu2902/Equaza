@@ -37,6 +37,7 @@ export function StyleCollectionsSection({
               <Typography 
                 variant="h2" 
                 className="text-4xl md:text-5xl font-normal leading-tight font-libre-baskerville"
+                align="center"
                 style={{ color: '#98342d' }}
               >
                 {title}
@@ -44,6 +45,7 @@ export function StyleCollectionsSection({
               <Typography 
                 variant="subtitle1" 
                 className="text-xl max-w-3xl mx-auto leading-relaxed font-poppins"
+                align="center"
                 style={{ color: '#666666' }}
               >
                 {subtitle}
@@ -117,6 +119,7 @@ export function StyleCollectionsSection({
             <Typography 
               variant="h2" 
               className="text-4xl md:text-5xl font-normal leading-tight font-libre-baskerville"
+              align="center"
               style={{ color: '#98342d' }}
             >
               {title}
@@ -124,6 +127,7 @@ export function StyleCollectionsSection({
             <Typography 
               variant="subtitle1" 
               className="text-xl max-w-3xl mx-auto leading-relaxed font-poppins"
+              align="center"
               style={{ color: '#666666' }}
             >
               {subtitle}

@@ -100,6 +100,7 @@ export function SafeCollectionTilesSection({
             <Typography 
               variant="h2" 
               className="text-4xl md:text-5xl font-normal leading-tight font-libre-baskerville"
+              align="center"
               style={{ 
                 color: '#98342d'
               }}
@@ -109,6 +110,7 @@ export function SafeCollectionTilesSection({
             <Typography 
               variant="subtitle1" 
               className="text-xl max-w-3xl mx-auto leading-relaxed font-poppins"
+              align="center"
               style={{ 
                 color: '#666666'
               }}
@@ -118,7 +120,7 @@ export function SafeCollectionTilesSection({
           </div>
         </FadeIn>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {collections.map((collection, index) => (
             <SafeCollectionTile
               key={collection.id}
