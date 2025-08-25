@@ -111,9 +111,8 @@ export function CustomRugBanner() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
                   asChild 
-                  variant="secondary"
                   size="lg" 
-                  className="px-8 py-4 bg-white text-primary-900 hover:bg-primary-50"
+                  className="px-8 py-4 !bg-white !text-[#98342d] hover:!bg-gray-50 hover:!text-[#98342d] font-medium border-0 shadow-md"
                 >
                   <Link href="/customize">
                     Start Designing
@@ -122,9 +121,8 @@ export function CustomRugBanner() {
                 
                 <Button 
                   asChild 
-                  variant="outline" 
                   size="lg"
-                  className="px-8 py-4 border-primary-300 text-primary-300 hover:bg-primary-800"
+                  className="px-8 py-4 !bg-transparent !border-2 !border-white !text-white hover:!bg-white hover:!text-[#98342d] font-medium transition-all duration-300"
                 >
                   <Link href="/craftsmanship">
                     See Our Process

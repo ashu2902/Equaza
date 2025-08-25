@@ -15,6 +15,7 @@ import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
 import { FadeIn, SlideUp, ScaleIn } from '@/components/ui/MotionWrapper';
 import { ContactForm } from '@/components/forms';
+import { submitContactForm } from '@/lib/actions/contact';
 
 interface ContactSectionProps {
   siteSettings: SiteSettings | null;
@@ -78,9 +79,27 @@ export function ContactSection({ siteSettings }: ContactSectionProps) {
             onSubmit={async (data) => {
               try {
                 console.log('Contact form data:', data);
+                console.log('Attempting to submit to Firebase...');
+                
+                // Actually submit to Firebase
+                const result = await submitContactForm(data, 'homepage-contact');
+                
+                console.log('Submit result:', result);
+                
+                if (!result.success) {
+                  console.error('Submission failed with result:', result);
+                  throw new Error(result.message || 'Failed to submit form');
+                }
+                
+                console.log('✅ Contact form successfully submitted to Firebase! Lead ID:', result.leadId);
                 handleFormSuccess();
               } catch (error) {
-                console.error('Contact form error:', error);
+                console.error('❌ Contact form error details:', {
+                  message: error instanceof Error ? error.message : 'Unknown error',
+                  stack: error instanceof Error ? error.stack : undefined,
+                  fullError: error
+                });
+                throw error; // Re-throw so the form shows error state
               }
             }}
             title=""

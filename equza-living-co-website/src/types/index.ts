@@ -98,7 +98,7 @@ export interface Lead {
   type: LeadType;
   name: string;
   email: string;
-  phone?: string;
+  phone?: string | null;
   message?: string;
   source: string;
   productId?: string;

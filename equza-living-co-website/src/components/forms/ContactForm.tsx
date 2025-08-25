@@ -41,7 +41,8 @@ export const ContactForm: FC<ContactFormProps> = ({
     handleSubmit,
     formState: { errors, isValid },
     reset,
-    watch
+    watch,
+    setValue
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema),
     mode: 'onChange'
@@ -50,7 +51,6 @@ export const ContactForm: FC<ContactFormProps> = ({
   // support split name UI while keeping single `name` field in schema
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const { setValue } = ({} as any) || { setValue: () => {} };
   // react-hook-form's setValue is available from useForm; above typing workaround avoids TS re-export errors in this environment
 
   const formValues = watch();
@@ -159,8 +159,7 @@ export const ContactForm: FC<ContactFormProps> = ({
                       setFirstName(e.target.value);
                       // update underlying name field
                       const combined = `${e.target.value} ${lastName}`.trim();
-                      // @ts-ignore
-                      setValue && setValue('name', combined, { shouldValidate: true, shouldDirty: true });
+                      setValue('name', combined, { shouldValidate: true, shouldDirty: true });
                     }}
                     placeholder="Enter your first name"
                     disabled={formState === 'submitting'}
@@ -176,8 +175,7 @@ export const ContactForm: FC<ContactFormProps> = ({
                     onChange={(e) => {
                       setLastName(e.target.value);
                       const combined = `${firstName} ${e.target.value}`.trim();
-                      // @ts-ignore
-                      setValue && setValue('name', combined, { shouldValidate: true, shouldDirty: true });
+                      setValue('name', combined, { shouldValidate: true, shouldDirty: true });
                     }}
                     placeholder="Enter your last name"
                     disabled={formState === 'submitting'}
