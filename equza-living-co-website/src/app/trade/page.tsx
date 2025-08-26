@@ -26,6 +26,7 @@ import {
 
 // Components
 import { Container } from '@/components/ui/Container';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
@@ -565,6 +566,14 @@ export default function TradePage() {
   return (
     <ErrorBoundary>
       <div className="min-h-screen">
+        <section className="py-6 border-b border-gray-200" style={{backgroundColor: '#f1eee9'}}>
+          <Container size="lg">
+            <Breadcrumbs items={[
+              { label: 'Home', href: '/' },
+              { label: 'Trade' }
+            ]} />
+          </Container>
+        </section>
         {/* Hero Section */}
         <SectionErrorBoundary sectionName="trade hero">
           <HeroSection />

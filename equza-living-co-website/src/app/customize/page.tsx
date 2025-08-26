@@ -14,6 +14,7 @@ import { ArrowLeft, Sparkles, Palette, Ruler, Heart } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Typography } from '@/components/ui/Typography';
 import { CustomizeFormSection } from './CustomizeFormSection';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { ErrorBoundary, SectionErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { FadeIn, SlideUp, ScaleIn } from '@/components/ui/MotionWrapper';
 
@@ -75,6 +76,14 @@ export default function CustomizePage() {
   return (
     <ErrorBoundary>
       <div className="min-h-screen" style={{ backgroundColor: '#f1eee9' }}>
+        <section className="py-6 border-b border-gray-200">
+          <Container size="lg">
+            <Breadcrumbs items={[
+              { label: 'Home', href: '/' },
+              { label: 'Customize' }
+            ]} />
+          </Container>
+        </section>
         {/* Hero Section */}
         <SectionErrorBoundary sectionName="customize hero">
           <section className="py-16 md:py-24">

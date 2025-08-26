@@ -15,6 +15,7 @@ import { isDataResult } from '@/types/safe';
 // Components
 import { Container } from '@/components/ui/Container';
 import { Typography } from '@/components/ui/Typography';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { SafeCollectionTilesSection } from '@/components/homepage/SafeCollectionTilesSection';
 import { ErrorBoundary, SectionErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { FadeIn, SlideUp } from '@/components/ui/MotionWrapper';
@@ -78,6 +79,12 @@ export default function CollectionsPage() {
         <SectionErrorBoundary sectionName="collections hero">
           <section className="py-16 md:py-24">
             <Container size="lg">
+              <div className="mb-6">
+                <Breadcrumbs items={[
+                  { label: 'Home', href: '/' },
+                  { label: 'Collections' }
+                ]} />
+              </div>
               <FadeIn>
                 <div className="max-w-3xl mx-auto text-center">
                   <Typography

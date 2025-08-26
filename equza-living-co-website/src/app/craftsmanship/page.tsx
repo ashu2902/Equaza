@@ -12,6 +12,7 @@ import { ArrowLeft, MapPin, Clock, Users, Award, Heart, Sparkles } from 'lucide-
 
 // Components
 import { Container } from '@/components/ui/Container';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
@@ -357,6 +358,14 @@ export default function CraftsmanshipPage() {
   return (
     <ErrorBoundary>
       <div className="min-h-screen">
+        <section className="py-6 border-b border-gray-200" style={{backgroundColor: '#f1eee9'}}>
+          <Container size="lg">
+            <Breadcrumbs items={[
+              { label: 'Home', href: '/' },
+              { label: 'Craftsmanship' }
+            ]} />
+          </Container>
+        </section>
         {/* Hero Section */}
         <SectionErrorBoundary sectionName="craftsmanship hero">
           <HeroSection />

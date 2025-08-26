@@ -12,6 +12,7 @@ import { ArrowLeft, Heart, Globe, Users, Award, MapPin, Clock, Star } from 'luci
 
 // Components
 import { Container } from '@/components/ui/Container';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
@@ -446,6 +447,14 @@ export default function OurStoryPage() {
   return (
     <ErrorBoundary>
       <div className="min-h-screen">
+        <section className="py-6 border-b border-gray-200" style={{backgroundColor: '#f1eee9'}}>
+          <Container size="lg">
+            <Breadcrumbs items={[
+              { label: 'Home', href: '/' },
+              { label: 'Our Story' }
+            ]} />
+          </Container>
+        </section>
         {/* Hero Section */}
         <SectionErrorBoundary sectionName="our story hero">
           <HeroSection />

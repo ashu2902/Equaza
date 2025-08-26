@@ -21,6 +21,8 @@ interface HeroSectionProps {
 
 export function HeroSection({ featuredProducts, siteSettings }: HeroSectionProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [touchEndX, setTouchEndX] = useState<number | null>(null);
 
   // Auto-rotate slides
   useEffect(() => {
@@ -43,8 +45,40 @@ export function HeroSection({ featuredProducts, siteSettings }: HeroSectionProps
 
   const currentProduct = featuredProducts[currentSlide];
 
+  const handleTouchStart = (e: any) => {
+    if (!e.changedTouches || e.changedTouches.length === 0) return;
+    setTouchStartX(e.changedTouches[0].clientX);
+    setTouchEndX(null);
+  };
+
+  const handleTouchMove = (e: any) => {
+    if (!e.changedTouches || e.changedTouches.length === 0) return;
+    setTouchEndX(e.changedTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX === null || touchEndX === null) return;
+    const deltaX = touchStartX - touchEndX;
+    const SWIPE_THRESHOLD = 50;
+    if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
+      if (deltaX > 0) {
+        nextSlide();
+      } else {
+        prevSlide();
+      }
+    }
+    setTouchStartX(null);
+    setTouchEndX(null);
+  };
+
   return (
-    <section className="relative min-h-screen overflow-hidden" style={{backgroundColor: '#f1eee9'}}>
+    <section 
+      className="relative min-h-screen overflow-hidden" 
+      style={{backgroundColor: '#f1eee9'}}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* Hero Background Image */}
       {featuredProducts.length > 0 && currentProduct && (
         <div className="absolute inset-0">
@@ -72,7 +106,7 @@ export function HeroSection({ featuredProducts, siteSettings }: HeroSectionProps
         <>
           <button
             onClick={prevSlide}
-            className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-3 shadow-lg transition-all duration-200 z-20"
+            className="hidden md:block absolute left-6 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-3 shadow-lg transition-all duration-200 z-20"
             aria-label="Previous product"
           >
             <ChevronLeft className="w-6 h-6" />
@@ -80,7 +114,7 @@ export function HeroSection({ featuredProducts, siteSettings }: HeroSectionProps
           
           <button
             onClick={nextSlide}
-            className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-3 shadow-lg transition-all duration-200 z-20"
+            className="hidden md:block absolute right-6 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-3 shadow-lg transition-all duration-200 z-20"
             aria-label="Next product"
           >
             <ChevronRight className="w-6 h-6" />
