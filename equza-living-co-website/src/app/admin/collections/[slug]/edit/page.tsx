@@ -43,7 +43,11 @@ export default async function AdminEditCollectionPage({ params }: { params: Prom
               slug: collection.slug,
               description: collection.description,
               type: collection.type,
-              heroImage: { url: collection.heroImage?.url || collection.imageUrl || '', alt: collection.heroImage?.alt || '' },
+              heroImage: { 
+                url: collection.heroImage?.url || '', 
+                alt: collection.heroImage?.alt || '',
+                storageRef: collection.heroImage?.storageRef || ''
+              },
               isActive: collection.isActive !== false,
             }} />
           </CardContent>
