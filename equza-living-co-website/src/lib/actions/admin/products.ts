@@ -42,7 +42,7 @@ async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string }>
     let isAdmin = false;
     let userId: string | undefined = undefined;
     try {
-      const cookieStore = cookies();
+      const cookieStore = await cookies();
       const session = cookieStore.get('__session')?.value;
       if (session) {
         const adminAuth = getAdminAuth();

@@ -21,7 +21,8 @@ export async function POST(request: Request) {
     const sessionCookie = await auth.createSessionCookie(idToken, { expiresIn: SESSION_EXPIRES_IN });
     const res = NextResponse.json({ success: true });
     res.headers.set('Cache-Control', 'no-store');
-    cookies().set(SESSION_COOKIE_NAME, sessionCookie, {
+    const cookieStore = await cookies();
+    cookieStore.set(SESSION_COOKIE_NAME, sessionCookie, {
       httpOnly: true,
       secure: true,
       sameSite: 'lax',
@@ -37,7 +38,7 @@ export async function POST(request: Request) {
 
 export async function DELETE() {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const existing = cookieStore.get(SESSION_COOKIE_NAME);
     if (existing) {
       cookieStore.set(SESSION_COOKIE_NAME, '', { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 0 });

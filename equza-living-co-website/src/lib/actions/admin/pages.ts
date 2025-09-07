@@ -123,7 +123,7 @@ function validateSettingsData(data: Partial<SiteSettings>): Record<string, strin
  * Create or update page content (admin only)
  */
 export async function updatePageContent(
-  pageType: PageType,
+  pageType: PageType | 'home',
   pageData: Omit<Page, 'id' | 'updatedAt' | 'updatedBy'>
 ): Promise<AdminPageResult> {
   try {
