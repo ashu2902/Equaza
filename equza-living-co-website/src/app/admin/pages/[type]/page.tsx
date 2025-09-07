@@ -15,14 +15,15 @@ export const metadata: Metadata = {
   robots: 'noindex,nofollow',
 };
 
-export default async function AdminContentEditorPage({ params }: { params: { type: string } }) {
+export default async function AdminContentEditorPage({ params }: { params: Promise<{ type: string }> }) {
+  const { type } = await params;
   const allowed = ['our-story', 'craftsmanship', 'trade'];
-  if (!allowed.includes(params.type)) {
+  if (!allowed.includes(type)) {
     notFound();
   }
 
   return (
-    <AdminPageTemplate title={`Edit: ${params.type}`}>
+    <AdminPageTemplate title={`Edit: ${type}`}>
       <div className="space-y-6">
         <Card>
           <CardHeader>
@@ -30,7 +31,7 @@ export default async function AdminContentEditorPage({ params }: { params: { typ
           </CardHeader>
           <CardContent>
             <Typography variant="body" className="text-gray-600">
-              The {params.type} editor UI will be implemented here as per the approved design.
+              The {type} editor UI will be implemented here as per the approved design.
             </Typography>
           </CardContent>
         </Card>
