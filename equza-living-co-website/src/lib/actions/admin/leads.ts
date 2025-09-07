@@ -519,20 +519,40 @@ export async function exportLeads(
       redirect('/admin/login');
     }
 
-    // TODO: Implement lead export with filters
-    // This would fetch leads based on filters and return formatted data
-    // const leads = await getLeads(filters);
-    
+    // Fetch leads using firebase helper
+    // Note: getLeads accepts a filters object with similar shape
+    const { getLeads } = await import('@/lib/firebase/leads');
+    const leads = await getLeads({
+      type: filters?.type,
+      status: filters?.status,
+      dateFrom: filters?.dateFrom,
+      dateTo: filters?.dateTo,
+    } as any);
+
+    const data = (leads || []).map((l: any) => ({
+      id: l.id,
+      type: l.type || '',
+      name: l.name || '',
+      email: l.email || '',
+      phone: l.phone || '',
+      message: l.message || '',
+      status: l.status || '',
+      assignedTo: l.assignedTo || '',
+      createdAt: typeof l.createdAt === 'string' ? l.createdAt : (l.createdAt?.toISOString?.() || ''),
+      source: l.source || '',
+    }));
+
     // Log admin action
     console.log('Admin leads exported:', {
       adminId: auth.userId,
       filters,
+      count: data.length,
     });
 
     return {
       success: true,
       message: 'Leads exported successfully',
-      data: [], // Placeholder
+      data,
     };
 
   } catch (error) {

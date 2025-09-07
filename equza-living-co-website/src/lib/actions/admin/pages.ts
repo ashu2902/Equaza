@@ -8,6 +8,8 @@
 import { revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 import type { Page, PageType, SiteSettings, Lookbook } from '@/types';
+import { setHomePageData, setContentPageData } from '@/lib/firebase/pages';
+import type { HomePageData } from '@/lib/firebase/pages';
 import { 
   updateSiteSettings,
   updateCurrentLookbook,
@@ -141,15 +143,14 @@ export async function updatePageContent(
       };
     }
 
-    // TODO: Implement page CRUD operations
-    // For now, we'll log the action
-    console.log('Admin page content updated:', {
-      pageType,
-      adminId: auth.userId,
-      title: pageData.title,
-    });
+    // Write to Firestore
+    if (pageType === 'home') {
+      await setHomePageData(pageData as any);
+    } else {
+      await setContentPageData(pageType, pageData as any);
+    }
 
-    // Invalidate cache (would be implemented with actual page operations)
+    // Invalidate cache
     revalidateTag(`page-${pageType}`);
 
     return {
@@ -165,6 +166,49 @@ export async function updatePageContent(
       success: false,
       message: error instanceof Error ? error.message : 'Failed to update page content',
     };
+  }
+}
+
+/**
+ * Update Home Page Content (admin only)
+ */
+export async function updateHomeContent(
+  data: Partial<HomePageData>
+): Promise<AdminPageResult> {
+  try {
+    const auth = await verifyAdminAuth();
+    if (!auth.isAdmin || !auth.userId) {
+      redirect('/admin/login');
+    }
+
+    // Basic validation for key fields (deep validation handled in UI)
+    const errors: Record<string, string> = {};
+    if (data.primaryCta?.href && !data.primaryCta.href.startsWith('/')) {
+      if (!data.primaryCta.href.startsWith('http://') && !data.primaryCta.href.startsWith('https://')) {
+        errors.primaryCta = 'Primary CTA href must be a valid URL or internal path';
+      }
+    }
+    if (data.story?.href && !data.story.href.startsWith('/')) {
+      if (!data.story.href.startsWith('http://') && !data.story.href.startsWith('https://')) {
+        errors.storyHref = 'Story href must be a valid URL or internal path';
+      }
+    }
+    if (Object.keys(errors).length > 0) {
+      return {
+        success: false,
+        message: 'Please check the form for errors',
+        errors,
+      };
+    }
+
+    await setHomePageData(data);
+    revalidateTag('page-home');
+
+    console.log('Admin homepage content updated', { adminId: auth.userId, keys: Object.keys(data || {}) });
+    return { success: true, message: 'Homepage content updated successfully', pageId: 'home' };
+  } catch (error) {
+    console.error('Error updating homepage content:', error);
+    return { success: false, message: error instanceof Error ? error.message : 'Failed to update homepage' };
   }
 }
 

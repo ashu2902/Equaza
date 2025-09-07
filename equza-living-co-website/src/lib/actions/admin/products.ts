@@ -16,6 +16,8 @@ import {
   isProductSlugAvailable 
 } from '@/lib/firebase/products';
 import { checkAdminStatus } from '@/lib/firebase/auth';
+import { cookies } from 'next/headers';
+import { getAdminAuth } from '@/lib/firebase/server-app';
 
 export interface AdminProductResult {
   success: boolean;
@@ -37,13 +39,23 @@ export interface BulkProductResult {
  */
 async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string }> {
   try {
-    // TODO: Implement proper server-side auth verification with cookies/headers
-    // For now, skip server-side auth check since client-side auth is working
-    console.log('⚠️ Server-side auth check temporarily disabled');
-    return {
-      isAdmin: true, // Temporary: assume admin if reaching server action
-      userId: 'temp-user-id',
-    };
+    let isAdmin = false;
+    let userId: string | undefined = undefined;
+    try {
+      const cookieStore = cookies();
+      const session = cookieStore.get('__session')?.value;
+      if (session) {
+        const adminAuth = getAdminAuth();
+        const decoded = await adminAuth.verifySessionCookie(session, true);
+        isAdmin = !!decoded?.admin;
+        userId = decoded?.uid;
+      }
+    } catch {}
+    if (!isAdmin) {
+      isAdmin = await checkAdminStatus();
+      // userId remains undefined if relying on client-only auth
+    }
+    return { isAdmin, userId };
   } catch (error) {
     console.error('Error verifying admin auth:', error);
     return { isAdmin: false };

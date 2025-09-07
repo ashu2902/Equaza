@@ -16,6 +16,8 @@ import {
   isCollectionSlugAvailable 
 } from '@/lib/firebase/collections';
 import { checkAdminStatus } from '@/lib/firebase/auth';
+import { cookies } from 'next/headers';
+import { getAdminAuth } from '@/lib/firebase/server-app';
 import { auth } from '@/lib/firebase/config';
 
 export interface AdminCollectionResult {
@@ -30,8 +32,25 @@ export interface AdminCollectionResult {
  */
 async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string }> {
   try {
-    const isAdmin = await checkAdminStatus();
-    const userId = auth?.currentUser?.uid;
+    // Prefer server session cookie if present
+    let isAdmin = false;
+    let userId: string | undefined = undefined;
+    try {
+      const cookieStore = cookies();
+      const session = cookieStore.get('__session')?.value;
+      if (session) {
+        const adminAuth = getAdminAuth();
+        const decoded = await adminAuth.verifySessionCookie(session, true);
+        isAdmin = !!decoded?.admin;
+        userId = decoded?.uid;
+      }
+    } catch {}
+
+    if (!isAdmin) {
+      // Fallback to client auth context (may be undefined on server)
+      isAdmin = await checkAdminStatus();
+      userId = userId || auth?.currentUser?.uid;
+    }
     return {
       isAdmin,
       userId,

@@ -97,8 +97,19 @@ export default function AdminLoginPage() {
         return;
       }
 
+      console.log('🎉 Admin access granted! Establishing server session...');
+      try {
+        const idToken = await userCredential.user.getIdToken();
+        await fetch('/api/auth/session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken }),
+        });
+      } catch (e) {
+        console.warn('⚠️ Failed to create session cookie. Proceeding without server session.');
+      }
+
       console.log('🎉 Admin access granted! Redirecting to dashboard...');
-      // Redirect to admin dashboard
       router.push('/admin');
     } catch (err: any) {
       console.error('❌ Login error occurred:', err);

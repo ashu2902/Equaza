@@ -269,9 +269,11 @@ export default async function AdminLeadsPage() {
               </p>
             </div>
             <div className="flex items-center space-x-3">
-              <Button variant="outline">
-                <Download className="h-4 w-4 mr-2" />
-                Export
+              <Button asChild variant="outline">
+                <a href="/api/admin/leads/export" download>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </a>
               </Button>
               <Button variant="outline">
                 <RefreshCw className="h-4 w-4 mr-2" />
