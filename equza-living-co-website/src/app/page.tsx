@@ -29,10 +29,12 @@ import { ContactSection } from '@/components/homepage/ContactSection';
 import { ErrorBoundary, SectionErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { FeatureStrip } from '@/components/homepage/FeatureStrip';
 import { DualCardHighlight } from '@/components/homepage/DualCardHighlight';
+import RoomHighlightCarousel from '@/components/homepage/RoomHighlightCarousel';
 import { SideBySideShowcase } from '@/components/homepage/SideBySideShowcase';
 import { BandCTA } from '@/components/homepage/BandCTA';
 import { ImageBannerCTA } from '@/components/homepage/ImageBannerCTA';
 import { BrandStoryBlock } from '@/components/homepage/BrandStoryBlock';
+import OurStorySimple from '@/components/homepage/OurStorySimple';
 
 // Loading components
 import { LoadingSkeleton } from '@/components/homepage/LoadingSkeleton';
@@ -139,20 +141,12 @@ export default async function HomePage() {
             />
           </SectionErrorBoundary>
 
-          {/* Living Room highlight (copy + image) */}
-          <SectionErrorBoundary sectionName="room highlight">
-            <DualCardHighlight
-              copy={{
-                title: data.homeCms?.roomHighlight?.title || 'Living Room',
-                description:
-                  data.homeCms?.roomHighlight?.description ||
-                  'Threads that tie your living space together in form of rugs',
-                cta: {
-                  label: data.homeCms?.roomHighlight?.cta?.label || 'Check out designs',
-                  href: data.homeCms?.roomHighlight?.cta?.href || '/collections/living-room',
-                },
-              }}
-              media={{ image: { src: data.homeCms?.roomHighlight?.image?.src || '', alt: data.homeCms?.roomHighlight?.image?.alt || 'Living room decor' } }}
+          {/* Living/Bedroom/Narrow carousel */}
+          <SectionErrorBoundary sectionName="room highlight carousel">
+            <RoomHighlightCarousel
+              title={data.homeCms?.roomHighlight?.title || 'Living Room'}
+              subtitle={data.homeCms?.roomHighlight?.description || 'Swipe to explore Bedroom and Narrow Spaces'}
+              spaceCollections={spaceCollections}
             />
           </SectionErrorBoundary>
 
@@ -185,12 +179,12 @@ export default async function HomePage() {
             />
           </SectionErrorBoundary>
 
-          {/* Brand story block (compact) */}
-          <SectionErrorBoundary sectionName="brand story">
-            <BrandStoryBlock
-              title={data.homeCms?.story?.title || 'EQUZA LIVING CO.'}
-              body={data.homeCms?.story?.body || 'We carefully curate and craft expressions with master weavers. Each piece carries a legacy of traditional craftsmanship blended with modern sensibilities.'}
-              cta={{ label: data.homeCms?.story?.ctaLabel || 'Know More', href: data.homeCms?.story?.href || '/our-story' }}
+          {/* Our Story simplified section replacing brand block */}
+          <SectionErrorBoundary sectionName="our story simple">
+            <OurStorySimple
+              title={data.homeCms?.story?.title || 'Where Traditional Craftsmanship Meets Modern Design'}
+              body={data.homeCms?.story?.body || 'For three generations, our family has woven stories into rugs. Each piece carries the soul of Indian artistry, thoughtfully crafted for contemporary homes.'}
+              ctaHref={data.homeCms?.story?.href || '/our-story'}
             />
           </SectionErrorBoundary>
 
