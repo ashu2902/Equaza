@@ -55,7 +55,7 @@ export function EditProductForm({ initial }: EditProductFormProps) {
         <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded p-3">{submitError}</div>
       )}
 
-      <Grid cols={1} gap={6}>
+      <Grid cols={1} gap="md">
         <div className="space-y-4">
           <div>
             <Label htmlFor="name">Name</Label>
