@@ -71,7 +71,7 @@ export function HeroEditor({ initialSlides }: HeroEditorProps) {
           {slides.map((slide, idx) => (
             <div key={idx} className="rounded-md border border-warm-200 p-4 space-y-4">
               <Typography variant="overline">Slide {idx + 1}</Typography>
-              <Grid cols={1} gap={4}>
+              <Grid cols={1} gap="sm">
                 <div>
                   <Label htmlFor={`title-${idx}`}>Title</Label>
                   <Input id={`title-${idx}`} value={slide.title || ''} onChange={(e) => updateSlide(idx, { title: e.target.value })} />
