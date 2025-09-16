@@ -8,12 +8,14 @@ interface AdminPageTemplateProps {
   children: React.ReactNode;
   title?: string;
   className?: string;
+  showHeader?: boolean;
 }
 
 export function AdminPageTemplate({ 
   children, 
   title = 'Admin Dashboard',
-  className = ''
+  className = '',
+  showHeader = true
 }: AdminPageTemplateProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -48,10 +50,12 @@ export function AdminPageTemplate({
           }`}
         >
           {/* Admin Header */}
-          <AdminHeader
-            onMenuToggle={handleSidebarToggle}
-            isSidebarCollapsed={isSidebarCollapsed}
-          />
+          {showHeader && (
+            <AdminHeader
+              onMenuToggle={handleSidebarToggle}
+              isSidebarCollapsed={isSidebarCollapsed}
+            />
+          )}
 
           {/* Page Content */}
           <main className={`flex-1 p-4 lg:p-6 ${className}`}>

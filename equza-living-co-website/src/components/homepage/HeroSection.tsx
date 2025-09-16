@@ -10,16 +10,22 @@ import { Typography } from '@/components/ui/Typography';
 import { FadeIn, SlideUp, ScaleIn } from '@/components/ui/MotionWrapper';
 import { SafeProduct } from '@/types/safe';
 
-const BRAND = {
-  name: 'EQUZA LIVING CO.',
-};
+// Removed brand overline text per design request
+
+interface HeroSlide {
+  title?: string;
+  subtitle?: string;
+  cta?: { label: string; href: string };
+  image?: { src: string; alt: string };
+}
 
 interface HeroSectionProps {
   featuredProducts: SafeProduct[];
   siteSettings?: any;
+  heroCms?: HeroSlide[] | null;
 }
 
-export function HeroSection({ featuredProducts, siteSettings }: HeroSectionProps) {
+export function HeroSection({ featuredProducts, siteSettings, heroCms }: HeroSectionProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [touchEndX, setTouchEndX] = useState<number | null>(null);
@@ -44,6 +50,23 @@ export function HeroSection({ featuredProducts, siteSettings }: HeroSectionProps
   };
 
   const currentProduct = featuredProducts[currentSlide];
+
+  // If CMS slides are provided, use them for image/text/cta
+  const cmsSlides: HeroSlide[] = Array.isArray(heroCms) ? heroCms : [];
+  const currentCmsSlide: HeroSlide | null = cmsSlides.length > 0 ? (cmsSlides[currentSlide % cmsSlides.length] ?? null) : null;
+
+  // Safe fallbacks for background image/alt from products
+  const fallbackImageUrl = (() => {
+    if (!currentProduct) return '/placeholder-rug.jpg';
+    const mainImage = currentProduct.images.find((img) => img.isMain);
+    return mainImage ? mainImage.url : currentProduct.images[0]?.url || '/placeholder-rug.jpg';
+  })();
+
+  const fallbackImageAlt = (() => {
+    if (!currentProduct) return 'Hero background';
+    const mainImage = currentProduct.images.find((img) => img.isMain);
+    return mainImage ? mainImage.alt : currentProduct.images[0]?.alt || currentProduct.name;
+  })();
 
   const handleTouchStart = (e: any) => {
     if (!e.changedTouches || e.changedTouches.length === 0) return;
@@ -73,6 +96,8 @@ export function HeroSection({ featuredProducts, siteSettings }: HeroSectionProps
 
   return (
     <section 
+      id="hero"
+      data-hero
       className="relative min-h-screen overflow-hidden" 
       style={{backgroundColor: '#f1eee9'}}
       onTouchStart={handleTouchStart}
@@ -80,17 +105,11 @@ export function HeroSection({ featuredProducts, siteSettings }: HeroSectionProps
       onTouchEnd={handleTouchEnd}
     >
       {/* Hero Background Image */}
-      {featuredProducts.length > 0 && currentProduct && (
+      {((currentCmsSlide && currentCmsSlide.image?.src) || fallbackImageUrl) && (
         <div className="absolute inset-0">
           <Image
-            src={(() => {
-              const mainImage = currentProduct.images.find(img => img.isMain);
-              return mainImage ? mainImage.url : currentProduct.images[0]?.url || '/placeholder-rug.jpg';
-            })()}
-            alt={(() => {
-              const mainImage = currentProduct.images.find(img => img.isMain);
-              return mainImage ? mainImage.alt : currentProduct.images[0]?.alt || currentProduct.name;
-            })()}
+            src={(currentCmsSlide && currentCmsSlide.image?.src) || fallbackImageUrl}
+            alt={(currentCmsSlide && currentCmsSlide.image?.alt) || fallbackImageAlt}
             fill
             className="object-cover"
             priority
@@ -127,19 +146,19 @@ export function HeroSection({ featuredProducts, siteSettings }: HeroSectionProps
         <div className="text-center max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeIn>
             <div className="space-y-6">
-              {/* Brand Name - Minimal */}
-              <Typography variant="overline" className="text-white font-medium tracking-wider text-sm opacity-90">
-                {BRAND.name}
-              </Typography>
-              
               {/* Main Headline - Clean and Readable */}
               <Typography 
                 variant="h1" 
                 className="text-4xl md:text-5xl lg:text-6xl font-serif font-normal leading-tight text-white"
                 style={{ textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}
               >
-                Crafted Calm for Modern Spaces
+                {(currentCmsSlide && currentCmsSlide.title) || 'Crafted Calm for Modern Spaces'}
               </Typography>
+              {currentCmsSlide?.subtitle && (
+                <Typography variant="body" className="text-white/90 max-w-2xl mx-auto">
+                  {currentCmsSlide.subtitle}
+                </Typography>
+              )}
             </div>
           </FadeIn>
 
@@ -155,8 +174,8 @@ export function HeroSection({ featuredProducts, siteSettings }: HeroSectionProps
                   boxShadow: '0 8px 32px rgba(152, 52, 45, 0.3)'
                 }}
               >
-                <Link href="/collections">
-                  Explore Now
+                <Link href={(currentCmsSlide && currentCmsSlide.cta?.href) || '/collections'}>
+                  {(currentCmsSlide && currentCmsSlide.cta?.label) || 'Explore Now'}
                 </Link>
               </Button>
             </div>

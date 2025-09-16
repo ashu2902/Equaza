@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Poppins, Libre_Baskerville } from "next/font/google";
 import "./globals.css";
+import { Header } from "@/components/layout/Header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,9 +38,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${libreBaskerville.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${libreBaskerville.variable} antialiased`}>
+        {/* Public Site Header (reveals after hero scroll) */}
+        <Header />
         {children}
       </body>
     </html>

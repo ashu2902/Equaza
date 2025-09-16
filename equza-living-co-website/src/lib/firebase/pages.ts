@@ -2,8 +2,15 @@ import { collection, doc, getDoc, setDoc, serverTimestamp } from 'firebase/fires
 import { db } from './config';
 import type { PageType } from '@/types';
 
+export interface HeroSlide {
+  title?: string;
+  subtitle?: string;
+  cta?: { label: string; href: string };
+  image: { src: string; alt: string };
+}
+
 export interface HomePageData {
-  hero?: { title: string; cta?: { label: string; href: string }; image: { src: string; alt: string } };
+  hero?: HeroSlide[]; // New: list of slides
   features?: { icon: string; label: string }[];
   styles?: { name: string; image: { src: string; alt: string }; href: string; sortOrder?: number }[];
   roomHighlight?: { title: string; description: string; cta: { label: string; href: string }; image: { src: string; alt: string } };

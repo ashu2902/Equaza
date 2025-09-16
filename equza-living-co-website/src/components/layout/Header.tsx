@@ -3,10 +3,27 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { usePathname } from 'next/navigation';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showHeader, setShowHeader] = useState(false);
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : undefined;
+  const nextPathname = (() => {
+    try {
+      // Prefer Next.js pathname in client where available
+      // usePathname is a client hook but we can't call conditionally; fallback to window
+      // We'll safely call it in a try/catch in case of rendering constraints
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const p = usePathname?.();
+      return p || pathname || '';
+    } catch {
+      return pathname || '';
+    }
+  })();
+  const isAdminRoute = typeof nextPathname === 'string' && nextPathname.startsWith('/admin');
 
   const handleLogoClick = () => {
     if (typeof window !== 'undefined') {
@@ -14,60 +31,132 @@ export function Header() {
     }
   };
 
+  useEffect(() => {
+    if (isAdminRoute) {
+      setShowHeader(true);
+      return;
+    }
+    // Prefer hero visibility via IntersectionObserver; fallback to scroll threshold
+    const findHero = () => {
+      return (
+        document.querySelector('#hero') ||
+        document.querySelector('[data-hero]') ||
+        document.querySelector('#site-hero') ||
+        document.querySelector('[data-section="hero"]')
+      );
+    };
+
+    const heroEl = findHero();
+    if (heroEl && 'IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0];
+          if (!entry) return;
+          // Show header as soon as hero top crosses out of view (even slightly)
+          const intersecting = entry.isIntersecting;
+          const hasScrolled = window.scrollY > 120; // safety fallback
+          setShowHeader(!intersecting || hasScrolled);
+        },
+        {
+          root: null,
+          // Trigger when hero's top moves past the top by ~64-80px
+          rootMargin: '-80px 0px 0px 0px',
+          threshold: 0,
+        }
+      );
+      observer.observe(heroEl);
+      // Initialize state based on current visibility using getBoundingClientRect
+      const rect = heroEl.getBoundingClientRect();
+      const heroInView = rect.top < window.innerHeight && rect.bottom > 0;
+      const hasScrolled = window.scrollY > 120;
+      setShowHeader(!heroInView || hasScrolled);
+      // Also add a lightweight scroll sync to hide again when user scrolls back up
+      const onScrollSync = () => {
+        const r = heroEl.getBoundingClientRect();
+        const inView = r.top < window.innerHeight && r.bottom > 0;
+        const scrolled = window.scrollY > 120;
+        setShowHeader(!inView || scrolled);
+      };
+      window.addEventListener('scroll', onScrollSync, { passive: true });
+      return () => {
+        observer.disconnect();
+        window.removeEventListener('scroll', onScrollSync);
+      };
+    }
+
+    // Fallback: simple scroll position
+    const onScroll = () => setShowHeader(window.scrollY > 80);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [isAdminRoute]);
+
   return (
-    <header className="bg-cream-50 border-b border-warm-200 sticky top-0 z-50 shadow-sm">
+    <>
+    {/* Centered logo overlay with top black gradient when header is hidden (disabled on admin routes) */}
+    {!isAdminRoute && !showHeader && (
+      <>
+        {/* Full-width black gradient to improve logo contrast over imagery */}
+        <div className="fixed top-0 left-0 right-0 z-30 h-50 bg-gradient-to-b from-black/95 via-black/65 via-black/55 via-black/25  to-transparent pointer-events-none" />
+        {/* Logo overlay */}
+        <div className="fixed top-2 left-0 right-0 z-40 flex justify-center pointer-events-none">
+          <Link href="/" className="pointer-events-auto" aria-label="Equza Living Co. Home">
+            <Image src="/equaza_logo.svg" alt="Equza Living Co. logo" width={140} height={40} priority />
+          </Link>
+        </div>
+      </>
+    )}
+
+    <motion.header
+      className={`fixed top-0 left-0 w-full z-50 transition-colors ${
+        showHeader ? 'bg-[#D8BF9F] text-warm-900 shadow-sm' : 'bg-transparent text-warm-900 pointer-events-none'
+      }`}
+      initial={{ y: -80, opacity: 0 }}
+      animate={{ y: showHeader ? 0 : -80, opacity: showHeader ? 1 : 0 }}
+      transition={{ duration: 0.25 }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 rounded-md text-warm-600 hover:text-warm-900 hover:bg-cream-100 transition-colors"
-            aria-label="Toggle mobile menu"
-          >
-            {isMobileMenuOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
-          </button>
-
-          {/* Logo - centered */}
-          <div className="flex-1 flex justify-center lg:justify-center">
-            <Link 
-              href="/" 
-              onClick={handleLogoClick}
-              className="flex items-center hover:opacity-80 transition-opacity"
-            >
-              {/* Logo placeholder - replace with actual logo image */}
-              <div className="flex items-center">
-                <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center mr-3">
-                  <span className="text-cream-50 font-bold text-lg">E</span>
-                </div>
-                <span className="font-display text-2xl lg:text-3xl text-warm-900 tracking-wide">
-                  Equza Living Co.
-                </span>
+          {/* Left: Logo */}
+          <div className="flex items-center">
+            <Link href="/" onClick={handleLogoClick} className="flex items-center hover:opacity-90 transition-opacity" aria-label="Equza Living Co. Home">
+              <div className="relative h-20 w-[100px]">
+                <Image src="/equaza_logo.svg" alt="Equza Living Co. logo" fill sizes="100px" priority style={{ objectFit: 'contain' }} />
               </div>
             </Link>
           </div>
 
-          {/* Desktop navigation - hidden by default since we have left navigation */}
-          <div className="hidden lg:flex items-center space-x-8">
-            <Link 
-              href="/collections" 
-              className="text-warm-700 hover:text-primary-600 transition-colors font-medium"
-            >
-              Collections
-            </Link>
+          {/* Center: Desktop navigation */}
+          <nav className="hidden lg:flex items-center space-x-8">
+            <Link href="/" className={`transition-colors font-medium ${showHeader ? 'text-warm-900 hover:text-warm-900/80' : 'text-warm-700 hover:text-primary-600'}`}>Home</Link>
+            <Link href="/our-story" className={`transition-colors font-medium ${showHeader ? 'text-warm-900 hover:text-warm-900/80' : 'text-warm-700 hover:text-primary-600'}`}>Our Story</Link>
+            <Link href="/craftsmanship" className={`transition-colors font-medium ${showHeader ? 'text-warm-900 hover:text-warm-900/80' : 'text-warm-700 hover:text-primary-600'}`}>Craftsmanship</Link>
+            <Link href="/trade" className={`transition-colors font-medium ${showHeader ? 'text-warm-900 hover:text-warm-900/80' : 'text-warm-700 hover:text-primary-600'}`}>Trade</Link>
+            <Link href="#contact" className={`transition-colors font-medium ${showHeader ? 'text-warm-900 hover:text-warm-900/80' : 'text-warm-700 hover:text-primary-600'}`}>Contact</Link>
+          </nav>
+
+          {/* Right: CTA + Mobile menu */}
+          <div className="flex items-center gap-3">
             <Link 
               href="/customize" 
-              className="bg-primary-600 text-cream-50 px-6 py-2 rounded-md hover:bg-primary-700 transition-colors font-medium"
+              className="hidden lg:inline-flex bg-primary-600 text-cream-50 px-6 py-2 rounded-md hover:bg-primary-700 transition-colors font-medium"
             >
-              Customize
+              Send Requirement
             </Link>
-          </div>
 
-          {/* Mobile placeholder to balance logo centering */}
-          <div className="lg:hidden w-10"></div>
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className={`lg:hidden p-2 rounded-md transition-colors ${showHeader ? 'text-warm-900 hover:text-warm-900 hover:bg-black/5' : 'text-warm-600 hover:text-warm-900 hover:bg-cream-100'}`}
+              aria-label="Toggle mobile menu"
+            >
+              {isMobileMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -84,11 +173,11 @@ export function Header() {
             <div className="px-4 py-6 space-y-4">
               <div className="space-y-4">
                 <Link
-                  href="/collections"
+                  href="/"
                   className="block text-lg font-medium text-warm-900 hover:text-primary-600 transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Collections
+                  Home
                 </Link>
                 <Link
                   href="/craftsmanship"
@@ -110,6 +199,13 @@ export function Header() {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Trade
+                </Link>
+                <Link
+                  href="#contact"
+                  className="block text-lg font-medium text-warm-900 hover:text-primary-600 transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Contact
                 </Link>
                 <hr className="border-warm-200" />
                 <Link
@@ -142,6 +238,7 @@ export function Header() {
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+    </motion.header>
+    </>
   );
 } 

@@ -29,7 +29,7 @@ import { Typography } from '@/components/ui/Typography';
 
 // Types and actions
 import type { Collection, ProductImage, ProductSpecifications, ProductPrice, Product } from '@/types';
-import { createAdminProduct } from '@/lib/actions/admin/products';
+import { createAdminProduct, updateAdminProduct } from '@/lib/actions/admin/products';
 import { uploadMultipleFileAction } from '@/lib/actions/files';
 
 interface AddProductFormProps {
@@ -38,6 +38,23 @@ interface AddProductFormProps {
   materials: string[];
   styleCollections: Array<{ id: string; name: string; slug: string }>;
   spaceCollections: Array<{ id: string; name: string; slug: string }>;
+  mode?: 'create' | 'edit';
+  initial?: {
+    id: string;
+    name: string;
+    slug: string;
+    description: string;
+    story: string;
+    images: ProductImage[];
+    specifications: ProductSpecifications;
+    collections: string[];
+    roomTypes: string[];
+    price: ProductPrice;
+    seoTitle: string;
+    seoDescription: string;
+    isActive: boolean;
+    isFeatured: boolean;
+  } | null;
 }
 
 interface FormData {
@@ -68,7 +85,9 @@ export function AddProductForm({
   roomTypes, 
   materials, 
   styleCollections, 
-  spaceCollections 
+  spaceCollections,
+  mode = 'create',
+  initial = null,
 }: AddProductFormProps) {
   console.log('🏗️ AddProductForm: Component initialized with props:', {
     collectionsCount: collections.length,
@@ -85,7 +104,28 @@ export function AddProductForm({
   const [imageUploadPending, setImageUploadPending] = useState(false);
 
   // Form state
-  const initialFormData: FormData = {
+  const initialFormData: FormData = initial ? {
+    name: initial.name || '',
+    slug: initial.slug || '',
+    description: initial.description || '',
+    story: initial.story || '',
+    price: initial.price?.startingFrom ?? 0,
+    priceVisible: initial.price?.isVisible ?? true,
+    currency: initial.price?.currency || 'INR',
+    materials: initial.specifications?.materials || [],
+    weaveType: initial.specifications?.weaveType || '',
+    origin: initial.specifications?.origin || '',
+    craftTime: initial.specifications?.craftTime || '',
+    dimensions: initial.specifications?.availableSizes?.[0]?.dimensions || '',
+    collections: initial.collections || [],
+    roomTypes: initial.roomTypes || [],
+    isActive: initial.isActive ?? false,
+    isFeatured: initial.isFeatured ?? false,
+    seoTitle: initial.seoTitle || initial.name || '',
+    seoDescription: initial.seoDescription || initial.description || '',
+    images: [],
+    existingImages: initial.images || [],
+  } : {
     name: '',
     slug: '',
     description: '',
@@ -418,13 +458,18 @@ export function AddProductForm({
           console.log('📸 AddProductForm: No images to upload');
         }
 
+        // Merge images: keep existing + any new uploads for edit; for create only new uploads
+        const finalImages: ProductImage[] = (mode === 'edit')
+          ? [...formData.existingImages, ...uploadedImages]
+          : uploadedImages;
+
         // Prepare product data
         const productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'> = {
           name: formData.name,
           slug: formData.slug,
           description: formData.description,
           story: formData.story,
-          images: uploadedImages,
+          images: finalImages,
           specifications: {
             materials: formData.materials,
             weaveType: formData.weaveType,
@@ -447,9 +492,11 @@ export function AddProductForm({
         };
 
         console.log('📝 AddProductForm: Prepared product data:', productData);
-        console.log('🔄 AddProductForm: Calling createAdminProduct server action');
+        console.log(`🔄 AddProductForm: Calling ${mode === 'edit' ? 'updateAdminProduct' : 'createAdminProduct'} server action`);
 
-        const result = await createAdminProduct(productData);
+        const result = mode === 'edit' && initial?.id
+          ? await updateAdminProduct(initial.id, productData)
+          : await createAdminProduct(productData);
         console.log('📝 AddProductForm: Server action result:', result);
 
         if (result.success) {
@@ -485,10 +532,10 @@ export function AddProductForm({
             </Button>
             <div>
               <Typography variant="h3" className="text-[#98342d] mb-1">
-                Add New Product
+                {mode === 'edit' ? 'Edit Product' : 'Add New Product'}
               </Typography>
               <p className="text-[#98342d]/70">
-                Create a new product in your catalog
+                {mode === 'edit' ? 'Update product details' : 'Create a new product in your catalog'}
               </p>
             </div>
           </div>
@@ -950,7 +997,7 @@ export function AddProductForm({
               ) : (
                 <Save className="h-4 w-4 mr-2" />
               )}
-              Save as Draft
+              {mode === 'edit' ? 'Save as Draft' : 'Save as Draft'}
             </Button>
             <Button 
               onClick={() => handleSubmit(false)}
@@ -961,7 +1008,7 @@ export function AddProductForm({
               ) : (
                 <Save className="h-4 w-4 mr-2" />
               )}
-              Create Product
+              {mode === 'edit' ? 'Save Changes' : 'Create Product'}
             </Button>
           </div>
         </div>

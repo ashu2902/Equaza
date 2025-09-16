@@ -14,20 +14,16 @@ export const metadata: Metadata = {
   robots: 'noindex,nofollow',
 };
 
+import { getHomePageData } from '@/lib/firebase/pages';
+import { HeroEditor } from '@/components/admin/HeroEditor';
+
 export default async function AdminHomeEditorPage() {
+  const data = await getHomePageData();
+  const slides = Array.isArray(data?.hero) ? (data!.hero as any) : [];
   return (
     <AdminPageTemplate title="Homepage Editor">
       <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Coming Soon</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Typography variant="body" className="text-gray-600">
-              The homepage editor UI will be implemented here as per the approved design.
-            </Typography>
-          </CardContent>
-        </Card>
+        <HeroEditor initialSlides={slides as any} />
       </div>
     </AdminPageTemplate>
   );
