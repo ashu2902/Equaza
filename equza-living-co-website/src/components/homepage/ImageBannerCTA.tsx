@@ -13,7 +13,7 @@ export function ImageBannerCTA({ title, image, cta }: ImageBannerCTAProps) {
     <section aria-label={title}>
       <div className="relative w-full">
         <div className="relative mx-auto max-w-[1280px] overflow-hidden">
-          <div className="relative aspect-[21/9] rounded-2xl">
+          <div className="relative aspect-[4/3] md:aspect-[21/9] rounded-2xl">
             {image?.src ? (
               <SafeImage src={image.src} alt={image.alt || ''} fill className="object-cover" />
             ) : (

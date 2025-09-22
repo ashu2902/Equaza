@@ -26,7 +26,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         {label && (
           <label
             htmlFor={textareaId}
-            className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300"
+            className="mb-2 block text-sm font-semibold text-neutral-700"
           >
             {label}
           </label>
@@ -34,10 +34,10 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         <textarea
           id={textareaId}
           className={cn(
-            'flex min-h-[60px] w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-stone-500 focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50',
+            'flex min-h-[120px] w-full rounded-lg border bg-white px-4 py-3 text-sm transition-all duration-200 placeholder:text-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 resize-none',
             error
-              ? 'border-red-500 focus-visible:ring-red-500'
-              : 'border-stone-200 focus-visible:ring-stone-950 dark:border-stone-800 dark:focus-visible:ring-stone-300',
+              ? 'border-red-300 focus-visible:ring-red-200 focus-visible:border-red-500'
+              : 'border-neutral-200 focus-visible:ring-neutral-200 focus-visible:border-neutral-300 hover:border-neutral-300',
             className
           )}
           ref={ref}

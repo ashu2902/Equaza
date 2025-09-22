@@ -247,14 +247,27 @@ export async function getUserIdToken(): Promise<string | null> {
  */
 export async function checkAdminStatus(): Promise<boolean> {
   try {
+    console.log('🔍 Checking client-side admin status...');
+    console.log('👤 Auth object:', !!auth);
+    console.log('👤 Current user:', !!auth?.currentUser);
+    
     if (!auth || !auth.currentUser) {
+      console.log('❌ No auth or current user');
       return false;
     }
 
+    console.log('🆔 User UID:', auth.currentUser.uid);
+    console.log('📧 User email:', auth.currentUser.email);
+    
     const idTokenResult = await auth.currentUser.getIdTokenResult();
-    return !!idTokenResult.claims.admin;
+    console.log('🎫 Token claims:', idTokenResult.claims);
+    console.log('👑 Admin claim:', idTokenResult.claims.admin);
+    
+    const isAdmin = !!idTokenResult.claims.admin;
+    console.log('✅ Admin status result:', isAdmin);
+    return isAdmin;
   } catch (error) {
-    console.error('Failed to check admin status:', error);
+    console.error('❌ Failed to check admin status:', error);
     return false;
   }
 }

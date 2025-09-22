@@ -62,19 +62,11 @@ export function ContactSection({ siteSettings }: ContactSectionProps) {
     setTimeout(() => setIsFormSuccess(false), 5000);
   };
 
-  // Compact PDF variant: concise header + form only
+  // Updated: heading inside card, full width with consistent padding
   return (
     <section className="py-16" style={{ backgroundColor: '#f1eee9' }}>
       <Container size="xl">
-        <div className="max-w-3xl mx-auto text-center mb-10">
-          <Typography variant="h2" className="text-3xl md:text-4xl font-libre-baskerville" style={{ color: '#98342d' }}>
-            Let’s Begin a Conversation
-          </Typography>
-          <Typography variant="body" className="text-neutral-700 mt-3">
-            Whether you’re designing a space or sourcing at scale, we’d love to hear from you.
-          </Typography>
-        </div>
-        <div className="mx-auto max-w-3xl bg-white rounded-2xl border border-neutral-200 p-6 md:p-8">
+        <div className="w-full bg-white rounded-2xl border border-neutral-200 p-6 md:p-8">
           <ContactForm
             onSubmit={async (data) => {
               try {
@@ -102,8 +94,8 @@ export function ContactSection({ siteSettings }: ContactSectionProps) {
                 throw error; // Re-throw so the form shows error state
               }
             }}
-            title=""
-            description=""
+            title="Let's Begin a Conversation"
+            description="Whether you're designing a space or sourcing at scale, we'd love to hear from you."
             showCard={false}
             splitName
             className="space-y-6"

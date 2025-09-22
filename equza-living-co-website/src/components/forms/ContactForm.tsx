@@ -84,20 +84,25 @@ export const ContactForm: FC<ContactFormProps> = ({
   const formContent = (
     <div className="space-y-6">
       {/* Header */}
-      <div className="text-center space-y-2">
-        <Typography
-          variant="h3"
-          className="font-serif text-stone-900"
-        >
-          {title}
-        </Typography>
-        <Typography
-          variant="body1"
-          className="text-stone-600"
-        >
-          {description}
-        </Typography>
-      </div>
+      {title && (
+        <div className="text-center space-y-3">
+          <Typography
+            variant="h2"
+            className="text-3xl md:text-4xl font-libre-baskerville"
+            style={{ color: '#98342d' }}
+          >
+            {title}
+          </Typography>
+          {description && (
+            <Typography
+              variant="body"
+              className="text-neutral-700"
+            >
+              {description}
+            </Typography>
+          )}
+        </div>
+      )}
 
       {/* Form */}
       <AnimatePresence mode="wait">
@@ -143,12 +148,12 @@ export const ContactForm: FC<ContactFormProps> = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onSubmit={handleSubmit(handleFormSubmit)}
-            className="space-y-4"
+            className="space-y-6"
           >
             {/* Name Field(s) */}
             {splitName ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="space-y-3">
                   <Label htmlFor="contact-first-name" required>
                     First Name
                   </Label>
@@ -165,7 +170,7 @@ export const ContactForm: FC<ContactFormProps> = ({
                     disabled={formState === 'submitting'}
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <Label htmlFor="contact-last-name">
                     Last Name
                   </Label>
@@ -185,7 +190,7 @@ export const ContactForm: FC<ContactFormProps> = ({
                 <input type="hidden" {...register('name')} />
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <Label htmlFor="contact-name" required>
                   Full Name
                 </Label>
@@ -200,7 +205,7 @@ export const ContactForm: FC<ContactFormProps> = ({
             )}
 
             {/* Email Field */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <Label htmlFor="contact-email" required>
                 Email Address
               </Label>
@@ -215,7 +220,7 @@ export const ContactForm: FC<ContactFormProps> = ({
             </div>
 
             {/* Phone Field */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <Label htmlFor="contact-phone">
                 Phone Number
               </Label>
@@ -230,7 +235,7 @@ export const ContactForm: FC<ContactFormProps> = ({
             </div>
 
             {/* Message Field */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <Label htmlFor="contact-message" required>
                 Message
               </Label>
@@ -245,7 +250,7 @@ export const ContactForm: FC<ContactFormProps> = ({
               <div className="text-right">
                 <Typography
                   variant="caption"
-                  className="text-stone-500"
+                  className="text-neutral-500 text-xs"
                 >
                   {formValues.message?.length || 0}/1000 characters
                 </Typography>

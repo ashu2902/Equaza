@@ -5,9 +5,12 @@
  * Following UI_UX_Development_Guide.md brand guidelines
  */
 
-import { Metadata } from 'next';
-import { Suspense } from 'react';
+'use client';
+
+// Metadata import removed - not needed for client components
+import React, { Suspense, useState, useTransition } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   Plus, 
   Search, 
@@ -30,16 +33,16 @@ import { Input } from '@/components/ui/Input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Grid } from '@/components/ui/Grid';
 import { FadeIn, SlideUp } from '@/components/ui/MotionWrapper';
+import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
 
 // Firebase
 import { getSafeAdminCollections } from '@/lib/firebase/safe-firestore';
 import { isDataResult } from '@/types/safe';
 
-export const metadata: Metadata = {
-  title: 'Collections Management | Admin | Equza Living Co.',
-  description: 'Manage product collections for Equza Living Co.',
-  robots: 'noindex,nofollow',
-};
+// Actions
+import { deleteAdminCollection } from '@/lib/actions/admin/collections';
+
+// Metadata removed - not needed for client components
 
 /**
  * Get Collections Data
@@ -67,7 +70,15 @@ async function getCollectionsData() {
 /**
  * Collection Card Component
  */
-function CollectionCard({ collection, type }: { collection: any; type: 'style' | 'space' }) {
+function CollectionCard({ 
+  collection, 
+  type, 
+  onDelete 
+}: { 
+  collection: any; 
+  type: 'style' | 'space';
+  onDelete: (collection: any) => void;
+}) {
   return (
     <Card className="hover:shadow-md transition-shadow">
       <div className="aspect-video relative overflow-hidden rounded-t-lg">
@@ -109,7 +120,12 @@ function CollectionCard({ collection, type }: { collection: any; type: 'style' |
                 <Edit3 className="h-3 w-3" />
               </Link>
             </Button>
-            <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              onClick={() => onDelete(collection)}
+            >
               <Trash2 className="h-3 w-3" />
             </Button>
           </div>
@@ -122,7 +138,7 @@ function CollectionCard({ collection, type }: { collection: any; type: 'style' |
         <div className="flex items-center justify-between text-xs text-gray-500">
           <div className="flex items-center">
             <Package className="h-3 w-3 mr-1" />
-                                      {collection.productIds?.length || 0} products
+            {collection.productIds?.length || 0} products
           </div>
           <div className="flex items-center">
             <Calendar className="h-3 w-3 mr-1" />
@@ -140,11 +156,13 @@ function CollectionCard({ collection, type }: { collection: any; type: 'style' |
 function CollectionsList({ 
   collections, 
   type, 
-  title 
+  title,
+  onDelete
 }: { 
   collections: any[]; 
   type: 'style' | 'space'; 
   title: string;
+  onDelete: (collection: any) => void;
 }) {
   if (collections.length === 0) {
     return (
@@ -172,7 +190,7 @@ function CollectionsList({
     <Grid cols={3} gap="lg">
       {collections.map((collection, index) => (
         <SlideUp key={collection.id} delay={index * 0.1}>
-          <CollectionCard collection={collection} type={type} />
+          <CollectionCard collection={collection} type={type} onDelete={onDelete} />
         </SlideUp>
       ))}
     </Grid>
@@ -182,8 +200,122 @@ function CollectionsList({
 /**
  * Admin Collections Page
  */
-export default async function AdminCollectionsPage() {
-  const { styleCollections, spaceCollections, error } = await getCollectionsData();
+export default function AdminCollectionsPage() {
+  const [styleCollections, setStyleCollections] = useState<any[]>([]);
+  const [spaceCollections, setSpaceCollections] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [deleteDialog, setDeleteDialog] = useState<{
+    isOpen: boolean;
+    collection: any | null;
+  }>({ isOpen: false, collection: null });
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  // Load collections data
+  React.useEffect(() => {
+    async function loadCollections() {
+      try {
+        const data = await getCollectionsData();
+        if (data.error) {
+          setError(data.error);
+        } else {
+          setStyleCollections(data.styleCollections || []);
+          setSpaceCollections(data.spaceCollections || []);
+        }
+      } catch (err) {
+        setError('Failed to load collections');
+        console.error('Error loading collections:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadCollections();
+  }, []);
+
+  // Handle delete collection
+  const handleDeleteCollection = (collection: any) => {
+    console.log('Delete button clicked for collection:', collection);
+    setDeleteDialog({ isOpen: true, collection });
+  };
+
+  const confirmDeleteCollection = async () => {
+    if (!deleteDialog.collection) return;
+
+    console.log('Attempting to delete collection:', {
+      collection: deleteDialog.collection,
+      collectionId: deleteDialog.collection.id,
+      collectionSlug: deleteDialog.collection.slug
+    });
+
+    startTransition(async () => {
+      try {
+        const result = await deleteAdminCollection(deleteDialog.collection.id);
+        
+        console.log('Delete result:', result);
+        
+        if (result.success) {
+          // Remove from local state
+          // Check both the collection type and which list it's in
+          const isInStyleCollections = styleCollections.some(c => c.id === deleteDialog.collection.id);
+          const isInSpaceCollections = spaceCollections.some(c => c.id === deleteDialog.collection.id);
+          
+          if (isInStyleCollections) {
+            setStyleCollections(prev => 
+              prev.filter(c => c.id !== deleteDialog.collection.id)
+            );
+          }
+          if (isInSpaceCollections) {
+            setSpaceCollections(prev => 
+              prev.filter(c => c.id !== deleteDialog.collection.id)
+            );
+          }
+          
+          // Close dialog
+          setDeleteDialog({ isOpen: false, collection: null });
+          
+          // Refresh the page to ensure data consistency
+          router.refresh();
+        } else {
+          console.error('Delete failed:', result.message);
+          alert(`Delete failed: ${result.message}`);
+        }
+      } catch (error) {
+        console.error('Error deleting collection:', error);
+        alert(`Error deleting collection: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+    });
+  };
+
+  const closeDeleteDialog = () => {
+    setDeleteDialog({ isOpen: false, collection: null });
+  };
+
+  if (isLoading) {
+    return (
+      <AdminPageTemplate title="Collections Management">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading collections...</p>
+          </div>
+        </div>
+      </AdminPageTemplate>
+    );
+  }
+
+  if (error) {
+    return (
+      <AdminPageTemplate title="Collections Management">
+        <div className="text-center py-12">
+          <p className="text-red-600 mb-4">{error}</p>
+          <Button onClick={() => window.location.reload()}>
+            Try Again
+          </Button>
+        </div>
+      </AdminPageTemplate>
+    );
+  }
 
   return (
     <AdminPageTemplate title="Collections Management">
@@ -275,6 +407,7 @@ export default async function AdminCollectionsPage() {
               collections={styleCollections} 
               type="style" 
               title="Style Collections"
+              onDelete={handleDeleteCollection}
             />
           </Suspense>
         </div>
@@ -297,10 +430,22 @@ export default async function AdminCollectionsPage() {
               collections={spaceCollections} 
               type="space" 
               title="Space Collections"
+              onDelete={handleDeleteCollection}
             />
           </Suspense>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={closeDeleteDialog}
+        onConfirm={confirmDeleteCollection}
+        title="Delete Collection"
+        description="Are you sure you want to delete this collection? This action cannot be undone."
+        itemName={deleteDialog.collection?.name || ''}
+        isLoading={isPending}
+      />
     </AdminPageTemplate>
   );
 }

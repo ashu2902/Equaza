@@ -5,9 +5,12 @@
  * Following UI_UX_Development_Guide.md brand guidelines
  */
 
-import { Metadata } from 'next';
-import { Suspense } from 'react';
+'use client';
+
+// Metadata import removed - not needed for client components
+import React, { Suspense, useState, useTransition } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   Plus, 
   Search, 
@@ -31,16 +34,16 @@ import { Input } from '@/components/ui/Input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Grid } from '@/components/ui/Grid';
 import { FadeIn, SlideUp } from '@/components/ui/MotionWrapper';
+import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
 
 // Firebase
 import { getSafeAdminProducts } from '@/lib/firebase/safe-firestore';
 import { isDataResult } from '@/types/safe';
 
-export const metadata: Metadata = {
-  title: 'Products Management | Admin | Equza Living Co.',
-  description: 'Manage products for Equza Living Co.',
-  robots: 'noindex,nofollow',
-};
+// Actions
+import { deleteAdminProduct } from '@/lib/actions/admin/products';
+
+// Metadata removed - not needed for client components
 
 /**
  * Get Products Data
@@ -65,7 +68,7 @@ async function getProductsData() {
 /**
  * Product Card Component
  */
-function ProductCard({ product }: { product: any }) {
+function ProductCard({ product, onDelete }: { product: any; onDelete: (product: any) => void }) {
   return (
     <Card className="hover:shadow-md transition-shadow">
       <div className="aspect-square relative overflow-hidden rounded-t-lg">
@@ -120,7 +123,12 @@ function ProductCard({ product }: { product: any }) {
                 <Edit3 className="h-3 w-3" />
               </Link>
             </Button>
-            <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              onClick={() => onDelete(product)}
+            >
               <Trash2 className="h-3 w-3" />
             </Button>
           </div>
@@ -130,16 +138,20 @@ function ProductCard({ product }: { product: any }) {
           {product.description}
         </p>
         
-        {/* Price and Size */}
-        <div className="flex items-center justify-between mb-3 text-sm">
-          <div className="flex items-center text-gray-600">
-            <DollarSign className="h-3 w-3 mr-1" />
-            {product.price ? `$${product.price}` : 'Price on request'}
-          </div>
-          <div className="text-gray-500">
-            {product.dimensions || 'Custom size'}
-          </div>
-        </div>
+         {/* Price and Size */}
+         <div className="flex items-center justify-between mb-3 text-sm">
+           <div className="flex items-center text-gray-600">
+             <DollarSign className="h-3 w-3 mr-1" />
+             {product.price && typeof product.price === 'object' && product.price.startingFrom 
+               ? `$${product.price.startingFrom}` 
+               : product.price && typeof product.price === 'number'
+               ? `$${product.price}`
+               : 'Price on request'}
+           </div>
+           <div className="text-gray-500">
+             {product.dimensions || 'Custom size'}
+           </div>
+         </div>
         
         {/* Tags */}
         {product.tags && product.tags.length > 0 && (
@@ -179,7 +191,7 @@ function ProductCard({ product }: { product: any }) {
 /**
  * Products List Component
  */
-function ProductsList({ products }: { products: any[] }) {
+function ProductsList({ products, onDelete }: { products: any[]; onDelete: (product: any) => void }) {
   if (products.length === 0) {
     return (
       <Card>
@@ -206,7 +218,7 @@ function ProductsList({ products }: { products: any[] }) {
     <Grid cols={4} gap="lg">
       {products.map((product, index) => (
         <SlideUp key={product.id || product.slug} delay={index * 0.05}>
-          <ProductCard product={product} />
+          <ProductCard product={product} onDelete={onDelete} />
         </SlideUp>
       ))}
     </Grid>
@@ -216,8 +228,110 @@ function ProductsList({ products }: { products: any[] }) {
 /**
  * Admin Products Page
  */
-export default async function AdminProductsPage() {
-  const { products, error } = await getProductsData();
+export default function AdminProductsPage() {
+  const [products, setProducts] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [deleteDialog, setDeleteDialog] = useState<{
+    isOpen: boolean;
+    product: any | null;
+  }>({ isOpen: false, product: null });
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  // Load products data
+  React.useEffect(() => {
+    async function loadProducts() {
+      try {
+        const data = await getProductsData();
+        if (data.error) {
+          setError(data.error);
+        } else {
+          setProducts(data.products || []);
+        }
+      } catch (err) {
+        setError('Failed to load products');
+        console.error('Error loading products:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadProducts();
+  }, []);
+
+  // Handle delete product
+  const handleDeleteProduct = (product: any) => {
+    console.log('Delete button clicked for product:', product);
+    setDeleteDialog({ isOpen: true, product });
+  };
+
+  const confirmDeleteProduct = async () => {
+    if (!deleteDialog.product) return;
+
+    console.log('Attempting to delete product:', {
+      product: deleteDialog.product,
+      productId: deleteDialog.product.id,
+      productSlug: deleteDialog.product.slug,
+      productName: deleteDialog.product.name
+    });
+
+    startTransition(async () => {
+      try {
+        const result = await deleteAdminProduct(deleteDialog.product.id);
+        
+        console.log('Delete result:', result);
+        
+        if (result.success) {
+          // Remove from local state
+          setProducts(prev => 
+            prev.filter(p => p.id !== deleteDialog.product.id)
+          );
+          
+          // Close dialog
+          setDeleteDialog({ isOpen: false, product: null });
+          
+          // Refresh the page to ensure data consistency
+          router.refresh();
+        } else {
+          console.error('Delete failed:', result.message);
+          alert(`Delete failed: ${result.message}`);
+        }
+      } catch (error) {
+        console.error('Error deleting product:', error);
+        alert(`Error deleting product: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+    });
+  };
+
+  const closeDeleteDialog = () => {
+    setDeleteDialog({ isOpen: false, product: null });
+  };
+
+  if (isLoading) {
+    return (
+      <AdminPageTemplate title="Products Management">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading products...</p>
+          </div>
+        </div>
+      </AdminPageTemplate>
+    );
+  }
+
+  if (error) {
+    return (
+      <AdminPageTemplate title="Products Management">
+        <div className="text-center py-12">
+          <p className="text-red-600 mb-4">{error}</p>
+          <Button onClick={() => window.location.reload()}>
+            Try Again
+          </Button>
+        </div>
+      </AdminPageTemplate>
+    );
+  }
 
   // Calculate stats
   const stats = {
@@ -348,10 +462,21 @@ export default async function AdminProductsPage() {
         {/* Products Grid */}
         <div>
           <Suspense fallback={<div>Loading products...</div>}>
-            <ProductsList products={products} />
+            <ProductsList products={products} onDelete={handleDeleteProduct} />
           </Suspense>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={closeDeleteDialog}
+        onConfirm={confirmDeleteProduct}
+        title="Delete Product"
+        description="Are you sure you want to delete this product? This action cannot be undone."
+        itemName={deleteDialog.product?.name || ''}
+        isLoading={isPending}
+      />
     </AdminPageTemplate>
   );
 }

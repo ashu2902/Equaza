@@ -24,18 +24,14 @@ export function LookbookCompact({ thumbnail, caption, pdfUrl }: LookbookCompactP
           <div className="w-full md:w-1/2">
             <h2 className="font-serif text-2xl md:text-3xl text-neutral-900 mb-2">Latest Lookbook</h2>
             <p className="text-neutral-700 mb-4">{caption || 'A curated visual tour into our world — textures, palettes, and spaces that breathe.'}</p>
-            {disabled ? (
-              <span className="inline-block px-4 py-2 rounded-full bg-neutral-300 text-neutral-600 text-sm cursor-not-allowed">Coming soon</span>
-            ) : (
-              <Link
-                href={href}
-                target="_blank"
-                rel="noopener"
-                className="inline-block px-4 py-2 rounded-full bg-[#98342d] text-white text-sm hover:brightness-95"
-              >
-                Download PDF
-              </Link>
-            )}
+            <Link
+              href={href}
+              target="_blank"
+              rel="noopener"
+              className="inline-block px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200 bg-[#98342d] text-white hover:bg-[#8a2e26] hover:shadow-md"
+            >
+              View Collection
+            </Link>
           </div>
         </div>
       </div>

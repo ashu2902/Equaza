@@ -31,10 +31,7 @@ import { FeatureStrip } from '@/components/homepage/FeatureStrip';
 import { DualCardHighlight } from '@/components/homepage/DualCardHighlight';
 import RoomHighlightCarousel from '@/components/homepage/RoomHighlightCarousel';
 import { SideBySideShowcase } from '@/components/homepage/SideBySideShowcase';
-import { BandCTA } from '@/components/homepage/BandCTA';
 import { ImageBannerCTA } from '@/components/homepage/ImageBannerCTA';
-import { BrandStoryBlock } from '@/components/homepage/BrandStoryBlock';
-import OurStorySimple from '@/components/homepage/OurStorySimple';
 
 // Loading components
 import { LoadingSkeleton } from '@/components/homepage/LoadingSkeleton';
@@ -144,7 +141,7 @@ export default async function HomePage() {
           {/* Living/Bedroom/Narrow carousel */}
           <SectionErrorBoundary sectionName="room highlight carousel">
             <RoomHighlightCarousel
-              title={data.homeCms?.roomHighlight?.title || 'Living Room'}
+              title={data.homeCms?.roomHighlight?.title || 'Rugs by Space'}
               subtitle={data.homeCms?.roomHighlight?.description || 'Swipe to explore Bedroom and Narrow Spaces'}
               spaceCollections={spaceCollections}
             />
@@ -168,24 +165,14 @@ export default async function HomePage() {
             />
           </SectionErrorBoundary>
 
-          {/* Primary CTA band */}
-          <SectionErrorBoundary sectionName="primary cta band">
-            <BandCTA
-              headline={data.homeCms?.primaryCta?.headline || 'You Imagine It, We Weave It.'}
-              cta={{
-                label: data.homeCms?.primaryCta?.label || 'Customize Now »',
-                href: data.homeCms?.primaryCta?.href || '/customize',
-              }}
-            />
+          {/* Custom Rug Banner - Moved to replace white section */}
+          <SectionErrorBoundary sectionName="custom rug banner">
+            <CustomRugBanner />
           </SectionErrorBoundary>
 
-          {/* Our Story simplified section replacing brand block */}
-          <SectionErrorBoundary sectionName="our story simple">
-            <OurStorySimple
-              title={data.homeCms?.story?.title || 'Where Traditional Craftsmanship Meets Modern Design'}
-              body={data.homeCms?.story?.body || 'For three generations, our family has woven stories into rugs. Each piece carries the soul of Indian artistry, thoughtfully crafted for contemporary homes.'}
-              ctaHref={data.homeCms?.story?.href || '/our-story'}
-            />
+          {/* Our Story Teaser - Updated section replacing brand block */}
+          <SectionErrorBoundary sectionName="our story teaser">
+            <OurStoryTeaser />
           </SectionErrorBoundary>
 
           {/* Craftsmanship banner */}
@@ -204,16 +191,6 @@ export default async function HomePage() {
           </SectionErrorBoundary>
 
           {/* Rugs by Space moved lower/not in PDF primary flow; keep but below heritage */}
-
-          {/* Custom Rug Banner */}
-          <SectionErrorBoundary sectionName="custom rug banner">
-            <CustomRugBanner />
-          </SectionErrorBoundary>
-
-          {/* Our Story Teaser */}
-          <SectionErrorBoundary sectionName="our story section">
-            <OurStoryTeaser />
-          </SectionErrorBoundary>
 
           {/* Lookbook Section (compact per PDF) */}
           <SectionErrorBoundary sectionName="lookbook section">

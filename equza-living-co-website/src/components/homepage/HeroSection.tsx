@@ -20,7 +20,7 @@ interface HeroSlide {
 }
 
 interface HeroSectionProps {
-  featuredProducts: SafeProduct[];
+  featuredProducts?: SafeProduct[]; // Optional since we only use heroCms now
   siteSettings?: any;
   heroCms?: HeroSlide[] | null;
 }
@@ -30,43 +30,34 @@ export function HeroSection({ featuredProducts, siteSettings, heroCms }: HeroSec
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [touchEndX, setTouchEndX] = useState<number | null>(null);
 
+  // Only use CMS slides for hero content
+  const cmsSlides: HeroSlide[] = Array.isArray(heroCms) ? heroCms : [];
+  
+  // Only show slides if we have CMS slides, otherwise show nothing
+  if (cmsSlides.length === 0) {
+    return null;
+  }
+  
   // Auto-rotate slides
   useEffect(() => {
-    if (featuredProducts.length <= 1) return;
+    if (cmsSlides.length <= 1) return;
 
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % featuredProducts.length);
+      setCurrentSlide((prev) => (prev + 1) % cmsSlides.length);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [featuredProducts.length]);
+  }, [cmsSlides.length]);
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % featuredProducts.length);
+    setCurrentSlide((prev) => (prev + 1) % cmsSlides.length);
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + featuredProducts.length) % featuredProducts.length);
+    setCurrentSlide((prev) => (prev - 1 + cmsSlides.length) % cmsSlides.length);
   };
 
-  const currentProduct = featuredProducts[currentSlide];
-
-  // If CMS slides are provided, use them for image/text/cta
-  const cmsSlides: HeroSlide[] = Array.isArray(heroCms) ? heroCms : [];
-  const currentCmsSlide: HeroSlide | null = cmsSlides.length > 0 ? (cmsSlides[currentSlide % cmsSlides.length] ?? null) : null;
-
-  // Safe fallbacks for background image/alt from products
-  const fallbackImageUrl = (() => {
-    if (!currentProduct) return '/placeholder-rug.jpg';
-    const mainImage = currentProduct.images.find((img) => img.isMain);
-    return mainImage ? mainImage.url : currentProduct.images[0]?.url || '/placeholder-rug.jpg';
-  })();
-
-  const fallbackImageAlt = (() => {
-    if (!currentProduct) return 'Hero background';
-    const mainImage = currentProduct.images.find((img) => img.isMain);
-    return mainImage ? mainImage.alt : currentProduct.images[0]?.alt || currentProduct.name;
-  })();
+  const currentCmsSlide: HeroSlide | null = cmsSlides[currentSlide] ?? null;
 
   const handleTouchStart = (e: any) => {
     if (!e.changedTouches || e.changedTouches.length === 0) return;
@@ -105,11 +96,11 @@ export function HeroSection({ featuredProducts, siteSettings, heroCms }: HeroSec
       onTouchEnd={handleTouchEnd}
     >
       {/* Hero Background Image */}
-      {((currentCmsSlide && currentCmsSlide.image?.src) || fallbackImageUrl) && (
+      {currentCmsSlide?.image?.src && (
         <div className="absolute inset-0">
           <Image
-            src={(currentCmsSlide && currentCmsSlide.image?.src) || fallbackImageUrl}
-            alt={(currentCmsSlide && currentCmsSlide.image?.alt) || fallbackImageAlt}
+            src={currentCmsSlide.image.src}
+            alt={currentCmsSlide.image.alt || 'Hero background'}
             fill
             className="object-cover"
             priority
@@ -121,12 +112,12 @@ export function HeroSection({ featuredProducts, siteSettings, heroCms }: HeroSec
       )}
 
       {/* Navigation Arrows */}
-      {featuredProducts.length > 1 && (
+      {cmsSlides.length > 1 && (
         <>
           <button
             onClick={prevSlide}
             className="hidden md:block absolute left-6 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-3 shadow-lg transition-all duration-200 z-20"
-            aria-label="Previous product"
+            aria-label="Previous slide"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
@@ -134,7 +125,7 @@ export function HeroSection({ featuredProducts, siteSettings, heroCms }: HeroSec
           <button
             onClick={nextSlide}
             className="hidden md:block absolute right-6 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-3 shadow-lg transition-all duration-200 z-20"
-            aria-label="Next product"
+            aria-label="Next slide"
           >
             <ChevronRight className="w-6 h-6" />
           </button>
@@ -152,7 +143,7 @@ export function HeroSection({ featuredProducts, siteSettings, heroCms }: HeroSec
                 className="text-4xl md:text-5xl lg:text-6xl font-serif font-normal leading-tight text-white"
                 style={{ textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}
               >
-                {(currentCmsSlide && currentCmsSlide.title) || 'Crafted Calm for Modern Spaces'}
+                {currentCmsSlide?.title || 'Crafted Calm for Modern Spaces'}
               </Typography>
               {currentCmsSlide?.subtitle && (
                 <Typography variant="body" className="text-white/90 max-w-2xl mx-auto">
@@ -174,8 +165,8 @@ export function HeroSection({ featuredProducts, siteSettings, heroCms }: HeroSec
                   boxShadow: '0 8px 32px rgba(152, 52, 45, 0.3)'
                 }}
               >
-                <Link href={(currentCmsSlide && currentCmsSlide.cta?.href) || '/collections'}>
-                  {(currentCmsSlide && currentCmsSlide.cta?.label) || 'Explore Now'}
+                <Link href={currentCmsSlide?.cta?.href || '/collections'}>
+                  {currentCmsSlide?.cta?.label || 'Explore Now'}
                 </Link>
               </Button>
             </div>
@@ -186,10 +177,10 @@ export function HeroSection({ featuredProducts, siteSettings, heroCms }: HeroSec
       {/* PDF variant: no bottom-left product card */}
 
       {/* Elegant Slide Indicators */}
-      {featuredProducts.length > 1 && (
+      {cmsSlides.length > 1 && (
         <div className="absolute bottom-8 right-8 flex space-x-3 z-10">
           <div className="bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 flex space-x-2">
-            {featuredProducts.map((_, index) => (
+            {cmsSlides.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentSlide(index)}

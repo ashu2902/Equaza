@@ -41,7 +41,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300"
+            className="mb-2 block text-sm font-semibold text-neutral-700"
           >
             {label}
           </label>
@@ -56,10 +56,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             type={type}
             id={inputId}
             className={cn(
-              'flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-stone-500 focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50',
+              'flex h-12 w-full rounded-lg border bg-white px-4 py-3 text-sm transition-all duration-200 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50',
               error
-                ? 'border-red-500 focus-visible:ring-red-500'
-                : 'border-stone-200 focus-visible:ring-stone-950 dark:border-stone-800 dark:focus-visible:ring-stone-300',
+                ? 'border-red-300 focus-visible:ring-red-200 focus-visible:border-red-500'
+                : 'border-neutral-200 focus-visible:ring-neutral-200 focus-visible:border-neutral-300 hover:border-neutral-300',
               leftIcon && 'pl-10',
               rightIcon && 'pr-10',
               className
