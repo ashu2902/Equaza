@@ -1,14 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type TouchEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { Button } from '@/components/ui/Button';
 import { Typography } from '@/components/ui/Typography';
-import { FadeIn, SlideUp, ScaleIn } from '@/components/ui/MotionWrapper';
-import { SafeProduct } from '@/types/safe';
+import { FadeIn, SlideUp } from '@/components/ui/MotionWrapper';
 
 // Removed brand overline text per design request
 
@@ -20,23 +19,16 @@ interface HeroSlide {
 }
 
 interface HeroSectionProps {
-  featuredProducts?: SafeProduct[]; // Optional since we only use heroCms now
-  siteSettings?: any;
   heroCms?: HeroSlide[] | null;
 }
 
-export function HeroSection({ featuredProducts, siteSettings, heroCms }: HeroSectionProps) {
+export function HeroSection({ heroCms }: HeroSectionProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [touchEndX, setTouchEndX] = useState<number | null>(null);
 
   // Only use CMS slides for hero content
   const cmsSlides: HeroSlide[] = Array.isArray(heroCms) ? heroCms : [];
-  
-  // Only show slides if we have CMS slides, otherwise show nothing
-  if (cmsSlides.length === 0) {
-    return null;
-  }
   
   // Auto-rotate slides
   useEffect(() => {
@@ -59,15 +51,17 @@ export function HeroSection({ featuredProducts, siteSettings, heroCms }: HeroSec
 
   const currentCmsSlide: HeroSlide | null = cmsSlides[currentSlide] ?? null;
 
-  const handleTouchStart = (e: any) => {
-    if (!e.changedTouches || e.changedTouches.length === 0) return;
-    setTouchStartX(e.changedTouches[0].clientX);
+  const handleTouchStart = (e: TouchEvent) => {
+    const firstTouch = e.changedTouches.item(0);
+    if (!firstTouch) return;
+    setTouchStartX(firstTouch.clientX);
     setTouchEndX(null);
   };
 
-  const handleTouchMove = (e: any) => {
-    if (!e.changedTouches || e.changedTouches.length === 0) return;
-    setTouchEndX(e.changedTouches[0].clientX);
+  const handleTouchMove = (e: TouchEvent) => {
+    const firstTouch = e.changedTouches.item(0);
+    if (!firstTouch) return;
+    setTouchEndX(firstTouch.clientX);
   };
 
   const handleTouchEnd = () => {
@@ -84,6 +78,11 @@ export function HeroSection({ featuredProducts, siteSettings, heroCms }: HeroSec
     setTouchStartX(null);
     setTouchEndX(null);
   };
+
+  // Only show slides if we have CMS slides, otherwise show nothing
+  if (cmsSlides.length === 0) {
+    return null;
+  }
 
   return (
     <section 
