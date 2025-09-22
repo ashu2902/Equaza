@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Poppins, Libre_Baskerville } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,6 +43,7 @@ export default function RootLayout({
         {/* Public Site Header (reveals after hero scroll) */}
         <Header />
         {children}
+        <SpeedInsights />
       </body>
     </html>
   );

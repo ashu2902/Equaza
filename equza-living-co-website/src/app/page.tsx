@@ -104,8 +104,6 @@ export default async function HomePage() {
         {/* Hero Section with Featured Products */}
         <SectionErrorBoundary sectionName="hero section">
           <HeroSection
-            featuredProducts={featuredProducts}
-            siteSettings={null} // TODO: Add safe site settings
             heroCms={Array.isArray(data.homeCms?.hero) ? data.homeCms?.hero as any : null}
           />
         </SectionErrorBoundary>
