@@ -57,7 +57,10 @@ async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string }>
         userId = decoded?.uid;
       }
     } catch (sessionError) {
-      console.log('❌ Session verification failed:', sessionError.message);
+      console.log(
+        '❌ Session verification failed:',
+        sessionError instanceof Error ? sessionError.message : sessionError
+      );
     }
     
     // Fallback when server-side auth fails
