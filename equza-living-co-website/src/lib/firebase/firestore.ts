@@ -103,9 +103,7 @@ export const getProducts = async (filters: ProductFilters = {}): Promise<Product
       constraints.push(where('collections', 'array-contains', filters.collectionId));
     }
     
-    if (filters.roomType) {
-      constraints.push(where('roomTypes', 'array-contains', filters.roomType));
-    }
+    // roomTypes removed
     
     if (filters.isActive !== undefined) {
       constraints.push(where('isActive', '==', filters.isActive));

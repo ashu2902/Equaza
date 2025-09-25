@@ -26,16 +26,14 @@ interface FilterSidebarProps {
   filters: ProductFilters;
   onFiltersChange: (filters: ProductFilters) => void;
   collections?: FilterOption[];
-  roomTypes?: FilterOption[];
   materials?: FilterOption[];
   className?: string;
   isMobile?: boolean;
   onClose?: () => void;
 }
 
-const filterSections: (collections: FilterOption[], roomTypes: FilterOption[], materials: FilterOption[]) => FilterSection[] = (
+const filterSections: (collections: FilterOption[], materials: FilterOption[]) => FilterSection[] = (
   collections,
-  roomTypes,
   materials
 ) => [
   {
@@ -45,13 +43,7 @@ const filterSections: (collections: FilterOption[], roomTypes: FilterOption[], m
     options: collections,
     defaultExpanded: true
   },
-  {
-    id: 'roomType',
-    label: 'Room Type',
-    type: 'select',
-    options: roomTypes,
-    defaultExpanded: true
-  },
+  // roomTypes removed
   {
     id: 'materials',
     label: 'Materials',
@@ -72,17 +64,16 @@ export const FilterSidebar: FC<FilterSidebarProps> = ({
   filters,
   onFiltersChange,
   collections = [],
-  roomTypes = [],
   materials = [],
   className = '',
   isMobile = false,
   onClose
 }) => {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
-    new Set(['collectionId', 'roomType'])
+    new Set(['collectionId'])
   );
 
-  const sections = filterSections(collections, roomTypes, materials);
+  const sections = filterSections(collections, materials);
 
   const toggleSection = useCallback((sectionId: string) => {
     setExpandedSections(prev => {
@@ -105,7 +96,7 @@ export const FilterSidebar: FC<FilterSidebarProps> = ({
 
     switch (type) {
       case 'select':
-        if (sectionId === 'collectionId' || sectionId === 'roomType') {
+        if (sectionId === 'collectionId') {
           newFilters[sectionId] = newFilters[sectionId] === value ? undefined : value;
         }
         break;
@@ -147,7 +138,7 @@ export const FilterSidebar: FC<FilterSidebarProps> = ({
   const getActiveFilterCount = () => {
     let count = 0;
     if (filters.collectionId) count++;
-    if (filters.roomType) count++;
+    // roomTypes removed
     if (filters.materials?.length) count++;
     if (filters.isFeatured) count++;
     return count;
@@ -314,21 +305,7 @@ export const FilterSidebar: FC<FilterSidebarProps> = ({
                 </Button>
               </div>
             )}
-            {filters.roomType && (
-              <div className="flex items-center justify-between">
-                <Typography variant="caption" className="text-stone-600">
-                  Room: {roomTypes.find(r => r.id === filters.roomType)?.label}
-                </Typography>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleFilterChange('roomType', filters.roomType!, 'select')}
-                  className="h-auto p-1"
-                >
-                  <X className="w-3 h-3" />
-                </Button>
-              </div>
-            )}
+            {/* roomTypes removed */}
             {filters.materials?.map((materialId) => {
               const material = materials.find(m => m.id === materialId);
               return material ? (

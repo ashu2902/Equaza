@@ -45,11 +45,7 @@ export function CollectionProductsClient({
     }
 
     // Room type filter
-    if (filters.roomType) {
-      if (!product.roomTypes?.includes(filters.roomType)) {
-        return false;
-      }
-    }
+    // roomTypes removed
 
     // Materials filter
     if (filters.materials && filters.materials.length > 0) {

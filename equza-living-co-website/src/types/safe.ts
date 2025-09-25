@@ -41,7 +41,6 @@ export interface SafeProduct {
   images: SafeImage[]; // ALWAYS array with at least 1 item, NEVER empty
   specifications: SafeProductSpecifications;
   collections: string[];
-  roomTypes: string[];
   price: SafeProductPrice;
   seoTitle: string;
   seoDescription: string;

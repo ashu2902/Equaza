@@ -106,9 +106,7 @@ export const getProducts = unstable_cache(
         constraints.push(where('collections', 'array-contains', filters.collectionId));
       }
       
-      if (filters.roomType) {
-        constraints.push(where('roomTypes', 'array-contains', filters.roomType));
-      }
+      // roomTypes removed
       
       if (filters.materials && filters.materials.length > 0) {
         // For materials, we need to check if any of the filter materials match
@@ -250,20 +248,7 @@ export const getProductsByCollection = unstable_cache(
 /**
  * Get products by room type
  */
-export const getProductsByRoomType = unstable_cache(
-  async (roomType: string, limitCount?: number): Promise<Product[]> => {
-    return getProducts({ 
-      roomType, 
-      isActive: true, 
-      limit: limitCount 
-    });
-  },
-  ['products-by-room-type'],
-  {
-    revalidate: CACHE_REVALIDATE.products,
-    tags: [CACHE_TAGS.products],
-  }
-);
+// getProductsByRoomType removed
 
 /**
  * Search products by name and description
@@ -378,25 +363,21 @@ export const getProductsStats = unstable_cache(
 export const getProductFilterOptions = unstable_cache(
   async (): Promise<{
     materials: string[];
-    roomTypes: string[];
     collections: string[];
   }> => {
     try {
       const products = await getProducts({ isActive: true });
       
       const materials = new Set<string>();
-      const roomTypes = new Set<string>();
       const collections = new Set<string>();
       
       products.forEach(product => {
         product.specifications.materials.forEach(material => materials.add(material));
-        product.roomTypes.forEach(roomType => roomTypes.add(roomType));
         product.collections.forEach(collection => collections.add(collection));
       });
       
       return {
         materials: Array.from(materials).sort(),
-        roomTypes: Array.from(roomTypes).sort(),
         collections: Array.from(collections).sort(),
       };
     } catch (error) {

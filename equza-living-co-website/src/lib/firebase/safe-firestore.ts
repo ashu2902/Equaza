@@ -68,9 +68,7 @@ export async function getSafeProducts(filters: ProductFilters = {}): Promise<Saf
       constraints.push(where('collections', 'array-contains', filters.collectionId));
     }
     
-    if (filters.roomType) {
-      constraints.push(where('roomTypes', 'array-contains', filters.roomType));
-    }
+    // roomTypes removed
     
     if (filters.isFeatured !== undefined) {
       constraints.push(where('isFeatured', '==', filters.isFeatured));

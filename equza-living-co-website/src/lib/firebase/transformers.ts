@@ -189,9 +189,7 @@ export function transformProduct(doc: DocumentSnapshot): SafeProduct | null {
     collections: Array.isArray(data.collections) 
       ? data.collections.filter(c => typeof c === 'string' && c.trim().length > 0)
       : [],
-    roomTypes: Array.isArray(data.roomTypes)
-      ? data.roomTypes.filter(r => typeof r === 'string' && r.trim().length > 0)
-      : [],
+    // roomTypes removed
     price: transformPrice(data.price),
     seoTitle: data.seoTitle || data.name,
     seoDescription: data.seoDescription || data.description || '',

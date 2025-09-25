@@ -175,7 +175,6 @@ export const productSchema = z.object({
     craftTime: z.string().optional(),
   }),
   collections: z.array(z.string()).min(1, 'At least one collection is required'),
-  roomTypes: z.array(z.string()).default([]),
   price: z.object({
     isVisible: z.boolean().default(false),
     startingFrom: z.number().min(0).optional(),
