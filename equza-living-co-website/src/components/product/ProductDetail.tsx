@@ -278,27 +278,7 @@ export const ProductDetail: FC<ProductDetailProps> = ({
         </motion.div>
       </div>
 
-      {/* Room Types */}
-      {product.roomTypes.length > 0 && (
-        <Card className="p-6">
-          <Typography
-            variant="h4"
-            className="font-serif text-stone-900 mb-4"
-          >
-            Perfect For
-          </Typography>
-          <div className="flex flex-wrap gap-2">
-            {product.roomTypes.map((roomType, index) => (
-              <span
-                key={index}
-                className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-stone-100 text-stone-700"
-              >
-                {roomType}
-              </span>
-            ))}
-          </div>
-        </Card>
-      )}
+      {/* Room Types removed */}
     </div>
   );
 };
