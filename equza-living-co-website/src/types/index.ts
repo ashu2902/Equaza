@@ -37,7 +37,8 @@ export interface Product {
   images: ProductImage[];
   specifications: ProductSpecifications;
   collections: string[];
-  roomTypes: string[];
+  // roomTypes removed from the product model; keep optional for backward compatibility
+  roomTypes?: string[];
   price: ProductPrice;
   seoTitle: string;
   seoDescription: string;

@@ -33,7 +33,7 @@ import { createAdminProduct, updateAdminProduct } from '@/lib/actions/admin/prod
 import { uploadMultipleFileAction } from '@/lib/actions/files';
 
 interface AddProductFormProps {
-  collections: Collection[];
+  collections: Array<Pick<Collection, 'id' | 'name' | 'slug' | 'type'>>;
   styleCollections: Array<{ id: string; name: string; slug: string }>;
   spaceCollections: Array<{ id: string; name: string; slug: string }>;
   mode?: 'create' | 'edit';
