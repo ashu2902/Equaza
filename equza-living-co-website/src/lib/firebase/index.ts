@@ -43,7 +43,6 @@ export {
   getProductBySlug,
   getFeaturedProducts,
   getProductsByCollection,
-  getProductsByRoomType,
   searchProducts,
   getRelatedProducts,
   getProductsStats,
