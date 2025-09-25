@@ -207,93 +207,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
                       />
                     </Suspense>
 
-                    {/* Customer Reviews Section */}
-                    <div className="border-b border-gray-200 pb-6">
-                      <Typography 
-                        variant="h3" 
-                        className="text-lg font-semibold mb-4"
-                        style={{ 
-                          fontFamily: 'Poppins',
-                          color: '#98342d'
-                        }}
-                      >
-                        Customer Reviews
-                      </Typography>
-                      
-                      <div className="flex items-center space-x-4 mb-4">
-                        <div className="flex items-center">
-                          <Typography 
-                            variant="h2" 
-                            className="text-2xl font-bold mr-2"
-                            style={{ fontFamily: 'Libre Baskerville' }}
-                          >
-                            4.5
-                          </Typography>
-                          <div className="flex">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star 
-                                key={i} 
-                                className={`w-5 h-5 ${i < 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        <Typography 
-                          variant="body" 
-                          className="text-gray-600"
-                          style={{ fontFamily: 'Poppins' }}
-                        >
-                          (25 reviews)
-                        </Typography>
-                      </div>
-
-                      {/* Review Stats */}
-                      <div className="space-y-2">
-                        {[
-                          { stars: 5, percentage: 60 },
-                          { stars: 4, percentage: 30 },
-                          { stars: 3, percentage: 8 },
-                          { stars: 2, percentage: 2 },
-                          { stars: 1, percentage: 0 },
-                        ].map((review) => (
-                          <div key={review.stars} className="flex items-center space-x-3">
-                            <span className="text-sm w-2" style={{ fontFamily: 'Poppins' }}>
-                              {review.stars}
-                            </span>
-                            <div className="flex-1 h-2 bg-gray-200 rounded">
-                              <div 
-                                className="h-2 rounded"
-                                style={{ 
-                                  backgroundColor: '#98342d',
-                                  width: `${review.percentage}%`
-                                }}
-                              ></div>
-                            </div>
-                            <span className="text-sm text-gray-500 w-8" style={{ fontFamily: 'Poppins' }}>
-                              {review.percentage}%
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Add to Cart / Enquiry */}
-                    <div className="space-y-4">
-                      <Button 
-                        size="lg" 
-                        className="w-full text-lg py-4"
-                        style={{ 
-                          backgroundColor: '#98342d',
-                          fontFamily: 'Poppins'
-                        }}
-                      >
-                        Add to Cart
-                      </Button>
-                      
+                    {/* Enquiry Button placed after Specifications */}
+                    <div className="pt-2 pb-4 md:pb-6">
                       <Button 
                         variant="outline" 
                         size="lg" 
-                        className="w-full text-lg py-4"
+                        className="w-full text-lg py-0"
                         style={{ 
                           borderColor: '#98342d',
                           color: '#98342d',
@@ -312,10 +231,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
         {/* Product Story Section */}
         <SectionErrorBoundary sectionName="product story">
-          <section className="py-16 bg-white">
+          <section className="py-4 md:py-4">
             <Container size="lg">
               <SlideUp delay={0.3}>
-                <div className="max-w-4xl mx-auto text-center">
+                <div>
                   <Typography 
                     variant="h2" 
                     className="text-3xl md:text-4xl font-bold mb-8"
@@ -347,7 +266,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <Container size="lg">
                 <SlideUp delay={0.4}>
                   <div className="space-y-12">
-                    <div className="text-center">
+                    <div>
                       <Typography 
                         variant="h2" 
                         className="text-3xl md:text-4xl font-bold mb-4"

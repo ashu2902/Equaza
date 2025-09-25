@@ -4,7 +4,7 @@ import { AdminPageTemplate } from '@/components/templates/AdminPageTemplate';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { getSafeAdminProducts, getSafeCollections } from '@/lib/firebase/safe-firestore';
 import { AddProductForm } from '@/components/admin/AddProductForm';
-import type { Collection, CollectionImage } from '@/types';
+import type { Collection } from '@/types';
 import type { SafeCollection } from '@/types/safe';
 import { Timestamp } from 'firebase/firestore';
 
@@ -29,16 +29,18 @@ export default async function AdminEditProductPage({ params }: { params: Promise
   // Fetch collections data for form options (same as Add Product page)
   const collectionsResult = await getSafeCollections();
   const safeCollections = collectionsResult.data || [];
-  const collections: Collection[] = safeCollections.map((c: SafeCollection) => ({
-    ...c,
-    heroImage: {
-      url: c.heroImage.url,
-      alt: c.heroImage.alt,
-      storageRef: c.heroImage.storageRef || ''
-    } as CollectionImage,
-    createdAt: Timestamp.fromDate(new Date(c.createdAt)),
-    updatedAt: Timestamp.fromDate(new Date(c.updatedAt)),
-  }));
+  const collections = safeCollections.map((c: SafeCollection) => ({
+    id: c.id,
+    name: c.name,
+    slug: c.slug,
+    type: c.type,
+  } as Pick<Collection, 'id' | 'name' | 'slug' | 'type'>));
+
+  // Separate style and space collections
+  const styleCollections = collections.filter(c => c.type === 'style');
+  const spaceCollections = collections.filter(c => c.type === 'space');
+  
+  // Materials now entered as free text in the form
 
   return (
     <AdminPageTemplate title={`Edit Product: ${product.name}`}>
@@ -50,21 +52,8 @@ export default async function AdminEditProductPage({ params }: { params: Promise
           <CardContent>
             <AddProductForm 
               collections={collections}
-              roomTypes={[
-                'Living Room','Bedroom','Dining Room','Office','Hallway','Bathroom','Kitchen','Outdoor']}
-              materials={['Wool','Cotton','Silk','Jute','Bamboo','Synthetic','Linen','Hemp']}
-              styleCollections={[
-                { id: 'modern', name: 'Modern', slug: 'modern' },
-                { id: 'traditional', name: 'Traditional', slug: 'traditional' },
-                { id: 'bohemian', name: 'Bohemian', slug: 'bohemian' },
-                { id: 'minimalist', name: 'Minimalist', slug: 'minimalist' },
-              ]}
-              spaceCollections={[
-                { id: 'living-room', name: 'Living Room', slug: 'living-room' },
-                { id: 'bedroom', name: 'Bedroom', slug: 'bedroom' },
-                { id: 'dining-room', name: 'Dining Room', slug: 'dining-room' },
-                { id: 'office', name: 'Office', slug: 'office' },
-              ]}
+              styleCollections={styleCollections}
+              spaceCollections={spaceCollections}
               mode="edit"
               initial={product}
             />

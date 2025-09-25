@@ -20,6 +20,8 @@ import {
   QueryConstraint,
   DocumentSnapshot,
   QueryDocumentSnapshot,
+  arrayUnion,
+  arrayRemove,
 } from 'firebase/firestore';
 import { unstable_cache } from 'next/cache';
 
@@ -328,6 +330,44 @@ export const updateCollection = async (
   } catch (error) {
     console.error('Error updating collection:', error);
     throw new Error('Failed to update collection');
+  }
+};
+
+/**
+ * Add a product ID to a collection's productIds array (idempotent)
+ */
+export const addProductIdToCollection = async (
+  collectionId: string,
+  productId: string
+): Promise<void> => {
+  try {
+    const docRef = doc(db, 'collections', collectionId);
+    await updateDoc(docRef, {
+      productIds: arrayUnion(productId),
+      updatedAt: Timestamp.now(),
+    });
+  } catch (error) {
+    console.error('Error adding product to collection:', error);
+    throw new Error('Failed to add product to collection');
+  }
+};
+
+/**
+ * Remove a product ID from a collection's productIds array (idempotent)
+ */
+export const removeProductIdFromCollection = async (
+  collectionId: string,
+  productId: string
+): Promise<void> => {
+  try {
+    const docRef = doc(db, 'collections', collectionId);
+    await updateDoc(docRef, {
+      productIds: arrayRemove(productId),
+      updatedAt: Timestamp.now(),
+    });
+  } catch (error) {
+    console.error('Error removing product from collection:', error);
+    throw new Error('Failed to remove product from collection');
   }
 };
 

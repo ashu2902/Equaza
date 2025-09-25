@@ -82,10 +82,10 @@ function CollectionCard({
   return (
     <Card className="hover:shadow-md transition-shadow">
       <div className="aspect-video relative overflow-hidden rounded-t-lg">
-        {collection.imageUrl ? (
+        {collection?.heroImage?.url ? (
           <img
-            src={collection.imageUrl}
-            alt={collection.name}
+            src={collection.heroImage.url}
+            alt={collection?.heroImage?.alt || collection.name}
             className="w-full h-full object-cover"
           />
         ) : (

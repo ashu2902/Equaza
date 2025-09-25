@@ -37,7 +37,7 @@ export function SafeProductCard({
   const [isEnquiryOpen, setIsEnquiryOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   
-  // No null checks needed - images array is guaranteed to have at least 1 item
+  // Use images provided on the product (already coming from Firebase)
   const mainImage = product.images.find(img => img.isMain) || product.images[0];
   const hoverImage = product.images.find(img => !img.isMain) || product.images[1] || product.images[0];
 
@@ -83,7 +83,7 @@ export function SafeProductCard({
           e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04)';
         }}
       >
-        <Link href={`/product/${product.slug}`}>
+        <Link href={`/product/${product.slug}`} className="block">
           <div className="aspect-square relative overflow-hidden">
             {/* Main Image */}
             {mainImage && (
@@ -112,22 +112,7 @@ export function SafeProductCard({
               />
             )}
             
-            {/* Overlay */}
-            <div className={`absolute inset-0 bg-black transition-opacity duration-300 flex items-center justify-center ${
-              isHovered ? 'bg-opacity-20' : 'bg-opacity-0'
-            }`}>
-              <motion.span
-                className="text-white font-medium"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ 
-                  opacity: isHovered ? 1 : 0, 
-                  y: isHovered ? 0 : 10 
-                }}
-                transition={{ duration: 0.2 }}
-              >
-                View Details
-              </motion.span>
-            </div>
+            {/* Overlay removed to avoid any chance of black layer covering the image */}
             
             {/* Featured Badge */}
             {product.isFeatured && (
@@ -139,7 +124,8 @@ export function SafeProductCard({
             )}
           </div>
         </Link>
-        
+
+        <Link href={`/product/${product.slug}`} className="block">
         <div className="p-6">
           <div className="space-y-3">
             <Typography 
@@ -193,6 +179,7 @@ export function SafeProductCard({
             )}
           </div>
         </div>
+        </Link>
       </motion.div>
       
       {/* Enquiry Modal */}

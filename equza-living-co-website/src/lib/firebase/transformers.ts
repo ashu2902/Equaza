@@ -84,8 +84,8 @@ function transformSpecifications(rawSpecs: any): SafeProductSpecifications {
       materials: [],
       weaveType: 'Hand-Knotted',
       availableSizes: [],
-      origin: 'India',
-      craftTime: '6-8 months'
+      origin: '',
+      craftTime: ''
     };
   }
   
@@ -101,8 +101,8 @@ function transformSpecifications(rawSpecs: any): SafeProductSpecifications {
       : [],
     weaveType: rawSpecs.weaveType || 'Hand-Knotted',
     availableSizes,
-    origin: rawSpecs.origin || 'India',
-    craftTime: rawSpecs.craftTime || '6-8 months'
+    origin: rawSpecs.origin || '',
+    craftTime: rawSpecs.craftTime || ''
   };
 }
 

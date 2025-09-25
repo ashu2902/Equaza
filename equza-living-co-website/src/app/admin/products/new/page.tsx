@@ -13,11 +13,10 @@ import { AddProductForm } from '@/components/admin/AddProductForm';
 
 // Data
 import { getSafeCollections } from '@/lib/firebase/safe-firestore';
-import { COLLECTIONS } from '@/lib/utils/constants';
 import { Timestamp } from 'firebase/firestore';
 
 // Types
-import type { Collection, CollectionImage } from '@/types';
+import type { Collection } from '@/types';
 import type { SafeCollection } from '@/types/safe';
 
 export const metadata: Metadata = {
@@ -29,17 +28,14 @@ export const metadata: Metadata = {
 /**
  * Convert SafeCollection to Collection
  */
-function convertSafeCollectionToCollection(safeCollection: SafeCollection): Collection {
+function toPlainClientCollection(safeCollection: SafeCollection) {
+  // Only pass serializable fields used by the client form
   return {
-    ...safeCollection,
-    heroImage: {
-      url: safeCollection.heroImage.url,
-      alt: safeCollection.heroImage.alt,
-      storageRef: safeCollection.heroImage.storageRef || '' // Use existing or empty
-    } as CollectionImage,
-    createdAt: Timestamp.fromDate(new Date(safeCollection.createdAt)),
-    updatedAt: Timestamp.fromDate(new Date(safeCollection.updatedAt))
-  };
+    id: safeCollection.id,
+    name: safeCollection.name,
+    slug: safeCollection.slug,
+    type: safeCollection.type,
+  } as Pick<Collection, 'id' | 'name' | 'slug' | 'type'>;
 }
 
 /**
@@ -51,48 +47,24 @@ async function getFormData() {
     const collectionsResult = await getSafeCollections();
     const safeCollections = collectionsResult.data || [];
     
-    // Convert SafeCollection[] to Collection[]
-    const collections = safeCollections.map(convertSafeCollectionToCollection);
+    // Convert to minimal, serializable client shape
+    const collections = safeCollections.map(toPlainClientCollection);
     
-    // Available room types from constants and existing data
-    const roomTypes = [
-      'Living Room',
-      'Bedroom', 
-      'Dining Room',
-      'Office',
-      'Hallway',
-      'Bathroom',
-      'Kitchen',
-      'Outdoor'
-    ];
-
-    // Available materials for rugs
-    const materials = [
-      'Wool',
-      'Cotton',
-      'Silk',
-      'Jute',
-      'Bamboo',
-      'Synthetic',
-      'Linen',
-      'Hemp'
-    ];
-
+    // Separate style and space collections
+    const styleCollections = collections.filter(c => c.type === 'style');
+    const spaceCollections = collections.filter(c => c.type === 'space');
+    
     return {
       collections,
-      roomTypes,
-      materials,
-      styleCollections: [...COLLECTIONS.styles],
-      spaceCollections: [...COLLECTIONS.spaces],
+      styleCollections,
+      spaceCollections,
     };
   } catch (error) {
     console.error('Error loading form data:', error);
     return {
       collections: [] as Collection[],
-      roomTypes: [],
-      materials: [],
-      styleCollections: [...COLLECTIONS.styles],
-      spaceCollections: [...COLLECTIONS.spaces],
+      styleCollections: [],
+      spaceCollections: [],
     };
   }
 }

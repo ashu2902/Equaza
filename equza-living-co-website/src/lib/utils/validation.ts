@@ -165,17 +165,17 @@ export const productSchema = z.object({
   description: z.string().min(1, 'Description is required').max(1000),
   story: z.string().max(2000).optional(),
   specifications: z.object({
-    materials: z.array(z.string()).min(1, 'At least one material is required'),
+    materials: z.array(z.string()).min(1, 'Materials are required'),
     weaveType: z.string().min(1, 'Weave type is required'),
     availableSizes: z.array(z.object({
       dimensions: z.string(),
       isCustom: z.boolean().default(false),
-    })).min(1, 'At least one size is required'),
-    origin: z.string().min(1, 'Origin is required'),
+    })).min(1, 'Dimensions are required'),
+    origin: z.string().optional(),
     craftTime: z.string().optional(),
   }),
   collections: z.array(z.string()).min(1, 'At least one collection is required'),
-  roomTypes: z.array(z.string()),
+  roomTypes: z.array(z.string()).default([]),
   price: z.object({
     isVisible: z.boolean().default(false),
     startingFrom: z.number().min(0).optional(),

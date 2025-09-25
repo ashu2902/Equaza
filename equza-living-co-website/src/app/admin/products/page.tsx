@@ -72,10 +72,10 @@ function ProductCard({ product, onDelete }: { product: any; onDelete: (product: 
   return (
     <Card className="hover:shadow-md transition-shadow">
       <div className="aspect-square relative overflow-hidden rounded-t-lg">
-        {product.images && product.images.length > 0 ? (
+        {product.images && product.images.length > 0 && (product.images[0].url || product.images[0]) ? (
           <img
-            src={product.images[0]}
-            alt={product.name}
+            src={product.images[0].url ? product.images[0].url : product.images[0]}
+            alt={product.images[0].alt ? product.images[0].alt : product.name}
             className="w-full h-full object-cover"
           />
         ) : (

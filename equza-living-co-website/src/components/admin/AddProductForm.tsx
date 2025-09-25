@@ -34,8 +34,6 @@ import { uploadMultipleFileAction } from '@/lib/actions/files';
 
 interface AddProductFormProps {
   collections: Collection[];
-  roomTypes: string[];
-  materials: string[];
   styleCollections: Array<{ id: string; name: string; slug: string }>;
   spaceCollections: Array<{ id: string; name: string; slug: string }>;
   mode?: 'create' | 'edit';
@@ -48,7 +46,6 @@ interface AddProductFormProps {
     images: ProductImage[];
     specifications: ProductSpecifications;
     collections: string[];
-    roomTypes: string[];
     price: ProductPrice;
     seoTitle: string;
     seoDescription: string;
@@ -65,13 +62,12 @@ interface FormData {
   price: number;
   priceVisible: boolean;
   currency: string;
-  materials: string[];
+  materialsText: string;
   weaveType: string;
   origin: string;
   craftTime: string;
   dimensions: string;
   collections: string[];
-  roomTypes: string[];
   isActive: boolean;
   isFeatured: boolean;
   seoTitle: string;
@@ -82,8 +78,6 @@ interface FormData {
 
 export function AddProductForm({ 
   collections, 
-  roomTypes, 
-  materials, 
   styleCollections, 
   spaceCollections,
   mode = 'create',
@@ -91,8 +85,6 @@ export function AddProductForm({
 }: AddProductFormProps) {
   console.log('🏗️ AddProductForm: Component initialized with props:', {
     collectionsCount: collections.length,
-    roomTypesCount: roomTypes.length,
-    materialsCount: materials.length,
     styleCollectionsCount: styleCollections.length,
     spaceCollectionsCount: spaceCollections.length
   });
@@ -112,13 +104,12 @@ export function AddProductForm({
     price: initial.price?.startingFrom ?? 0,
     priceVisible: initial.price?.isVisible ?? true,
     currency: initial.price?.currency || 'INR',
-    materials: initial.specifications?.materials || [],
+    materialsText: (initial.specifications?.materials || []).join(', '),
     weaveType: initial.specifications?.weaveType || '',
     origin: initial.specifications?.origin || '',
     craftTime: initial.specifications?.craftTime || '',
     dimensions: initial.specifications?.availableSizes?.[0]?.dimensions || '',
     collections: initial.collections || [],
-    roomTypes: initial.roomTypes || [],
     isActive: initial.isActive ?? false,
     isFeatured: initial.isFeatured ?? false,
     seoTitle: initial.seoTitle || initial.name || '',
@@ -133,13 +124,12 @@ export function AddProductForm({
     price: 0,
     priceVisible: true,
     currency: 'INR',
-    materials: [],
+    materialsText: '',
     weaveType: '',
     origin: '',
     craftTime: '',
     dimensions: '',
     collections: [],
-    roomTypes: [],
     isActive: false,
     isFeatured: false,
     seoTitle: '',
@@ -165,9 +155,8 @@ export function AddProductForm({
       hasName: !!formData.name,
       hasDescription: !!formData.description,
       hasStory: !!formData.story,
-      materialsCount: formData.materials.length,
+      materialsPreview: formData.materialsText,
       collectionsCount: formData.collections.length,
-      roomTypesCount: formData.roomTypes.length,
       imagesCount: formData.images.length,
       priceVisible: formData.priceVisible,
       price: formData.price,
@@ -225,7 +214,7 @@ export function AddProductForm({
     }
   };
 
-  const handleArrayChange = (field: 'materials' | 'collections' | 'roomTypes', value: string, checked: boolean) => {
+  const handleArrayChange = (field: 'collections', value: string, checked: boolean) => {
     console.log(`📋 AddProductForm: Array field "${field}" - ${checked ? 'Adding' : 'Removing'} "${value}"`);
     
     setFormData(prev => {
@@ -342,9 +331,13 @@ export function AddProductForm({
       console.log('❌ AddProductForm: Validation failed - Product story is required');
     }
 
-    if (formData.materials.length === 0) {
+    const parsedMaterials = formData.materialsText
+      .split(',')
+      .map(m => m.trim())
+      .filter(m => m.length > 0);
+    if (parsedMaterials.length === 0) {
       newErrors.materials = 'At least one material is required';
-      console.log('❌ AddProductForm: Validation failed - No materials selected');
+      console.log('❌ AddProductForm: Validation failed - No materials provided');
     }
 
     if (!formData.weaveType.trim()) {
@@ -352,15 +345,7 @@ export function AddProductForm({
       console.log('❌ AddProductForm: Validation failed - Weave type is required');
     }
 
-    if (!formData.origin.trim()) {
-      newErrors.origin = 'Origin is required';
-      console.log('❌ AddProductForm: Validation failed - Origin is required');
-    }
-
-    if (!formData.craftTime.trim()) {
-      newErrors.craftTime = 'Craft time is required';
-      console.log('❌ AddProductForm: Validation failed - Craft time is required');
-    }
+    // origin and craftTime are optional
 
     if (!formData.dimensions.trim()) {
       newErrors.dimensions = 'Dimensions are required';
@@ -372,14 +357,14 @@ export function AddProductForm({
       console.log('❌ AddProductForm: Validation failed - No collections selected');
     }
 
-    if (formData.roomTypes.length === 0) {
-      newErrors.roomTypes = 'Product must be assigned to at least one room type';
-      console.log('❌ AddProductForm: Validation failed - No room types selected');
-    }
+    // roomTypes removed
 
-    if (formData.images.length === 0) {
+    const hasAnyImage = (mode === 'edit')
+      ? (formData.existingImages.length > 0 || formData.images.length > 0)
+      : (formData.images.length > 0);
+    if (!hasAnyImage) {
       newErrors.images = 'At least one product image is required';
-      console.log('❌ AddProductForm: Validation failed - No images uploaded');
+      console.log('❌ AddProductForm: Validation failed - No images available (existing or new)');
     }
 
     if (formData.priceVisible && formData.price <= 0) {
@@ -464,6 +449,11 @@ export function AddProductForm({
           : uploadedImages;
 
         // Prepare product data
+        const parsedMaterials = formData.materialsText
+          .split(',')
+          .map(m => m.trim())
+          .filter(m => m.length > 0);
+
         const productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'> = {
           name: formData.name,
           slug: formData.slug,
@@ -471,14 +461,13 @@ export function AddProductForm({
           story: formData.story,
           images: finalImages,
           specifications: {
-            materials: formData.materials,
+            materials: parsedMaterials,
             weaveType: formData.weaveType,
             availableSizes: [{ dimensions: formData.dimensions, isCustom: false }],
             origin: formData.origin,
             craftTime: formData.craftTime,
           },
           collections: formData.collections,
-          roomTypes: formData.roomTypes,
           price: {
             isVisible: formData.priceVisible,
             startingFrom: formData.price,
@@ -673,23 +662,16 @@ export function AddProductForm({
                 <CardTitle className="text-[#98342d]">Specifications</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Materials */}
+                {/* Materials (comma-separated text) */}
                 <div>
-                  <Label className="text-[#98342d]/80">Materials *</Label>
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    {materials.map(material => (
-                      <div key={material} className="flex items-center space-x-2">
-                        <input 
-                          type="checkbox" 
-                          id={`material-${material}`}
-                          checked={formData.materials.includes(material)}
-                          onChange={(e) => handleArrayChange('materials', material, e.target.checked)}
-                          className="rounded border-[#98342d]/30 text-[#98342d] focus:ring-[#98342d]"
-                        />
-                        <Label htmlFor={`material-${material}`} className="text-[#98342d]/80 text-sm">{material}</Label>
-                      </div>
-                    ))}
-                  </div>
+                  <Label htmlFor="materialsText" className="text-[#98342d]/80">Materials *</Label>
+                  <Input 
+                    id="materialsText"
+                    value={formData.materialsText}
+                    onChange={(e) => handleInputChange('materialsText', e.target.value)}
+                    placeholder="e.g., Wool, Silk, Cotton"
+                    className={`border-[#98342d]/30 focus:border-[#98342d] ${errors.materials ? 'border-red-500' : ''}`}
+                  />
                   {errors.materials && <p className="text-red-500 text-xs mt-1">{errors.materials}</p>}
                 </div>
 
@@ -706,7 +688,7 @@ export function AddProductForm({
                     {errors.weaveType && <p className="text-red-500 text-xs mt-1">{errors.weaveType}</p>}
                   </div>
                   <div>
-                    <Label htmlFor="origin" className="text-[#98342d]/80">Origin *</Label>
+                    <Label htmlFor="origin" className="text-[#98342d]/80">Origin</Label>
                     <Input 
                       id="origin"
                       value={formData.origin}
@@ -728,7 +710,7 @@ export function AddProductForm({
                     {errors.dimensions && <p className="text-red-500 text-xs mt-1">{errors.dimensions}</p>}
                   </div>
                   <div>
-                    <Label htmlFor="craftTime" className="text-[#98342d]/80">Craft Time *</Label>
+                    <Label htmlFor="craftTime" className="text-[#98342d]/80">Craft Time</Label>
                     <Input 
                       id="craftTime"
                       value={formData.craftTime}
@@ -814,7 +796,7 @@ export function AddProductForm({
           <SlideUp delay={0.5}>
             <Card className="!bg-white !border-[#98342d]/20">
               <CardHeader>
-                <CardTitle className="text-[#98342d]">Product Images *</CardTitle>
+                <CardTitle className="text-[#98342d]">Product Images{mode === 'edit' ? '' : ' *'}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -862,7 +844,29 @@ export function AddProductForm({
                     </Button>
                   </div>
 
-                  {/* Preview Images */}
+                  {/* Preview: Existing Images (edit mode) */}
+                  {mode === 'edit' && formData.existingImages.length > 0 && (
+                    <div className="space-y-2">
+                      <Label className="text-[#98342d]/80">Existing Images ({formData.existingImages.length})</Label>
+                      <div className="grid grid-cols-2 gap-3">
+                        {formData.existingImages.map((img, index) => (
+                          <div key={index} className="relative bg-[#98342d]/5 rounded-lg p-3">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-12 h-12 bg-[#98342d]/10 rounded-lg flex items-center justify-center">
+                                <ImageIcon className="h-6 w-6 text-[#98342d]/50" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-[#98342d] truncate">{img.alt || `Image ${index+1}`}</p>
+                                <p className="text-xs text-[#98342d]/60">{img.isMain ? 'Main Image' : 'Secondary'}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Preview: Newly Selected Images */}
                   {formData.images.length > 0 && (
                     <div className="space-y-2">
                       <Label className="text-[#98342d]/80">Selected Images ({formData.images.length})</Label>
@@ -950,31 +954,7 @@ export function AddProductForm({
             </Card>
           </SlideUp>
 
-          {/* Room Types */}
-          <SlideUp delay={0.7}>
-            <Card className="!bg-white !border-[#98342d]/20">
-              <CardHeader>
-                <CardTitle className="text-[#98342d]">Room Types *</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {roomTypes.map(roomType => (
-                    <div key={roomType} className="flex items-center space-x-2">
-                      <input 
-                        type="checkbox" 
-                        id={`room-${roomType}`}
-                        checked={formData.roomTypes.includes(roomType)}
-                        onChange={(e) => handleArrayChange('roomTypes', roomType, e.target.checked)}
-                        className="rounded border-[#98342d]/30 text-[#98342d] focus:ring-[#98342d]"
-                      />
-                      <Label htmlFor={`room-${roomType}`} className="text-[#98342d]/80 text-sm">{roomType}</Label>
-                    </div>
-                  ))}
-                </div>
-                {errors.roomTypes && <p className="text-red-500 text-xs mt-1">{errors.roomTypes}</p>}
-              </CardContent>
-            </Card>
-          </SlideUp>
+          {/* Room Types removed */}
         </div>
       </Grid>
 

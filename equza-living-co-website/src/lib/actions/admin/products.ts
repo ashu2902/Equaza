@@ -15,6 +15,7 @@ import {
   getProductById,
   isProductSlugAvailable 
 } from '@/lib/firebase/products';
+import { addProductIdToCollection, removeProductIdFromCollection } from '@/lib/firebase/collections';
 // import { checkAdminStatus } from '@/lib/firebase/auth'; // Not needed in server actions
 import { cookies } from 'next/headers';
 import { getAdminAuth } from '@/lib/firebase/server-app';
@@ -124,9 +125,7 @@ function validateProductData(data: Partial<Product>): Record<string, string> {
     errors.collections = 'Product must belong to at least one collection';
   }
 
-  if (!data.roomTypes || data.roomTypes.length === 0) {
-    errors.roomTypes = 'Product must be assigned to at least one room type';
-  }
+  // roomTypes optional
 
   if (data.price) {
     if (data.price.isVisible && (!data.price.startingFrom || data.price.startingFrom <= 0)) {
@@ -141,20 +140,15 @@ function validateProductData(data: Partial<Product>): Record<string, string> {
     errors.specifications = 'Product specifications are required';
   } else {
     if (!data.specifications.materials || data.specifications.materials.length === 0) {
-      errors.specificationsMaterials = 'At least one material is required';
+      errors.specificationsMaterials = 'Materials are required';
     }
     if (!data.specifications.weaveType) {
       errors.specificationsWeaveType = 'Weave type is required';
     }
     if (!data.specifications.availableSizes || data.specifications.availableSizes.length === 0) {
-      errors.specificationsSizes = 'At least one size is required';
+      errors.specificationsSizes = 'Dimensions are required';
     }
-    if (!data.specifications.origin) {
-      errors.specificationsOrigin = 'Origin is required';
-    }
-    if (!data.specifications.craftTime) {
-      errors.specificationsCraftTime = 'Craft time is required';
-    }
+    // origin and craftTime optional now
   }
 
   if (data.sortOrder !== undefined && data.sortOrder < 0) {
@@ -203,6 +197,17 @@ export async function createAdminProduct(
 
     // Create product
     const productId = await createProduct(productData);
+
+    // Best-effort: sync productIds on related collections
+    try {
+      if (productData.collections && productData.collections.length > 0) {
+        await Promise.all(
+          productData.collections.map(cId => addProductIdToCollection(cId, productId))
+        );
+      }
+    } catch (syncErr) {
+      console.warn('Collection sync after create failed:', syncErr);
+    }
 
     // Invalidate cache
     revalidateTag('products');
@@ -283,6 +288,22 @@ export async function updateAdminProduct(
 
     // Update product
     await updateProduct(productId, updates);
+
+    // If collections changed, sync productIds on collections
+    try {
+      if (updates.collections) {
+        const original = originalProduct.collections || [];
+        const next = updates.collections || [];
+        const toAdd = next.filter(id => !original.includes(id));
+        const toRemove = original.filter(id => !next.includes(id));
+        await Promise.all([
+          ...toAdd.map(id => addProductIdToCollection(id, productId)),
+          ...toRemove.map(id => removeProductIdFromCollection(id, productId)),
+        ]);
+      }
+    } catch (syncErr) {
+      console.warn('Collection sync after update failed:', syncErr);
+    }
 
     // Invalidate cache
     revalidateTag('products');
