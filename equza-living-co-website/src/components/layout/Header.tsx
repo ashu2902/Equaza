@@ -132,16 +132,17 @@ export function Header() {
             <Link href="/our-story" className={`transition-colors font-medium ${showHeader ? 'text-warm-900 hover:text-warm-900/80' : 'text-warm-700 hover:text-primary-600'}`}>Our Story</Link>
             <Link href="/craftsmanship" className={`transition-colors font-medium ${showHeader ? 'text-warm-900 hover:text-warm-900/80' : 'text-warm-700 hover:text-primary-600'}`}>Craftsmanship</Link>
             <Link href="/trade" className={`transition-colors font-medium ${showHeader ? 'text-warm-900 hover:text-warm-900/80' : 'text-warm-700 hover:text-primary-600'}`}>Trade</Link>
-            <Link href="#contact" className={`transition-colors font-medium ${showHeader ? 'text-warm-900 hover:text-warm-900/80' : 'text-warm-700 hover:text-primary-600'}`}>Contact</Link>
           </nav>
 
           {/* Right: CTA + Mobile menu */}
           <div className="flex items-center gap-3">
             <Link 
-              href="/customize" 
+              href="https://calendly.com/equzaliving" 
+              target="_blank"
+              rel="noopener noreferrer"
               className="hidden lg:inline-flex bg-primary-600 text-cream-50 px-6 py-2 rounded-md hover:bg-primary-700 transition-colors font-medium"
             >
-              Send Requirement
+              Book a Call
             </Link>
 
             {/* Mobile menu button */}
@@ -200,20 +201,15 @@ export function Header() {
                 >
                   Trade
                 </Link>
-                <Link
-                  href="#contact"
-                  className="block text-lg font-medium text-warm-900 hover:text-primary-600 transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Contact
-                </Link>
                 <hr className="border-warm-200" />
                 <Link
-                  href="/customize"
+                  href="https://calendly.com/equzaliving"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="block text-lg font-medium text-primary-600 hover:text-primary-700 transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Customize
+                  Book a Call
                 </Link>
               </div>
 

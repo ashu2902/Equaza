@@ -160,16 +160,6 @@ function HeroSection() {
             </p>
           </SlideUp>
           
-          <SlideUp delay={0.6}>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100">
-                Our Journey
-              </Button>
-              <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-gray-900">
-                Meet Our Founders
-              </Button>
-            </div>
-          </SlideUp>
         </div>
       </Container>
     </div>
@@ -216,91 +206,77 @@ function MissionSection() {
   );
 }
 
-function TimelineSection() {
+function ContentSection() {
   return (
     <div className="py-10 md:py-14 lg:py-18" style={{backgroundColor: '#f1eee9'}}>
       <Container>
-        <div className="text-center mb-16">
+        <div className="max-w-4xl mx-auto space-y-8">
           <SlideUp>
-            <Typography variant="h2" className="mb-4 text-gray-900">
-              Our Journey Through Time
+            <Typography variant="h2" className="mb-8 text-gray-900">
+              Origins
             </Typography>
           </SlideUp>
           <SlideUp delay={0.2}>
-            <Typography variant="body" className="text-gray-600 max-w-2xl mx-auto">
-              From humble beginnings to becoming custodians of heritage craftsmanship, 
-              every step of our journey has been guided by respect for tradition and vision for the future.
+            <Typography variant="lead" className="text-gray-600 mb-12 leading-relaxed">
+              Discover the world behind every thread, where craft becomes living art.
             </Typography>
           </SlideUp>
-        </div>
-        
-        <div className="relative">
-          {/* Timeline Line */}
-          <div 
-            className="absolute left-1/2 transform -translate-x-0.5 w-1 h-full hidden lg:block"
-            style={{backgroundColor: '#98342d', opacity: 0.2}}
-          ></div>
           
-          <div className="space-y-16">
-            {timelineEvents.map((event, index) => (
-              <SlideUp key={index} delay={index * 0.1}>
-                <div className={`flex flex-col lg:flex-row items-center gap-8 ${
-                  index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'
-                }`}>
-                  {/* Content */}
-                  <div className="flex-1 lg:text-center">
-                    <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
-                      <CardContent className="p-8">
-                        <div className="flex items-center justify-between mb-4">
-                          <span 
-                            className="text-2xl font-bold"
-                            style={{color: '#98342d'}}
-                          >
-                            {event.year}
-                          </span>
-                          <event.icon className="w-6 h-6" style={{color: '#98342d'}} />
-                        </div>
-                        
-                        <Typography variant="h4" className="text-gray-900 mb-3">
-                          {event.title}
-                        </Typography>
-                        
-                        <Typography variant="body" className="text-gray-600 mb-4 leading-relaxed">
-                          {event.description}
-                        </Typography>
-                        
-                        <div 
-                          className="inline-block px-3 py-1 rounded-full text-sm font-medium text-white"
-                          style={{backgroundColor: '#98342d'}}
-                        >
-                          {event.highlight}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                  
-                  {/* Timeline Dot */}
-                  <div className="relative z-10 hidden lg:block">
-                    <div 
-                      className="w-6 h-6 rounded-full border-4 border-white shadow-lg"
-                      style={{backgroundColor: '#98342d'}}
-                    ></div>
-                  </div>
-                  
-                  {/* Image */}
-                  <div className="flex-1">
-                    <div 
-                      className="aspect-[4/3] rounded-lg bg-gray-200 shadow-lg"
-                      style={{backgroundColor: '#98342d', opacity: 0.1}}
-                    >
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        <span className="text-sm">{event.year} Image</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </SlideUp>
-            ))}
+          <div className="space-y-12">
+            <SlideUp delay={0.3}>
+              <div>
+                <Typography variant="h3" className="mb-6 text-gray-900">
+                  Our Mission
+                </Typography>
+                <Typography variant="body" className="text-gray-600 leading-relaxed mb-8">
+                  To craft rugs where every hand-knotted or hand-tufted fiber carries the legacy of master artisans, yet speaks in the refined language of contemporary design. By seamlessly blending heritage craftsmanship with modern aesthetics, we create pieces that infuse warmth, artistry, and enduring luxury into every home.
+                </Typography>
+              </div>
+            </SlideUp>
+            
+            <SlideUp delay={0.4}>
+              <div>
+                <Typography variant="h4" className="mb-4 text-gray-900" style={{color: '#98342d'}}>
+                  Icon - Timeless Craft
+                </Typography>
+                <Typography variant="body" className="text-gray-600 leading-relaxed mb-8">
+                  We safeguard centuries-old weaving traditions, ensuring the art of handwoven rugs thrives for generations to come.
+                </Typography>
+              </div>
+            </SlideUp>
+            
+            <SlideUp delay={0.5}>
+              <div>
+                <Typography variant="h4" className="mb-4 text-gray-900" style={{color: '#98342d'}}>
+                  Icon - Artisan Alliances
+                </Typography>
+                <Typography variant="body" className="text-gray-600 leading-relaxed mb-8">
+                  Building enduring relationships with skilled artisans based on respect, fairness, and shared dedication to craft.
+                </Typography>
+              </div>
+            </SlideUp>
+            
+            <SlideUp delay={0.6}>
+              <div>
+                <Typography variant="h4" className="mb-4 text-gray-900" style={{color: '#98342d'}}>
+                  Icon - Unmatched Craftsmanship
+                </Typography>
+                <Typography variant="body" className="text-gray-600 leading-relaxed mb-8">
+                  Every rug reflects the pinnacle of skill, materials, and finishing—honoring generations of mastery.
+                </Typography>
+              </div>
+            </SlideUp>
+            
+            <SlideUp delay={0.7}>
+              <div>
+                <Typography variant="h4" className="mb-4 text-gray-900" style={{color: '#98342d'}}>
+                  Icon - Contemporary Elegance
+                </Typography>
+                <Typography variant="body" className="text-gray-600 leading-relaxed">
+                  Blending heritage techniques with modern aesthetics, creating rugs that enrich today's living spaces.
+                </Typography>
+              </div>
+            </SlideUp>
           </div>
         </div>
       </Container>
@@ -308,99 +284,48 @@ function TimelineSection() {
   );
 }
 
-function FoundersSection() {
+
+
+function StoryContentSection() {
   return (
     <div className="py-10 md:py-14 lg:py-18 bg-white">
       <Container>
-        <div className="text-center mb-16">
+        <div className="max-w-4xl mx-auto space-y-8">
           <SlideUp>
-            <Typography variant="h2" className="mb-4 text-gray-900">
-              Meet Our Founders
+            <Typography variant="h3" className="mb-6 text-gray-900 font-bold">
+              We didn't invent this art. We simply curate its finest expressions.
             </Typography>
           </SlideUp>
+          
           <SlideUp delay={0.2}>
-            <Typography variant="body" className="text-gray-600 max-w-2xl mx-auto">
-              Passion for heritage and vision for the future brought our founders together 
-              to create something meaningful and lasting.
+            <Typography variant="body" className="text-gray-600 leading-relaxed mb-6">
+              At Equza Living Co., we collaborate with master weavers from Bhadohi, Jaipur, and Kashmir—the heartlands of Indian rug-making—** to present a carefully curated collection of hand-knotted, hand-tufted, and natural-fibre rugs. Many of our partners began with a single loom over fifty years ago; today, they employ thousands of artisans, each bringing a human cadence to every strand.
             </Typography>
           </SlideUp>
-        </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-4xl mx-auto">
-          {founders.map((founder, index) => (
-            <SlideUp key={index} delay={index * 0.2}>
-              <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-                <div 
-                  className="aspect-[4/3] bg-gray-200"
-                  style={{backgroundColor: '#98342d', opacity: 0.1}}
-                >
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    <span className="text-sm">Founder Photo</span>
-                  </div>
-                </div>
-                <CardContent className="p-8">
-                  <Typography variant="h4" className="text-gray-900 mb-2">
-                    {founder.name}
-                  </Typography>
-                  <Typography 
-                    variant="h6" 
-                    className="mb-4"
-                    style={{color: '#98342d'}}
-                  >
-                    {founder.role}
-                  </Typography>
-                  <Typography variant="body" className="text-gray-600 leading-relaxed">
-                    {founder.bio}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </SlideUp>
-          ))}
-        </div>
-      </Container>
-    </div>
-  );
-}
-
-function ImpactSection() {
-  return (
-    <div className="py-10 md:py-14 lg:py-18" style={{backgroundColor: '#f1eee9'}}>
-      <Container>
-        <div className="text-center mb-16">
-          <SlideUp>
-            <Typography variant="h2" className="mb-4 text-gray-900">
-              Our Impact Today
+          
+          <SlideUp delay={0.3}>
+            <Typography variant="body" className="text-gray-600 leading-relaxed mb-6">
+              Every rug is both canvas and craft: a space where visionary design meets generational skill. Wool, cotton, and bamboo-silk transform into living artworks, warming a bedroom floor, anchoring a living-room conversation, or daring to ascend a wall like a modern fresco. Geometric serenity, abstract spontaneity, or subtle figurative motifs—each piece is timeless by intention and tactile by soul, ready to turn a hallway into a gallery or spark quiet delight beneath a lacquered table.
             </Typography>
           </SlideUp>
-          <SlideUp delay={0.2}>
-            <Typography variant="body" className="text-gray-600 max-w-2xl mx-auto">
-              Every rug tells a story of preserved heritage, supported communities, 
-              and connections made between artisans and homes around the world.
+          
+          <SlideUp delay={0.4}>
+            <Typography variant="body" className="text-gray-600 leading-relaxed mb-6">
+              Our name, Equza, evokes refinement and balance—a commitment to curated excellence. Each rug <span className="underline decoration-[#98342d]">carries this ethos</span> <span className="underline decoration-[#98342d]">forward</span>, inviting you to live <span className="underline decoration-[#98342d]">slower</span>, <span className="underline decoration-[#98342d]">softer</span>, and with intention.
             </Typography>
           </SlideUp>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-          {[
-            { number: '150+', label: 'Artisan Partners', description: 'Skilled craftspeople in our network' },
-            { number: '3', label: 'Heritage Cities', description: 'Traditional craft centers we work with' },
-            { number: '500+', label: 'Rugs Crafted', description: 'Each piece telling a unique story' },
-            { number: '25+', label: 'Countries', description: 'Where our rugs have found homes' }
-          ].map((stat, index) => (
-            <ScaleIn key={index} delay={index * 0.1}>
-              <div className="text-center">
-                <Typography variant="h1" className="text-4xl font-bold mb-2" style={{color: '#98342d'}}>
-                  {stat.number}
-                </Typography>
-                <Typography variant="h5" className="text-gray-900 mb-2">
-                  {stat.label}
-                </Typography>
-                <Typography variant="small" className="text-gray-600">
-                  {stat.description}
-                </Typography>
-              </div>
-            </ScaleIn>
-          ))}
+          
+          <SlideUp delay={0.5}>
+            <Typography variant="body" className="text-gray-600 leading-relaxed mb-6">
+              Integrity shapes every step. Our weaving partners hold GoodWeave and Care & Fair certifications, practice closed-loop dyeing, and repurpose off-cuts into new yarns. A single rug may pass through up to ninety pairs of hands: the dyer who reads color by sunlight, the knitter who counts knots like prayer beads, the washer who finishes wool under monsoon skies. In those hands lie desert dawns, valley mists, and decades of quiet devotion.
+            </Typography>
+          </SlideUp>
+          
+          <SlideUp delay={0.6}>
+            <Typography variant="body" className="text-gray-600 leading-relaxed">
+              We don't sell trends. We offer permanence—woven stories that inhabit your space and endure as living art.
+            </Typography>
+          </SlideUp>
         </div>
       </Container>
     </div>
@@ -409,7 +334,7 @@ function ImpactSection() {
 
 function CallToActionSection() {
   return (
-    <div className="py-10 md:py-14 lg:py-18 bg-white">
+    <div className="py-10 md:py-14 lg:py-18" style={{backgroundColor: '#f1eee9'}}>
       <Container>
         <div className="text-center max-w-4xl mx-auto">
           <SlideUp>
@@ -419,20 +344,14 @@ function CallToActionSection() {
           </SlideUp>
           <SlideUp delay={0.2}>
             <Typography variant="body" className="text-gray-600 mb-8 leading-relaxed">
-              When you choose an Equza rug, you become part of our mission to preserve heritage craftsmanship 
-              and support artisan communities. Every purchase helps continue this timeless tradition.
+              Choosing an Equza rug means embracing heritage, sustaining the art of handwoven craftsmanship, and bringing a legacy of elegance into your home.
             </Typography>
           </SlideUp>
           <SlideUp delay={0.4}>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex justify-center">
               <Button asChild size="lg">
                 <Link href="/collections">
-                  Explore Our Heritage
-                </Link>
-              </Button>
-              <Button variant="outline" size="lg" asChild>
-                <Link href="/craftsmanship">
-                  Meet Our Artisans
+                  Explore Collections
                 </Link>
               </Button>
             </div>
@@ -465,19 +384,14 @@ export default function OurStoryPage() {
           <MissionSection />
         </SectionErrorBoundary>
 
-        {/* Timeline */}
-        <SectionErrorBoundary sectionName="timeline section">
-          <TimelineSection />
+        {/* Content */}
+        <SectionErrorBoundary sectionName="content section">
+          <ContentSection />
         </SectionErrorBoundary>
 
-        {/* Founders */}
-        <SectionErrorBoundary sectionName="founders section">
-          <FoundersSection />
-        </SectionErrorBoundary>
-
-        {/* Impact */}
-        <SectionErrorBoundary sectionName="impact section">
-          <ImpactSection />
+        {/* Story Content */}
+        <SectionErrorBoundary sectionName="story content section">
+          <StoryContentSection />
         </SectionErrorBoundary>
 
         {/* Call to Action */}

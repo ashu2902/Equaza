@@ -86,24 +86,20 @@ export default function CustomizePage() {
         </section>
         {/* Hero Section */}
         <SectionErrorBoundary sectionName="customize hero">
-          <section className="py-16 md:py-24">
-            <Container size="lg">
-              <div className="text-center max-w-4xl mx-auto space-y-8">
+          <section className="relative py-16 md:py-24">
+            {/* Background Image */}
+            <div className="absolute inset-0 z-0">
+              <img 
+                src="/images/craftsmanship-hero.jpg" 
+                alt="Traditional rug weaving background"
+                className="w-full h-full object-cover opacity-20"
+                style={{objectPosition: 'center 40%'}}
+              />
+            </div>
+            
+            <Container size="lg" className="relative z-20">
+              <div className="max-w-4xl space-y-8">
                 <FadeIn>
-                  <div className="flex justify-center mb-6">
-                    <ScaleIn delay={0.2}>
-                      <div 
-                        className="w-16 h-16 rounded-full flex items-center justify-center"
-                        style={{ backgroundColor: 'rgba(152, 52, 45, 0.1)' }}
-                      >
-                        <Sparkles 
-                          className="w-8 h-8"
-                          style={{ color: '#98342d' }}
-                        />
-                      </div>
-                    </ScaleIn>
-                  </div>
-                  
                   <Typography
                     variant="h1"
                     className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6"
@@ -117,7 +113,7 @@ export default function CustomizePage() {
                   
                   <Typography
                     variant="body"
-                    className="text-xl md:text-2xl text-gray-600 leading-relaxed"
+                    className="text-xl md:text-2xl text-gray-600 leading-relaxed max-w-3xl"
                     style={{ fontFamily: 'Poppins' }}
                   >
                     Create a one-of-a-kind handcrafted rug that perfectly captures your vision. 
@@ -272,7 +268,7 @@ export default function CustomizePage() {
           <section className="py-16 md:py-24 bg-white">
             <Container size="lg">
               <SlideUp delay={0.8}>
-                <div className="max-w-4xl mx-auto">
+                <div className="max-w-6xl mx-auto">
                   <div className="text-center mb-12">
                     <Typography 
                       variant="h2" 
