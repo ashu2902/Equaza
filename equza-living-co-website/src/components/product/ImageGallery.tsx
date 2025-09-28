@@ -186,9 +186,9 @@ export const ImageGallery: FC<ImageGalleryProps> = ({
               onClick={() => handleThumbnailClick(index)}
               className={`
                 relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all
-                ${selectedIndex === index 
-                  ? 'border-stone-900 ring-2 ring-stone-900/20' 
-                  : 'border-stone-200 hover:border-stone-300'
+                ${selectedIndex === index
+                  ? 'border-gray-900 ring-2 ring-gray-900/20'
+                  : 'border-gray-300 hover:border-gray-400'
                 }
               `}
               aria-label={`View image ${index + 1}`}
@@ -202,7 +202,7 @@ export const ImageGallery: FC<ImageGalleryProps> = ({
               />
               {image.isMain && (
                 <div className="absolute top-1 left-1">
-                  <span className="bg-stone-900 text-white text-xs px-1 rounded">
+                  <span className="bg-gray-900 text-white text-xs px-1 rounded">
                     Main
                   </span>
                 </div>
@@ -215,7 +215,7 @@ export const ImageGallery: FC<ImageGalleryProps> = ({
       {/* Image Counter */}
       {sortedImages.length > 1 && (
         <div className="text-center">
-          <span className="text-sm text-stone-500">
+          <span className="text-sm text-gray-600">
             {selectedIndex + 1} of {sortedImages.length}
           </span>
         </div>
@@ -227,19 +227,21 @@ export const ImageGallery: FC<ImageGalleryProps> = ({
         onOpenChange={setIsModalOpen}
       >
         <ModalContent
-          className="max-w-7xl"
-          showCloseButton={false}
+          className="w-[95vw] max-w-none mx-auto"
+          showCloseButton={true}
           onClose={closeModal}
         >
         <div className="relative">
-          {/* Modal Header */}
-          <div className="flex items-center justify-between p-4 border-b">
-            <div>
-              <h3 className="text-lg font-semibold">{productName}</h3>
-              <p className="text-sm text-stone-500">
-                Image {selectedIndex + 1} of {sortedImages.length}
-              </p>
-            </div>
+      {/* Modal Header */}
+      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900" style={{ color: '#98342d' }}>
+            {productName}
+          </h3>
+          <p className="text-sm text-gray-600">
+            Image {selectedIndex + 1} of {sortedImages.length}
+          </p>
+        </div>
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
@@ -260,15 +262,15 @@ export const ImageGallery: FC<ImageGalleryProps> = ({
             </div>
           </div>
 
-          {/* Modal Image */}
-          <div className="relative">
-            <div 
-              className={`
-                relative h-[70vh] overflow-hidden cursor-${isZoomed ? 'zoom-out' : 'zoom-in'}
-              `}
-              onClick={toggleZoom}
-              onMouseMove={handleMouseMove}
-            >
+            {/* Modal Image */}
+            <div className="relative bg-gray-50">
+              <div
+                className={`
+                  relative h-[75vh] overflow-hidden cursor-${isZoomed ? 'zoom-out' : 'zoom-in'}
+                `}
+                onClick={toggleZoom}
+                onMouseMove={handleMouseMove}
+              >
               <AnimatePresence mode="wait">
                 <motion.div
                   key={selectedIndex}
@@ -303,16 +305,16 @@ export const ImageGallery: FC<ImageGalleryProps> = ({
                 <Button
                   variant="ghost"
                   onClick={goToPrevious}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white hover:bg-black/70"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm text-gray-800 hover:bg-white shadow-lg border border-gray-200"
                   aria-label="Previous image"
                 >
                   <ChevronLeft className="w-6 h-6" />
                 </Button>
-                
+
                 <Button
                   variant="ghost"
                   onClick={goToNext}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white hover:bg-black/70"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm text-gray-800 hover:bg-white shadow-lg border border-gray-200"
                   aria-label="Next image"
                 >
                   <ChevronRight className="w-6 h-6" />
@@ -323,7 +325,7 @@ export const ImageGallery: FC<ImageGalleryProps> = ({
 
           {/* Modal Thumbnails */}
           {sortedImages.length > 1 && (
-            <div className="p-4 border-t">
+            <div className="p-4 border-t border-gray-200 bg-gray-50">
               <div className="flex gap-2 justify-center overflow-x-auto">
                 {sortedImages.map((image, index) => (
                   <button
@@ -331,9 +333,9 @@ export const ImageGallery: FC<ImageGalleryProps> = ({
                     onClick={() => handleThumbnailClick(index)}
                     className={`
                       relative flex-shrink-0 w-12 h-12 rounded overflow-hidden border-2 transition-all
-                      ${selectedIndex === index 
-                        ? 'border-stone-900' 
-                        : 'border-stone-200 hover:border-stone-300'
+                      ${selectedIndex === index
+                        ? 'border-gray-900 ring-2 ring-gray-900/20'
+                        : 'border-gray-300 hover:border-gray-400'
                       }
                     `}
                   >

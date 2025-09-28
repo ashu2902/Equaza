@@ -119,20 +119,21 @@ export const EnquiryModal: FC<EnquiryModalProps> = ({
         <div className="space-y-6">
         {/* Header */}
         <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 w-10 h-10 bg-stone-100 rounded-lg flex items-center justify-center">
-            <MessageSquare className="w-5 h-5 text-stone-600" />
+          <div className="flex-shrink-0 w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
+            <MessageSquare className="w-5 h-5 text-red-600" />
           </div>
           <div className="flex-1">
             <Typography
               variant="h4"
-              className="font-serif text-stone-900"
+              className="font-serif text-gray-900"
+              style={{ color: '#98342d' }}
             >
               Product Enquiry
             </Typography>
             {product && (
               <Typography
                 variant="body2"
-                className="text-stone-600 mt-1"
+                className="text-gray-600 mt-1"
               >
                 About: {product.name}
               </Typography>
@@ -142,7 +143,7 @@ export const EnquiryModal: FC<EnquiryModalProps> = ({
 
         {/* Product Preview */}
         {product && (
-          <div className="flex items-center gap-3 p-3 bg-stone-50 rounded-lg border">
+          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
             {product.images.length > 0 && (
               <img
                 src={product.images.find(img => img.isMain)?.url || product.images[0]?.url || '/images/placeholder-rug.jpg'}
@@ -153,13 +154,13 @@ export const EnquiryModal: FC<EnquiryModalProps> = ({
             <div className="flex-1">
               <Typography
                 variant="body2"
-                className="font-medium text-stone-900"
+                className="font-medium text-gray-900"
               >
                 {product.name}
               </Typography>
               <Typography
                 variant="caption"
-                className="text-stone-600"
+                className="text-gray-600"
               >
                 {product.collections.join(', ')}
               </Typography>
@@ -177,25 +178,26 @@ export const EnquiryModal: FC<EnquiryModalProps> = ({
               exit={{ opacity: 0, scale: 0.95 }}
               className="text-center py-6 space-y-4"
             >
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
-              >
-                <CheckCircle className="w-12 h-12 text-green-500 mx-auto" />
-              </motion.div>
-              <Typography
-                variant="h4"
-                className="font-serif text-stone-900"
-              >
-                Enquiry Sent!
-              </Typography>
-              <Typography
-                variant="body1"
-                className="text-stone-600"
-              >
-                Thank you for your enquiry about {product?.name || 'this product'}. We'll get back to you within 24 hours.
-              </Typography>
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
+            >
+              <CheckCircle className="w-12 h-12 text-green-600 mx-auto" />
+            </motion.div>
+            <Typography
+              variant="h4"
+              className="font-serif text-gray-900"
+              style={{ color: '#98342d' }}
+            >
+              Enquiry Sent!
+            </Typography>
+            <Typography
+              variant="body1"
+              className="text-gray-700"
+            >
+              Thank you for your enquiry about {product?.name || 'this product'}. We'll get back to you within 24 hours.
+            </Typography>
               <Button
                 onClick={handleSuccessClose}
                 className="mt-4"
@@ -268,7 +270,7 @@ export const EnquiryModal: FC<EnquiryModalProps> = ({
                 <div className="text-right mt-1">
                   <Typography
                     variant="caption"
-                    className="text-stone-500"
+                    className="text-gray-500"
                   >
                     {formValues.message?.length || 0}/500 characters
                   </Typography>
@@ -331,10 +333,10 @@ export const EnquiryModal: FC<EnquiryModalProps> = ({
               </div>
 
               {/* Info */}
-              <div className="text-center pt-2 border-t border-stone-200">
+              <div className="text-center pt-2 border-t border-gray-200">
                 <Typography
                   variant="caption"
-                  className="text-stone-500"
+                  className="text-gray-600"
                 >
                   We'll respond to your enquiry within 24 hours
                 </Typography>

@@ -9,7 +9,7 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { getSafeStyleCollections, getSafeSpaceCollections } from '@/lib/firebase/safe-firestore';
+import { getSafeStyleCollections, getSafeSpaceCollections, getSafeProductsByWeaveType } from '@/lib/firebase/safe-firestore';
 import { isDataResult } from '@/types/safe';
 
 // Components
@@ -17,6 +17,7 @@ import { Container } from '@/components/ui/Container';
 import { Typography } from '@/components/ui/Typography';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { SafeCollectionTilesSection } from '@/components/homepage/SafeCollectionTilesSection';
+import { CollectionProductsClient } from '@/components/collections/CollectionProductsClient';
 import { ErrorBoundary, SectionErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { FadeIn, SlideUp } from '@/components/ui/MotionWrapper';
 
@@ -27,51 +28,153 @@ import { LoadingSkeleton } from '@/components/homepage/LoadingSkeleton';
  * Collections Page Component
  */
 export default function CollectionsPage() {
+  const searchParams = useSearchParams();
+  const weaveType = searchParams.get('weave');
+  
   const [styleCollections, setStyleCollections] = useState<any[]>([]);
   const [spaceCollections, setSpaceCollections] = useState<any[]>([]);
+  const [weaveProducts, setWeaveProducts] = useState<any[]>([]);
   const [styleError, setStyleError] = useState<string | null>(null);
   const [spaceError, setSpaceError] = useState<string | null>(null);
+  const [weaveError, setWeaveError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchCollections() {
+    async function fetchData() {
       try {
-        const [styleResult, spaceResult] = await Promise.all([
-          getSafeStyleCollections(),
-          getSafeSpaceCollections(),
-        ]);
-
-        // Use actual Firebase data for style collections
-        if (isDataResult(styleResult) && styleResult.data) {
-          setStyleCollections(styleResult.data);
-          setStyleError(styleResult.error);
+        if (weaveType) {
+          // Fetch products by weave type
+          const weaveResult = await getSafeProductsByWeaveType(weaveType);
+          
+          if (isDataResult(weaveResult) && weaveResult.data) {
+            setWeaveProducts(weaveResult.data);
+            setWeaveError(weaveResult.error);
+          } else {
+            setWeaveProducts([]);
+            setWeaveError(weaveResult?.error || `No ${weaveType} products found`);
+          }
         } else {
-          setStyleCollections([]);
-          setStyleError(styleResult?.error || 'No style collections found');
-        }
+          // Fetch collections as usual
+          const [styleResult, spaceResult] = await Promise.all([
+            getSafeStyleCollections(),
+            getSafeSpaceCollections(),
+          ]);
 
-        // Use actual Firebase data for space collections
-        if (isDataResult(spaceResult) && spaceResult.data) {
-          setSpaceCollections(spaceResult.data);
-          setSpaceError(spaceResult.error);
-        } else {
-          setSpaceCollections([]);
-          setSpaceError(spaceResult?.error || 'No space collections found');
+          // Use actual Firebase data for style collections
+          if (isDataResult(styleResult) && styleResult.data) {
+            setStyleCollections(styleResult.data);
+            setStyleError(styleResult.error);
+          } else {
+            setStyleCollections([]);
+            setStyleError(styleResult?.error || 'No style collections found');
+          }
+
+          // Use actual Firebase data for space collections
+          if (isDataResult(spaceResult) && spaceResult.data) {
+            setSpaceCollections(spaceResult.data);
+            setSpaceError(spaceResult.error);
+          } else {
+            setSpaceCollections([]);
+            setSpaceError(spaceResult?.error || 'No space collections found');
+          }
         }
       } catch (error) {
-        console.error('Failed to fetch collections:', error);
-        setStyleCollections([]);
-        setSpaceCollections([]);
-        setStyleError('Failed to load style collections');
-        setSpaceError('Failed to load space collections');
+        console.error('Failed to fetch data:', error);
+        if (weaveType) {
+          setWeaveProducts([]);
+          setWeaveError('Failed to load products');
+        } else {
+          setStyleCollections([]);
+          setSpaceCollections([]);
+          setStyleError('Failed to load style collections');
+          setSpaceError('Failed to load space collections');
+        }
       } finally {
         setLoading(false);
       }
     }
 
-    fetchCollections();
-  }, []);
+    fetchData();
+  }, [weaveType]);
 
+  // Show weave type page if weave parameter exists
+  if (weaveType) {
+    return (
+      <ErrorBoundary>
+        <div className="min-h-screen" style={{ backgroundColor: '#f1eee9' }}>
+          {/* Breadcrumb Navigation */}
+          <SectionErrorBoundary sectionName="breadcrumb">
+            <section className="py-6 border-b border-gray-200">
+              <Container size="lg">
+                <FadeIn>
+                  <Breadcrumbs items={[
+                    { label: 'Home', href: '/' },
+                    { label: weaveType }
+                  ]} />
+                </FadeIn>
+              </Container>
+            </section>
+          </SectionErrorBoundary>
+
+          {/* Hero Section */}
+          <SectionErrorBoundary sectionName="weave type hero">
+            <section className="py-16 md:py-24">
+              <Container size="lg">
+                <FadeIn>
+                  <div className="max-w-3xl mx-auto text-center">
+                    <Typography
+                      variant="h1"
+                      className="text-5xl md:text-6xl lg:text-6xl font-normal mb-4 font-libre-baskerville"
+                      align="center"
+                      style={{ color: '#98342d' }}
+                    >
+                      {weaveType}
+                    </Typography>
+                    <Typography
+                      variant="body"
+                      className="text-lg md:text-xl text-gray-600 leading-relaxed mx-auto"
+                      align="center"
+                    >
+                      {weaveProducts.length > 0 
+                        ? `${weaveProducts.length} handcrafted rugs featuring ${weaveType.toLowerCase()} technique`
+                        : `Explore our ${weaveType.toLowerCase()} collection`
+                      }
+                    </Typography>
+                  </div>
+                </FadeIn>
+              </Container>
+            </section>
+          </SectionErrorBoundary>
+
+          {/* Products Section */}
+          <SectionErrorBoundary sectionName="weave products">
+            <section className="pb-10 md:pb-14 lg:pb-18">
+              <Container size="lg">
+                {loading ? (
+                  <div style={{ padding: '45px 48px' }}>
+                    <LoadingSkeleton variant="tiles" />
+                  </div>
+                ) : weaveError ? (
+                  <div className="text-center py-8">
+                    <Typography variant="body" className="text-red-600">
+                      {weaveError}
+                    </Typography>
+                  </div>
+                ) : (
+                  <CollectionProductsClient 
+                    products={weaveProducts}
+                    productsError={weaveError}
+                  />
+                )}
+              </Container>
+            </section>
+          </SectionErrorBoundary>
+        </div>
+      </ErrorBoundary>
+    );
+  }
+
+  // Show normal collections page
   return (
     <ErrorBoundary>
       <div className="min-h-screen" style={{ backgroundColor: '#f1eee9' }}>

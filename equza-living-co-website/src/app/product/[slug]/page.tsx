@@ -1,6 +1,6 @@
 /**
  * Product Detail Page - Dynamic Route
- * 
+ *
  * Full product page with image gallery, details, specifications, and enquiry
  * Following UI_UX_Development_Guide.md brand guidelines
  */
@@ -23,7 +23,7 @@ import { ProductDetail } from '@/components/product/ProductDetail';
 import { ProductSpecs } from '@/components/product/ProductSpecs';
 import { ImageGallery } from '@/components/product/ImageGallery';
 import { SafeProductGrid } from '@/components/product/SafeProductGrid';
-import { EnquiryModal } from '@/components/forms/EnquiryModal';
+import { ProductEnquirySection } from '@/components/product/ProductEnquirySection';
 import { ErrorBoundary, SectionErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { FadeIn, SlideUp } from '@/components/ui/MotionWrapper';
 
@@ -92,7 +92,7 @@ async function getProductPageData(slug: string) {
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
   const data = await getProductPageData(slug);
-  
+
   // Check if product exists
   if (!isDataResult(data.product) || !data.product.data) {
     notFound();
@@ -101,6 +101,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const product = data.product.data;
   const relatedProducts = isDataResult(data.relatedProducts) ? data.relatedProducts.data : [];
   const mainImage = product.images.find(img => img.isMain) || product.images[0];
+
+  // Create enquiry handler for client component
 
   return (
     <ErrorBoundary>
@@ -176,13 +178,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
                         {product.name}
                       </Typography>
                       
-                      <Typography 
-                        variant="h3" 
-                        className="text-xl md:text-2xl text-gray-600 mb-6"
-                        style={{ fontFamily: 'Poppins' }}
-                      >
-                        {product.specifications?.weaveType || 'Hand-knotted'}, {product.specifications?.materials?.join(' & ') || 'Wool & Viscose'}
-                      </Typography>
 
                       {/* Price */}
                       {product.price?.isVisible && (
@@ -199,29 +194,29 @@ export default async function ProductPage({ params }: ProductPageProps) {
                       )}
                     </div>
 
+                    {/* Product Description (without title) */}
+                    {product.description && (
+                      <div className="border-t border-gray-200 pt-6">
+                        <Typography
+                          variant="body"
+                          className="text-lg leading-relaxed text-gray-700"
+                          style={{ fontFamily: 'Poppins' }}
+                        >
+                          {product.description}
+                        </Typography>
+                      </div>
+                    )}
+
                     {/* Product Specifications */}
                     <Suspense fallback={<div className="h-32 bg-gray-100 rounded animate-pulse"></div>}>
-                      <ProductSpecs 
+                      <ProductSpecs
                         specifications={product.specifications}
                         className="border-t border-b border-gray-200 py-6"
                       />
                     </Suspense>
 
                     {/* Enquiry Button placed after Specifications */}
-                    <div className="pt-2 pb-4 md:pb-6">
-                      <Button 
-                        variant="outline" 
-                        size="lg" 
-                        className="w-full text-lg py-0"
-                        style={{ 
-                          borderColor: '#98342d',
-                          color: '#98342d',
-                          fontFamily: 'Poppins'
-                        }}
-                      >
-                        Enquire About This Rug
-                      </Button>
-                    </div>
+                    <ProductEnquirySection product={product} />
                   </div>
                 </SlideUp>
               </div>
@@ -246,12 +241,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
                     The Story Behind This Rug
                   </Typography>
                   
-                  <Typography 
-                    variant="body" 
+                  <Typography
+                    variant="body"
                     className="text-lg leading-relaxed text-gray-700"
                     style={{ fontFamily: 'Poppins' }}
                   >
-                    {product.story || `This exquisite rug is a testament to the artistry of traditional rug making. Inspired by the natural world, its design incorporates subtle patterns and textures that evoke a sense of calm and sophistication. Handcrafted by skilled artisans using time-honored techniques, this rug is not just a floor covering but a piece of art that adds warmth and character to any space.`}
+                    {product.story || product.description || `This exquisite rug is a testament to the artistry of traditional rug making. Inspired by the natural world, its design incorporates subtle patterns and textures that evoke a sense of calm and sophistication. Handcrafted by skilled artisans using time-honored techniques, this rug is not just a floor covering but a piece of art that adds warmth and character to any space.`}
                   </Typography>
                 </div>
               </SlideUp>

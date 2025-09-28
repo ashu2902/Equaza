@@ -27,11 +27,15 @@ import { SafeProduct, SafeCollection, SafeResult } from '@/types/safe';
  */
 function handleFirebaseError(error: any, operation: string): string {
   console.error(`Firebase ${operation} error:`, error);
-  
+
+  if (!error) {
+    return `Unknown error occurred during ${operation}`;
+  }
+
   if (error.code === 'permission-denied') {
     return 'Access denied. Please check your permissions.';
   }
-  
+
   if (error.code === 'unavailable') {
     return 'Service temporarily unavailable. Please try again.';
   }
@@ -50,6 +54,7 @@ function handleFirebaseError(error: any, operation: string): string {
 export interface ProductFilters {
   collectionId?: string;
   roomType?: string;
+  weaveType?: string;
   isFeatured?: boolean;
   isActive?: boolean;
   limit?: number;
@@ -66,6 +71,10 @@ export async function getSafeProducts(filters: ProductFilters = {}): Promise<Saf
     
     if (filters.collectionId) {
       constraints.push(where('collections', 'array-contains', filters.collectionId));
+    }
+    
+    if (filters.weaveType) {
+      constraints.push(where('specifications.weaveType', '==', filters.weaveType));
     }
     
     // roomTypes removed
@@ -159,6 +168,92 @@ export async function getSafeProductsByCollection(collectionSlug: string, limit?
 
 export async function getSafeProductsByRoom(roomType: string, limit?: number): Promise<SafeResult<SafeProduct[]>> {
   return getSafeProducts({ roomType, limit });
+}
+
+export async function getSafeProductsByWeaveType(weaveType: string, limit?: number): Promise<SafeResult<SafeProduct[]>> {
+  return getSafeProducts({ weaveType, limit });
+}
+
+export interface WeaveTypeWithImage {
+  weaveType: string;
+  image?: { src: string; alt: string };
+  productCount: number;
+}
+
+export async function getSafeAvailableWeaveTypes(): Promise<SafeResult<string[]>> {
+  try {
+    const q = query(
+      collection(db, 'products'),
+      where('isActive', '==', true)
+    );
+    
+    const snapshot = await getDocs(q);
+    const weaveTypes = new Set<string>();
+    
+    snapshot.docs.forEach(doc => {
+      const data = doc.data();
+      if (data.specifications?.weaveType && typeof data.specifications.weaveType === 'string') {
+        weaveTypes.add(data.specifications.weaveType);
+      }
+    });
+
+    const sortedWeaveTypes = Array.from(weaveTypes).sort();
+    
+    return { data: sortedWeaveTypes, error: null, loading: false };
+  } catch (error) {
+    return { 
+      data: null, 
+      error: handleFirebaseError(error, 'fetch available weave types'), 
+      loading: false 
+    };
+  }
+}
+
+export async function getSafeWeaveTypesWithImages(): Promise<SafeResult<WeaveTypeWithImage[]>> {
+  try {
+    const q = query(
+      collection(db, 'products'),
+      where('isActive', '==', true),
+      orderBy('sortOrder', 'asc')
+    );
+    
+    const snapshot = await getDocs(q);
+    const weaveTypeMap = new Map<string, WeaveTypeWithImage>();
+    
+    snapshot.docs.forEach(doc => {
+      const data = doc.data();
+      const weaveType = data.specifications?.weaveType;
+      
+      if (weaveType && typeof weaveType === 'string') {
+        if (!weaveTypeMap.has(weaveType)) {
+          // Get the main image from the first product of this weave type
+          const mainImage = data.images?.find((img: any) => img.isMain) || data.images?.[0];
+          
+          weaveTypeMap.set(weaveType, {
+            weaveType,
+            image: mainImage ? { src: mainImage.url, alt: mainImage.alt || weaveType } : undefined,
+            productCount: 1
+          });
+        } else {
+          // Increment product count for this weave type
+          const existing = weaveTypeMap.get(weaveType)!;
+          existing.productCount += 1;
+        }
+      }
+    });
+
+    const weaveTypesWithImages = Array.from(weaveTypeMap.values()).sort((a, b) => 
+      a.weaveType.localeCompare(b.weaveType)
+    );
+    
+    return { data: weaveTypesWithImages, error: null, loading: false };
+  } catch (error) {
+    return { 
+      data: null, 
+      error: handleFirebaseError(error, 'fetch weave types with images'), 
+      loading: false 
+    };
+  }
 }
 
 /**
@@ -431,39 +526,70 @@ export async function getSafeCollectionBySlug(slug: string): Promise<SafeResult<
 
 export async function getSafeRelatedProducts(productSlug: string, limitCount: number = 4): Promise<SafeResult<SafeProduct[]>> {
   try {
-    // First get the current product to find its collections
-    const currentProductResult = await getSafeProductBySlug(productSlug);
-    
-    if (!currentProductResult.data) {
+    // Validate input
+    if (!productSlug || typeof productSlug !== 'string') {
+      console.warn('Invalid product slug provided to getSafeRelatedProducts');
       return { data: [], error: null, loading: false };
     }
-    
+
+    // First get the current product to find its collections
+    const currentProductResult = await getSafeProductBySlug(productSlug);
+
+    if (!currentProductResult.data) {
+      console.warn(`Product not found for slug: ${productSlug}`);
+      return { data: [], error: null, loading: false };
+    }
+
     const currentProduct = currentProductResult.data;
-    
+
+    // Check if product has collections
+    if (!currentProduct.collections || currentProduct.collections.length === 0) {
+      console.log(`Product ${productSlug} has no collections for related products`);
+      return { data: [], error: null, loading: false };
+    }
+
+    // Filter out empty or invalid collection IDs
+    const validCollections = currentProduct.collections.filter(id => id && typeof id === 'string' && id.trim().length > 0);
+    if (validCollections.length === 0) {
+      console.log(`Product ${productSlug} has no valid collections for related products`);
+      return { data: [], error: null, loading: false };
+    }
+
     // Get products from the same collections, excluding the current product
-    const q = query(
-      collection(db, 'products'),
-      where('isActive', '==', true),
-      where('collections', 'array-contains-any', currentProduct.collections || []),
-      orderBy('createdAt', 'desc'),
-      firestoreLimit(limitCount + 1) // Get one extra to exclude current product
-    );
-    
-    const snapshot = await getDocs(q);
-    let relatedProducts = transformProducts(snapshot.docs);
-    
-    // Filter out the current product
-    relatedProducts = relatedProducts.filter(product => product.slug !== productSlug);
-    
-    // Limit to desired count
-    relatedProducts = relatedProducts.slice(0, limitCount);
-    
-    return { data: relatedProducts, error: null, loading: false };
+    try {
+      const q = query(
+        collection(db, 'products'),
+        where('isActive', '==', true),
+        where('collections', 'array-contains-any', validCollections),
+        orderBy('createdAt', 'desc'),
+        firestoreLimit(limitCount + 1) // Get one extra to exclude current product
+      );
+
+      const snapshot = await getDocs(q);
+      let relatedProducts = transformProducts(snapshot.docs);
+
+      // Filter out the current product
+      relatedProducts = relatedProducts.filter(product => product.slug !== productSlug);
+
+      // Limit to desired count
+      relatedProducts = relatedProducts.slice(0, limitCount);
+
+      console.log(`Found ${relatedProducts.length} related products for ${productSlug}`);
+      return { data: relatedProducts, error: null, loading: false };
+    } catch (queryError) {
+      console.error('Firebase query error in getSafeRelatedProducts:', queryError);
+      return {
+        data: null,
+        error: handleFirebaseError(queryError, 'fetch related products'),
+        loading: false
+      };
+    }
   } catch (error) {
-    return { 
-      data: null, 
-      error: handleFirebaseError(error, 'fetch related products'), 
-      loading: false 
+    console.error('Error in getSafeRelatedProducts:', error);
+    return {
+      data: null,
+      error: handleFirebaseError(error, 'fetch related products'),
+      loading: false
     };
   }
 }

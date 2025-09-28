@@ -113,6 +113,10 @@ export const getProducts = unstable_cache(
         constraints.push(where('specifications.materials', 'array-contains-any', filters.materials));
       }
       
+      if (filters.weaveType) {
+        constraints.push(where('specifications.weaveType', '==', filters.weaveType));
+      }
+      
       if (filters.isActive !== undefined) {
         constraints.push(where('isActive', '==', filters.isActive));
       }
@@ -358,27 +362,80 @@ export const getProductsStats = unstable_cache(
 );
 
 /**
+ * Get products by weave type
+ */
+export const getProductsByWeaveType = unstable_cache(
+  async (weaveType: string, limitCount?: number): Promise<Product[]> => {
+    return getProducts({ 
+      weaveType, 
+      isActive: true, 
+      limit: limitCount 
+    });
+  },
+  ['products-by-weave-type'],
+  {
+    revalidate: CACHE_REVALIDATE.products,
+    tags: [CACHE_TAGS.products],
+  }
+);
+
+/**
+ * Get available weave types
+ */
+export const getAvailableWeaveTypes = unstable_cache(
+  async (): Promise<string[]> => {
+    try {
+      const products = await getProducts({ isActive: true });
+      
+      const weaveTypes = new Set<string>();
+      
+      products.forEach(product => {
+        if (product.specifications.weaveType) {
+          weaveTypes.add(product.specifications.weaveType);
+        }
+      });
+      
+      return Array.from(weaveTypes).sort();
+    } catch (error) {
+      console.error('Error getting available weave types:', error);
+      throw new Error('Failed to get weave types');
+    }
+  },
+  ['available-weave-types'],
+  {
+    revalidate: CACHE_REVALIDATE.products,
+    tags: [CACHE_TAGS.products],
+  }
+);
+
+/**
  * Get available filter options
  */
 export const getProductFilterOptions = unstable_cache(
   async (): Promise<{
     materials: string[];
     collections: string[];
+    weaveTypes: string[];
   }> => {
     try {
       const products = await getProducts({ isActive: true });
       
       const materials = new Set<string>();
       const collections = new Set<string>();
+      const weaveTypes = new Set<string>();
       
       products.forEach(product => {
         product.specifications.materials.forEach(material => materials.add(material));
         product.collections.forEach(collection => collections.add(collection));
+        if (product.specifications.weaveType) {
+          weaveTypes.add(product.specifications.weaveType);
+        }
       });
       
       return {
         materials: Array.from(materials).sort(),
         collections: Array.from(collections).sort(),
+        weaveTypes: Array.from(weaveTypes).sort(),
       };
     } catch (error) {
       console.error('Error getting product filter options:', error);

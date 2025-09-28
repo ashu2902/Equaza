@@ -48,11 +48,11 @@ const Modal: React.FC<ModalProps> = ({ open, onOpenChange, children }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Overlay */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/30 backdrop-blur-sm"
         onClick={() => onOpenChange(false)}
       />
       {/* Content */}
-      <div className="relative z-50 mx-4 max-h-[90vh] max-w-lg overflow-auto">
+      <div className="relative z-50 mx-4 max-h-[90vh] w-full overflow-auto">
         {children}
       </div>
     </div>
@@ -64,7 +64,7 @@ const ModalContent = React.forwardRef<HTMLDivElement, ModalContentProps>(
     <div
       ref={ref}
       className={cn(
-        'relative rounded-lg border border-stone-200 bg-white p-6 shadow-lg dark:border-stone-800 dark:bg-stone-950',
+        'relative rounded-lg border border-gray-200 bg-white p-6 shadow-lg w-full',
         className
       )}
       {...props}

@@ -15,7 +15,7 @@
 import { useState, useTransition, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Upload, Save, Loader2, X, ImageIcon } from 'lucide-react';
+import { ArrowLeft, Upload, Save, Loader2, ImageIcon } from 'lucide-react';
 
 // Components
 import { Button } from '@/components/ui/Button';
@@ -298,16 +298,46 @@ export function AddProductForm({
 
   const removeImage = (index: number) => {
     const removedFile = formData.images[index];
-    console.log(`🗑️ AddProductForm: Removing image at index ${index}:`, removedFile?.name);
-    
+    console.log(`🗑️ AddProductForm: Removing new image at index ${index}:`, removedFile?.name);
+
     setFormData(prev => {
       const newImages = prev.images.filter((_, i) => i !== index);
-      console.log(`🗑️ AddProductForm: Remaining images: ${newImages.length}`);
+      console.log(`🗑️ AddProductForm: Remaining new images: ${newImages.length}`);
       return {
         ...prev,
         images: newImages
       };
     });
+  };
+
+  const removeExistingImage = async (index: number) => {
+    const existingImage = formData.existingImages[index];
+    if (!existingImage) return;
+
+    console.log(`🗑️ AddProductForm: Removing existing image:`, existingImage.storageRef);
+
+    try {
+      // Delete from Firebase Storage
+      const { deleteFileAction } = await import('@/lib/actions/files');
+      const result = await deleteFileAction(existingImage.storageRef);
+
+      if (result.success) {
+        setFormData(prev => {
+          const newExistingImages = prev.existingImages.filter((_, i) => i !== index);
+          console.log(`🗑️ AddProductForm: Remaining existing images: ${newExistingImages.length}`);
+          return {
+            ...prev,
+            existingImages: newExistingImages
+          };
+        });
+      } else {
+        console.error('Failed to delete existing image:', result.message);
+        alert('Failed to delete image from storage. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error deleting existing image:', error);
+      alert('Failed to delete image. Please try again.');
+    }
   };
 
   const validateForm = (): boolean => {
@@ -443,7 +473,7 @@ export function AddProductForm({
           console.log('📸 AddProductForm: No images to upload');
         }
 
-        // Merge images: keep existing + any new uploads for edit; for create only new uploads
+        // Merge images: keep existing (after removals) + any new uploads for edit; for create only new uploads
         const finalImages: ProductImage[] = (mode === 'edit')
           ? [...formData.existingImages, ...uploadedImages]
           : uploadedImages;
@@ -850,19 +880,45 @@ export function AddProductForm({
                       <Label className="text-[#98342d]/80">Existing Images ({formData.existingImages.length})</Label>
                       <div className="grid grid-cols-2 gap-3">
                         {formData.existingImages.map((img, index) => (
-                          <div key={index} className="relative bg-[#98342d]/5 rounded-lg p-3">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-12 h-12 bg-[#98342d]/10 rounded-lg flex items-center justify-center">
-                                <ImageIcon className="h-6 w-6 text-[#98342d]/50" />
+                          <div key={index} className="bg-[#98342d]/5 rounded-lg p-3">
+                            <div className="flex flex-col items-center space-y-2">
+                              <div className="w-16 h-16 bg-[#98342d]/10 rounded-lg overflow-hidden flex items-center justify-center">
+                                {img.url ? (
+                                  <img
+                                    src={img.url}
+                                    alt={img.alt || `Image ${index+1}`}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      // Fallback to icon if image fails to load
+                                      const target = e.target as HTMLImageElement;
+                                      target.style.display = 'none';
+                                      const parent = target.parentElement!;
+                                      parent.innerHTML = '<svg class="h-8 w-8 text-[#98342d]/50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>';
+                                    }}
+                                  />
+                                ) : (
+                                  <ImageIcon className="h-8 w-8 text-[#98342d]/50" />
+                                )}
                               </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-[#98342d] truncate">{img.alt || `Image ${index+1}`}</p>
+                              <div className="text-center">
+                                <p className="text-sm font-medium text-[#98342d]">{img.alt || `Image ${index+1}`}</p>
                                 <p className="text-xs text-[#98342d]/60">{img.isMain ? 'Main Image' : 'Secondary'}</p>
                               </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeExistingImage(index)}
+                                className="text-red-500 hover:text-red-700 px-2 py-1 text-xs"
+                              >
+                                Delete
+                              </Button>
                             </div>
                           </div>
                         ))}
                       </div>
+                      <p className="text-xs text-[#98342d]/60">
+                        Removing an existing image will permanently delete it from storage.
+                      </p>
                     </div>
                   )}
 
@@ -872,27 +928,38 @@ export function AddProductForm({
                       <Label className="text-[#98342d]/80">Selected Images ({formData.images.length})</Label>
                       <div className="grid grid-cols-2 gap-3">
                         {formData.images.map((file, index) => (
-                          <div key={index} className="relative group bg-[#98342d]/5 rounded-lg p-3">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-12 h-12 bg-[#98342d]/10 rounded-lg flex items-center justify-center">
-                                <ImageIcon className="h-6 w-6 text-[#98342d]/50" />
+                          <div key={index} className="bg-[#98342d]/5 rounded-lg p-3">
+                            <div className="flex flex-col items-center space-y-2">
+                              <div className="w-16 h-16 bg-[#98342d]/10 rounded-lg overflow-hidden flex items-center justify-center">
+                                <img
+                                  src={URL.createObjectURL(file)}
+                                  alt={file.name}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    // Fallback to icon if image fails to load
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    const parent = target.parentElement!;
+                                    parent.innerHTML = '<svg class="h-8 w-8 text-[#98342d]/50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>';
+                                  }}
+                                />
                               </div>
-                              <div className="flex-1 min-w-0">
+                              <div className="text-center">
                                 <p className="text-sm font-medium text-[#98342d] truncate">{file.name}</p>
                                 <p className="text-xs text-[#98342d]/60">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                                 {index === 0 && (
                                   <p className="text-xs text-green-600 font-medium">Main Image</p>
                                 )}
                               </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeImage(index)}
+                                className="text-red-500 hover:text-red-700 px-2 py-1 text-xs"
+                              >
+                                Delete
+                              </Button>
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeImage(index)}
-                              className="absolute top-1 right-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
                           </div>
                         ))}
                       </div>

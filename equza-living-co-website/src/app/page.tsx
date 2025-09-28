@@ -11,7 +11,8 @@ import {
   getSafeHomepageData,
   getSafeStyleCollections,
   getSafeSpaceCollections,
-  getSafeFeaturedProducts 
+  getSafeFeaturedProducts,
+  getSafeWeaveTypesWithImages
 } from '@/lib/firebase/safe-firestore';
 import { getHomePageData, type HomePageData } from '@/lib/firebase/pages';
 import { isDataResult, ErrorResult } from '@/types/safe';
@@ -30,8 +31,7 @@ import { ErrorBoundary, SectionErrorBoundary } from '@/components/ui/ErrorBounda
 import { FeatureStrip } from '@/components/homepage/FeatureStrip';
 import { DualCardHighlight } from '@/components/homepage/DualCardHighlight';
 import RoomHighlightCarousel from '@/components/homepage/RoomHighlightCarousel';
-import { SideBySideShowcase } from '@/components/homepage/SideBySideShowcase';
-import { ImageBannerCTA } from '@/components/homepage/ImageBannerCTA';
+import { WeaveTypesCarousel } from '@/components/homepage/WeaveTypesCarousel';
 
 // Loading components
 import { LoadingSkeleton } from '@/components/homepage/LoadingSkeleton';
@@ -58,12 +58,14 @@ async function getHomepageData() {
       styleCollectionsResult,
       spaceCollectionsResult,
       featuredProductsResult,
+      weaveTypesResult,
       homeCms
     ] = await Promise.all([
       getSafeHomepageData(),
       getSafeStyleCollections(6),
       getSafeSpaceCollections(3),
       getSafeFeaturedProducts(9),
+      getSafeWeaveTypesWithImages(),
       getHomePageData()
     ]);
 
@@ -72,6 +74,7 @@ async function getHomepageData() {
       styleCollections: styleCollectionsResult,
       spaceCollections: spaceCollectionsResult,
       featuredProducts: featuredProductsResult,
+      weaveTypes: weaveTypesResult,
       homeCms
     };
   } catch (error) {
@@ -82,7 +85,8 @@ async function getHomepageData() {
       homepage: { data: null, error: 'Failed to load homepage data', loading: false } as ErrorResult,
       styleCollections: { data: null, error: 'Failed to load style collections', loading: false } as ErrorResult,
       spaceCollections: { data: null, error: 'Failed to load space collections', loading: false } as ErrorResult,
-      featuredProducts: { data: null, error: 'Failed to load featured products', loading: false } as ErrorResult
+      featuredProducts: { data: null, error: 'Failed to load featured products', loading: false } as ErrorResult,
+      weaveTypes: { data: null, error: 'Failed to load weave types', loading: false } as ErrorResult
     };
   }
 }
@@ -97,6 +101,7 @@ export default async function HomePage() {
   const featuredProducts = isDataResult(data.featuredProducts) ? data.featuredProducts.data : [];
   const styleCollections = isDataResult(data.styleCollections) ? data.styleCollections.data : [];
   const spaceCollections = isDataResult(data.spaceCollections) ? data.spaceCollections.data : [];
+  const weaveTypesWithImages = isDataResult(data.weaveTypes) ? data.weaveTypes.data : [];
   
   return (
     <ErrorBoundary>
@@ -124,7 +129,7 @@ export default async function HomePage() {
         </div>
 
         {/* Content sections with standardized spacing rhythm */}
-        <div className="flex flex-col gap-10 md:gap-14 lg:gap-18">
+        <div className="flex flex-col gap-2 md:gap-2 lg:gap-1">
           {/* Rugs by Style Collections */}
           <SectionErrorBoundary sectionName="style collections">
             <StyleCollectionsSection
@@ -145,21 +150,14 @@ export default async function HomePage() {
             />
           </SectionErrorBoundary>
 
-          {/* Techniques showcase */}
-          <SectionErrorBoundary sectionName="techniques showcase">
-            <SideBySideShowcase
-              items={(
-                data.homeCms?.techniques && data.homeCms.techniques.length === 2
-              )
-                ? (data.homeCms.techniques as any).map((t: any) => ({
-                    title: t.title,
-                    image: { src: t.image?.src || '', alt: t.image?.alt || t.title },
-                    href: t.href,
-                  })) as any
-                : [
-                    { title: 'Hand-knotted', image: { src: '', alt: 'Hand-knotted' }, href: '/collections/hand-knotted' },
-                    { title: 'Hand tufted', image: { src: '', alt: 'Hand tufted' }, href: '/collections/hand-tufted' },
-                  ]}
+          {/* Weave Types Carousel */}
+          <SectionErrorBoundary sectionName="weave types carousel">
+            <WeaveTypesCarousel
+              weaveTypes={weaveTypesWithImages.map(item => ({
+                weaveType: item.weaveType,
+                href: `/collections?weave=${encodeURIComponent(item.weaveType)}`,
+                image: item.image
+              }))}
             />
           </SectionErrorBoundary>
 
@@ -173,20 +171,6 @@ export default async function HomePage() {
             <OurStoryTeaser />
           </SectionErrorBoundary>
 
-          {/* Craftsmanship banner */}
-          <SectionErrorBoundary sectionName="craftsmanship banner">
-            <ImageBannerCTA
-              title={data.homeCms?.craftsmanship?.title || 'Hands of Heritage'}
-              image={{
-                src: data.homeCms?.craftsmanship?.image?.src || '',
-                alt: data.homeCms?.craftsmanship?.image?.alt || 'Craftsmanship',
-              }}
-              cta={{
-                label: data.homeCms?.craftsmanship?.cta?.label || 'Explore the Craft',
-                href: data.homeCms?.craftsmanship?.cta?.href || '/craftsmanship',
-              }}
-            />
-          </SectionErrorBoundary>
 
           {/* Rugs by Space moved lower/not in PDF primary flow; keep but below heritage */}
 

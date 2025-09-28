@@ -239,6 +239,7 @@ export interface ApiResponse<T = any> {
 // Filter interfaces
 export interface ProductFilters {
   collectionId?: string;
+  weaveType?: string;
   materials?: string[];
   isActive?: boolean;
   isFeatured?: boolean;
