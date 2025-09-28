@@ -15,6 +15,7 @@ import { Container } from '@/components/ui/Container';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
+import { HeroSection } from '@/components/ui/HeroSection';
 import { ErrorBoundary, SectionErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { FadeIn, SlideUp } from '@/components/ui/MotionWrapper';
 
@@ -31,47 +32,16 @@ export const metadata: Metadata = {
 
 
 
-function HeroSection() {
+function CraftsmanshipHeroSection() {
   return (
-    <div className="relative min-h-[70vh] md:min-h-screen flex items-center" style={{backgroundColor: '#f1eee9'}}>
-      {/* Background Image with Overlay */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-black/30 z-10"></div>
-        <img 
-          src="/images/craftsmanship-hero.jpg" 
-          alt="Master artisan weaving a traditional rug"
-          className="w-full h-full object-cover"
-          style={{objectPosition: 'center 40%'}}
-        />
-      </div>
-      
-      {/* Content */}
-      <Container className="relative z-20">
-        <div className="max-w-4xl">
-          <FadeIn>
-            <Link 
-              href="/" 
-              className="inline-flex items-center text-white/80 hover:text-white transition-colors mb-8"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Link>
-          </FadeIn>
-          
-          <SlideUp delay={0.2}>
-            <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-white mb-4">Hands of Heritage</h1>
-          </SlideUp>
-          
-          <SlideUp delay={0.4}>
-            <p className="text-white/90 mb-8 max-w-2xl text-lg leading-relaxed">
-              Every rug tells a story of ancient techniques, patient hands, and timeless traditions. 
-              Journey with us through the sacred art of handcrafted excellence.
-            </p>
-          </SlideUp>
-          
-        </div>
-      </Container>
-    </div>
+    <HeroSection
+      pageType="craftsmanship"
+      title="Hands of Heritage"
+      subtitle="Every rug tells a story of ancient techniques, patient hands, and timeless traditions. Journey with us through the sacred art of handcrafted excellence."
+      textAlignment="left"
+      overlayOpacity={0.3}
+      className="min-h-[70vh] md:min-h-screen flex items-center"
+    />
   );
 }
 
@@ -248,7 +218,7 @@ export default function CraftsmanshipPage() {
         </section>
         {/* Hero Section */}
         <SectionErrorBoundary sectionName="craftsmanship hero">
-          <HeroSection />
+          <CraftsmanshipHeroSection />
         </SectionErrorBoundary>
 
         {/* Crafting Overview */}

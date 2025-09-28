@@ -18,7 +18,8 @@ import {
   Eye,
   Plus,
   ArrowUpRight,
-  FileText
+  FileText,
+  Image
 } from 'lucide-react';
 
 // Components
@@ -76,6 +77,13 @@ const quickActions = [
     href: '/admin/collections/new',
     icon: Grid3X3,
     color: 'bg-[#98342d]/80'
+  },
+  {
+    title: 'Hero Images',
+    description: 'Manage page hero background images',
+    href: '/admin/hero-images',
+    icon: Image,
+    color: 'bg-[#98342d]/70'
   },
   {
     title: 'View Leads',

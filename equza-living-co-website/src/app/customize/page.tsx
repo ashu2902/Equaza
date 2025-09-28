@@ -13,6 +13,7 @@ import { ArrowLeft, Sparkles, Palette, Ruler, Heart } from 'lucide-react';
 // Components
 import { Container } from '@/components/ui/Container';
 import { Typography } from '@/components/ui/Typography';
+import { HeroSection } from '@/components/ui/HeroSection';
 import { CustomizeFormSection } from './CustomizeFormSection';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { ErrorBoundary, SectionErrorBoundary } from '@/components/ui/ErrorBoundary';
@@ -86,54 +87,15 @@ export default function CustomizePage() {
         </section>
         {/* Hero Section */}
         <SectionErrorBoundary sectionName="customize hero">
-          <section className="relative py-16 md:py-24">
-            {/* Background Image */}
-            <div className="absolute inset-0 z-0">
-              <img 
-                src="/images/craftsmanship-hero.jpg" 
-                alt="Traditional rug weaving background"
-                className="w-full h-full object-cover opacity-20"
-                style={{objectPosition: 'center 40%'}}
-              />
-            </div>
-            
-            <Container size="lg" className="relative z-20">
-              <div className="max-w-4xl space-y-8">
-                <FadeIn>
-                  <Typography
-                    variant="h1"
-                    className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6"
-                    style={{ 
-                      fontFamily: 'Libre Baskerville',
-                      color: '#98342d'
-                    }}
-                  >
-                    You Imagine It.<br />We Weave It.
-                  </Typography>
-                  
-                  <Typography
-                    variant="body"
-                    className="text-xl md:text-2xl text-gray-600 leading-relaxed max-w-3xl"
-                    style={{ fontFamily: 'Poppins' }}
-                  >
-                    Create a one-of-a-kind handcrafted rug that perfectly captures your vision. 
-                    Our master artisans will transform your ideas into a stunning reality.
-                  </Typography>
-                </FadeIn>
-
-                {/* Back Link */}
-                <SlideUp delay={0.3}>
-                  <Link 
-                    href="/"
-                    className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors group"
-                  >
-                    <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-                    <span style={{ fontFamily: 'Poppins' }}>Back to Home</span>
-                  </Link>
-                </SlideUp>
-              </div>
-            </Container>
-          </section>
+          <HeroSection
+            pageType="customize"
+            title="You Imagine It.
+We Weave It."
+            subtitle="Create a one-of-a-kind handcrafted rug that perfectly captures your vision. Our master artisans will transform your ideas into a stunning reality."
+            textAlignment="left"
+            overlayOpacity={0.2}
+            className="py-16 md:py-24"
+          />
         </SectionErrorBoundary>
 
         {/* Features Section */}

@@ -23,6 +23,7 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
+import { HeroSection } from '@/components/ui/HeroSection';
 import { TradeForm } from '@/components/forms/TradeForm';
 import { ErrorBoundary, SectionErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { FadeIn, SlideUp, ScaleIn } from '@/components/ui/MotionWrapper';
@@ -89,54 +90,24 @@ const partnerTypes = [
 
 
 
-function HeroSection() {
+function TradeHeroSection() {
   return (
-    <div className="relative min-h-[70vh] md:min-h-screen flex items-center" style={{backgroundColor: '#f1eee9'}}>
-      {/* Background Image with Overlay */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-black/40 z-10"></div>
-        <img 
-          src="/images/trade-hero.jpg" 
-          alt="Business partnership handshake with rugs in background"
-          className="w-full h-full object-cover"
-          style={{objectPosition: 'center 40%'}}
-        />
-      </div>
-      
-      {/* Content */}
-      <Container className="relative z-20">
-        <div className="max-w-4xl">
-          <FadeIn>
-            <Link 
-              href="/" 
-              className="inline-flex items-center text-white/80 hover:text-white transition-colors mb-8"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Link>
-          </FadeIn>
-          
-          <SlideUp delay={0.2}>
-            <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-white mb-4">Trade Partnership</h1>
-          </SlideUp>
-          
-          <SlideUp delay={0.4}>
-            <p className="text-white/90 mb-8 max-w-3xl text-lg leading-relaxed">
-              Partner with us to bring authentic handcrafted rugs to your customers. 
-              Join our network of designers, retailers, and industry professionals.
-            </p>
-          </SlideUp>
-          
-          <SlideUp delay={0.6}>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100">
-                Partner With Us
-              </Button>
-            </div>
-          </SlideUp>
+    <HeroSection
+      pageType="trade"
+      title="Trade Partnership"
+      subtitle="Partner with us to bring authentic handcrafted rugs to your customers. Join our network of designers, retailers, and industry professionals."
+      textAlignment="left"
+      overlayOpacity={0.4}
+      className="min-h-[70vh] md:min-h-screen flex items-center"
+    >
+      <SlideUp delay={0.6}>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100">
+            Partner With Us
+          </Button>
         </div>
-      </Container>
-    </div>
+      </SlideUp>
+    </HeroSection>
   );
 }
 
@@ -327,7 +298,7 @@ export default function TradePage() {
         </section>
         {/* Hero Section */}
         <SectionErrorBoundary sectionName="trade hero">
-          <HeroSection />
+          <TradeHeroSection />
         </SectionErrorBoundary>
 
         {/* Benefits */}

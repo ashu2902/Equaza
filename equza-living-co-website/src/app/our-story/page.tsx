@@ -16,6 +16,7 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
+import { HeroSection } from '@/components/ui/HeroSection';
 import { ErrorBoundary, SectionErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { FadeIn, SlideUp, ScaleIn } from '@/components/ui/MotionWrapper';
 
@@ -122,47 +123,16 @@ const founders = [
   }
 ];
 
-function HeroSection() {
+function OurStoryHeroSection() {
   return (
-    <div className="relative min-h-[70vh] md:min-h-screen flex items-center" style={{backgroundColor: '#f1eee9'}}>
-      {/* Background Image with Overlay */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-black/40 z-10"></div>
-        <img 
-          src="/images/our-story-hero.jpg" 
-          alt="Traditional rug weaving with modern design elements"
-          className="w-full h-full object-cover"
-          style={{objectPosition: 'center 30%'}}
-        />
-      </div>
-      
-      {/* Content */}
-      <Container className="relative z-20">
-        <div className="max-w-4xl">
-          <FadeIn>
-            <Link 
-              href="/" 
-              className="inline-flex items-center text-white/80 hover:text-white transition-colors mb-8"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Link>
-          </FadeIn>
-          
-          <SlideUp delay={0.2}>
-            <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-white mb-4">Our Story</h1>
-          </SlideUp>
-          
-          <SlideUp delay={0.4}>
-            <p className="text-white/90 mb-8 max-w-3xl text-lg leading-relaxed">
-              From a passion for heritage crafts to becoming guardians of traditional artistry, 
-              our journey is woven with threads of respect, authenticity, and timeless beauty.
-            </p>
-          </SlideUp>
-          
-        </div>
-      </Container>
-    </div>
+    <HeroSection
+      pageType="our-story"
+      title="Our Story"
+      subtitle="From a passion for heritage crafts to becoming guardians of traditional artistry, our journey is woven with threads of respect, authenticity, and timeless beauty."
+      textAlignment="left"
+      overlayOpacity={0.4}
+      className="min-h-[70vh] md:min-h-screen flex items-center"
+    />
   );
 }
 
@@ -376,7 +346,7 @@ export default function OurStoryPage() {
         </section>
         {/* Hero Section */}
         <SectionErrorBoundary sectionName="our story hero">
-          <HeroSection />
+          <OurStoryHeroSection />
         </SectionErrorBoundary>
 
         {/* Mission & Values */}
