@@ -10,10 +10,27 @@ import {
   initializeHeroImages, 
   updatePageHeroImage, 
   updateMultipleHeroImages,
-  type HeroImageData 
+  type HeroImageData,
+  type AllHeroImages
 } from '@/lib/firebase/hero-images';
-import { validateAdminAuth } from '@/lib/firebase/auth';
+import { checkAdminStatus } from '@/lib/firebase/auth';
+import { auth } from '@/lib/firebase/config';
 import { revalidatePath } from 'next/cache';
+
+async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string; email?: string }> {
+  try {
+    const isAdmin = await checkAdminStatus();
+    const user = auth?.currentUser;
+    return {
+      isAdmin,
+      userId: user?.uid,
+      email: user?.email || undefined,
+    };
+  } catch (error) {
+    console.error('Error verifying admin auth:', error);
+    return { isAdmin: false };
+  }
+}
 
 export interface HeroImageActionResult {
   success: boolean;
@@ -27,12 +44,12 @@ export interface HeroImageActionResult {
 export async function initializeHeroImagesAction(): Promise<HeroImageActionResult> {
   try {
     // Validate admin authentication
-    const user = await validateAdminAuth();
-    if (!user) {
+    const auth = await verifyAdminAuth();
+    if (!auth.isAdmin || !auth.email) {
       redirect('/admin/login');
     }
 
-    await initializeHeroImages(user.email || 'admin');
+    await initializeHeroImages(auth.email);
 
     // Revalidate affected paths
     revalidatePath('/admin/hero-images');
@@ -63,12 +80,12 @@ export async function updatePageHeroImageAction(
 ): Promise<HeroImageActionResult> {
   try {
     // Validate admin authentication
-    const user = await validateAdminAuth();
-    if (!user) {
+    const auth = await verifyAdminAuth();
+    if (!auth.isAdmin || !auth.email) {
       redirect('/admin/login');
     }
 
-    await updatePageHeroImage(pageType, imageData, user.email || 'admin');
+    await updatePageHeroImage(pageType, imageData, auth.email);
 
     // Revalidate affected paths
     revalidatePath('/admin/hero-images');
@@ -95,12 +112,24 @@ export async function updateMultipleHeroImagesAction(
 ): Promise<HeroImageActionResult> {
   try {
     // Validate admin authentication
-    const user = await validateAdminAuth();
-    if (!user) {
+    const auth = await verifyAdminAuth();
+    if (!auth.isAdmin || !auth.email) {
       redirect('/admin/login');
     }
 
-    await updateMultipleHeroImages(updates, user.email || 'admin');
+    // Transform updates to include the required fields
+    const transformedUpdates: Partial<Omit<AllHeroImages, 'updatedAt'>> = {};
+    Object.entries(updates).forEach(([pageType, updateData]) => {
+      if (updateData && pageType !== 'updatedAt') {
+        (transformedUpdates as any)[pageType] = {
+          ...updateData,
+          uploadedAt: new Date(), // Will be replaced with Timestamp in the function
+          uploadedBy: auth.email,
+        } as HeroImageData;
+      }
+    });
+
+    await updateMultipleHeroImages(transformedUpdates, auth.email);
 
     // Revalidate affected paths
     revalidatePath('/admin/hero-images');

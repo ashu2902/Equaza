@@ -183,7 +183,7 @@ export const updateMultipleHeroImages = async (
         updateData[pageType as keyof AllHeroImages] = {
           ...updates[pageType as keyof typeof updates] as HeroImageData,
           uploadedAt: Timestamp.now(),
-          uploadedBy,
+          uploadedBy: updatedBy,
         };
       }
     });

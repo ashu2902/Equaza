@@ -115,7 +115,7 @@ export default function AdminHeroImagesPage() {
     updateForm(pageType, 'isDragOver', false);
     
     const files = Array.from(e.dataTransfer.files);
-    if (files.length > 0) {
+    if (files.length > 0 && files[0]) {
       handleFileChange(pageType, files[0]);
     }
   }, [updateForm, handleFileChange]);
