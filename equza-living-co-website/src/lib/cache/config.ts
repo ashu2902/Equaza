@@ -63,7 +63,7 @@ export const CACHE_CONFIG = {
   // Products - shorter cache for frequently updated data
   products: {
     duration: CACHE_DURATION.SHORT,
-    tags: [CACHE_TAGS.products],
+    tags: [CACHE_TAGS.products] as string[],
   },
   product: {
     duration: CACHE_DURATION.MEDIUM,
@@ -75,13 +75,13 @@ export const CACHE_CONFIG = {
   },
   featuredProducts: {
     duration: CACHE_DURATION.SHORT,
-    tags: [CACHE_TAGS.featuredProducts],
+    tags: [CACHE_TAGS.featuredProducts] as string[],
   },
   
   // Collections - medium cache
   collections: {
     duration: CACHE_DURATION.MEDIUM,
-    tags: [CACHE_TAGS.collections],
+    tags: [CACHE_TAGS.collections] as string[],
   },
   collection: {
     duration: CACHE_DURATION.LONG,
@@ -93,17 +93,17 @@ export const CACHE_CONFIG = {
   },
   styleCollections: {
     duration: CACHE_DURATION.MEDIUM,
-    tags: [CACHE_TAGS.styleCollections],
+    tags: [CACHE_TAGS.styleCollections] as string[],
   },
   spaceCollections: {
     duration: CACHE_DURATION.MEDIUM,
-    tags: [CACHE_TAGS.spaceCollections],
+    tags: [CACHE_TAGS.spaceCollections] as string[],
   },
   
   // Leads - very short cache for real-time updates
   leads: {
     duration: CACHE_DURATION.REAL_TIME,
-    tags: [CACHE_TAGS.leads],
+    tags: [CACHE_TAGS.leads] as string[],
   },
   lead: {
     duration: CACHE_DURATION.SHORT,
@@ -111,7 +111,7 @@ export const CACHE_CONFIG = {
   },
   leadsStats: {
     duration: CACHE_DURATION.SHORT,
-    tags: [CACHE_TAGS.leadsStats],
+    tags: [CACHE_TAGS.leadsStats] as string[],
   },
   
   // Pages - longer cache for content
@@ -121,29 +121,29 @@ export const CACHE_CONFIG = {
   },
   homepage: {
     duration: CACHE_DURATION.MEDIUM,
-    tags: [CACHE_TAGS.homepage],
+    tags: [CACHE_TAGS.homepage] as string[],
   },
   
   // Settings - long cache
   settings: {
     duration: CACHE_DURATION.VERY_LONG,
-    tags: [CACHE_TAGS.settings],
+    tags: [CACHE_TAGS.settings] as string[],
   },
   siteSettings: {
     duration: CACHE_DURATION.VERY_LONG,
-    tags: [CACHE_TAGS.siteSettings],
+    tags: [CACHE_TAGS.siteSettings] as string[],
   },
   contactInfo: {
     duration: CACHE_DURATION.VERY_LONG,
-    tags: [CACHE_TAGS.contactInfo],
+    tags: [CACHE_TAGS.contactInfo] as string[],
   },
   
   // Weave types - medium cache
   weaveTypes: {
     duration: CACHE_DURATION.MEDIUM,
-    tags: [CACHE_TAGS.weaveTypes],
+    tags: [CACHE_TAGS.weaveTypes] as string[],
   },
-} as const;
+};
 
 /**
  * Create a cached function with standardized configuration
@@ -161,7 +161,7 @@ export function createCachedFunction<T extends any[], R>(
     Array.isArray(key) ? key : [key],
     {
       revalidate: config.duration,
-      tags: typeof config.tags === 'function' ? [] : config.tags,
+      tags: typeof config.tags === 'function' ? [] : (config.tags as string[]),
     }
   );
 }
