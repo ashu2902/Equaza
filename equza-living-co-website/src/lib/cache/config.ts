@@ -56,6 +56,7 @@ export const CACHE_TAGS = {
   siteSettings: 'site-settings',
   contactInfo: 'contact-info',
   seoDefaults: 'seo-defaults',
+  lookbook: 'lookbook',
 } as const;
 
 // Cache configuration for different data types
@@ -99,6 +100,14 @@ export const CACHE_CONFIG = {
     duration: CACHE_DURATION.MEDIUM,
     tags: [CACHE_TAGS.spaceCollections] as string[],
   },
+  featuredCollections: {
+    duration: CACHE_DURATION.MEDIUM,
+    tags: [CACHE_TAGS.collections, 'featured-collections'] as string[],
+  },
+  collectionsStats: {
+    duration: CACHE_DURATION.MEDIUM,
+    tags: [CACHE_TAGS.collections, 'collections-stats'] as string[],
+  },
   
   // Leads - very short cache for real-time updates
   leads: {
@@ -137,11 +146,21 @@ export const CACHE_CONFIG = {
     duration: CACHE_DURATION.VERY_LONG,
     tags: [CACHE_TAGS.contactInfo] as string[],
   },
+  seoDefaults: {
+    duration: CACHE_DURATION.VERY_LONG,
+    tags: [CACHE_TAGS.seoDefaults] as string[],
+  },
   
   // Weave types - medium cache
   weaveTypes: {
     duration: CACHE_DURATION.MEDIUM,
     tags: [CACHE_TAGS.weaveTypes] as string[],
+  },
+  
+  // Lookbook - long cache
+  lookbook: {
+    duration: CACHE_DURATION.LONG,
+    tags: [CACHE_TAGS.lookbook] as string[],
   },
 };
 

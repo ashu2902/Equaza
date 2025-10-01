@@ -159,49 +159,43 @@ export const getLeadById = async (id: string): Promise<Lead | null> => {
 /**
  * Get leads by status
  */
-export const getLeadsByStatus = unstable_cache(
+export const getLeadsByStatus = createCachedFunction(
   async (status: LeadStatus): Promise<Lead[]> => {
+    logCacheOperation('getLeadsByStatus', { status });
     return getLeads({ status });
   },
-  ['leads-by-status'],
-  {
-    revalidate: CACHE_REVALIDATE.leads,
-    tags: [CACHE_TAGS.leads],
-  }
+  'leads-by-status',
+  CACHE_CONFIG.leads
 );
 
 /**
  * Get leads by type
  */
-export const getLeadsByType = unstable_cache(
+export const getLeadsByType = createCachedFunction(
   async (type: LeadType): Promise<Lead[]> => {
+    logCacheOperation('getLeadsByType', { type });
     return getLeads({ type });
   },
-  ['leads-by-type'],
-  {
-    revalidate: CACHE_REVALIDATE.leads,
-    tags: [CACHE_TAGS.leads],
-  }
+  'leads-by-type',
+  CACHE_CONFIG.leads
 );
 
 /**
  * Get recent leads
  */
-export const getRecentLeads = unstable_cache(
+export const getRecentLeads = createCachedFunction(
   async (limitCount: number = 10): Promise<Lead[]> => {
+    logCacheOperation('getRecentLeads', { limitCount });
     return getLeads({ limit: limitCount });
   },
-  ['recent-leads'],
-  {
-    revalidate: CACHE_REVALIDATE.leads,
-    tags: [CACHE_TAGS.leads],
-  }
+  'recent-leads',
+  CACHE_CONFIG.leads
 );
 
 /**
  * Get leads statistics
  */
-export const getLeadsStats = unstable_cache(
+export const getLeadsStats = createCachedFunction(
   async (): Promise<{
     total: number;
     byStatus: Record<LeadStatus, number>;
@@ -209,6 +203,7 @@ export const getLeadsStats = unstable_cache(
     recent: number; // last 7 days
   }> => {
     try {
+      logCacheOperation('getLeadsStats', {});
       const allLeads = await getLeads({});
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -247,11 +242,8 @@ export const getLeadsStats = unstable_cache(
       throw new Error('Failed to get leads stats');
     }
   },
-  ['leads-stats'],
-  {
-    revalidate: CACHE_REVALIDATE.leadsStats,
-    tags: [CACHE_TAGS.leads, CACHE_TAGS.leadsStats],
-  }
+  'leads-stats',
+  CACHE_CONFIG.leadsStats
 );
 
 /**

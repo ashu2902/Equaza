@@ -174,9 +174,10 @@ export const getCollectionBySlug = createCachedFunction(
 /**
  * Get featured collections
  */
-export const getFeaturedCollections = unstable_cache(
+export const getFeaturedCollections = createCachedFunction(
   async (limitCount: number = 6): Promise<Collection[]> => {
     try {
+      logCacheOperation('getFeaturedCollections', { limitCount });
       const q = query(
         collection(db, 'collections'),
         where('isActive', '==', true),
@@ -194,11 +195,8 @@ export const getFeaturedCollections = unstable_cache(
       throw new Error('Failed to fetch featured collections');
     }
   },
-  ['featured-collections'],
-  {
-    revalidate: CACHE_REVALIDATE.collections,
-    tags: [CACHE_TAGS.collections, 'featured-collections'],
-  }
+  'featured-collections',
+  CACHE_CONFIG.featuredCollections
 );
 
 /**
@@ -234,9 +232,10 @@ export const searchCollections = async (
 /**
  * Get collections count by type
  */
-export const getCollectionsCount = unstable_cache(
+export const getCollectionsCount = createCachedFunction(
   async (): Promise<{ total: number; style: number; space: number }> => {
     try {
+      logCacheOperation('getCollectionsCount', {});
       const [allCollections, styleCollections, spaceCollections] = await Promise.all([
         getCollections({ isActive: true }),
         getCollections({ type: 'style', isActive: true }),
@@ -253,11 +252,8 @@ export const getCollectionsCount = unstable_cache(
       throw new Error('Failed to get collections count');
     }
   },
-  ['collections-count'],
-  {
-    revalidate: CACHE_REVALIDATE.collections,
-    tags: [CACHE_TAGS.collections],
-  }
+  'collections-count',
+  CACHE_CONFIG.collectionsStats
 );
 
 /**

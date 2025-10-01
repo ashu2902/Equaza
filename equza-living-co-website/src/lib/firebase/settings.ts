@@ -10,7 +10,6 @@ import {
   setDoc,
   Timestamp,
 } from 'firebase/firestore';
-import { unstable_cache } from 'next/cache';
 
 import type { SiteSettings, Lookbook } from '@/types';
 import { db } from './config';
@@ -80,9 +79,10 @@ const sanitizeInput = (input: string): string => {
 /**
  * Get site settings with caching
  */
-export const getSiteSettings = unstable_cache(
+export const getSiteSettings = createCachedFunction(
   async (): Promise<SiteSettings | null> => {
     try {
+      logCacheOperation('getSiteSettings', {});
       const docRef = doc(db, 'settings', SETTINGS_DOC_ID);
       const docSnap = await getDoc(docRef);
       
@@ -125,11 +125,8 @@ export const getSiteSettings = unstable_cache(
       throw new Error('Failed to fetch site settings');
     }
   },
-  ['site-settings'],
-  {
-    revalidate: CACHE_REVALIDATE.settings,
-    tags: [CACHE_TAGS.settings],
-  }
+  'site-settings',
+  CACHE_CONFIG.siteSettings
 );
 
 /**
@@ -236,9 +233,10 @@ export const initializeSiteSettings = async (
 /**
  * Get current lookbook with caching
  */
-export const getCurrentLookbook = unstable_cache(
+export const getCurrentLookbook = createCachedFunction(
   async (): Promise<Lookbook | null> => {
     try {
+      logCacheOperation('getCurrentLookbook', {});
       const docRef = doc(db, 'settings', LOOKBOOK_DOC_ID);
       const docSnap = await getDoc(docRef);
       
@@ -274,11 +272,8 @@ export const getCurrentLookbook = unstable_cache(
       throw new Error('Failed to fetch current lookbook');
     }
   },
-  ['current-lookbook'],
-  {
-    revalidate: CACHE_REVALIDATE.lookbook,
-    tags: [CACHE_TAGS.lookbook],
-  }
+  'current-lookbook',
+  CACHE_CONFIG.lookbook
 );
 
 /**
@@ -334,13 +329,14 @@ export const deactivateLookbook = async (updatedBy: string = 'admin'): Promise<v
 /**
  * Get contact information from settings
  */
-export const getContactInfo = unstable_cache(
+export const getContactInfo = createCachedFunction(
   async (): Promise<{
     email: string;
     calendlyUrl: string;
     socialLinks: SiteSettings['socialLinks'];
   }> => {
     try {
+      logCacheOperation('getContactInfo', {});
       const settings = await getSiteSettingsWithDefaults();
       
       return {
@@ -353,19 +349,17 @@ export const getContactInfo = unstable_cache(
       throw new Error('Failed to get contact info');
     }
   },
-  ['contact-info'],
-  {
-    revalidate: CACHE_REVALIDATE.settings,
-    tags: [CACHE_TAGS.settings],
-  }
+  'contact-info',
+  CACHE_CONFIG.contactInfo
 );
 
 /**
  * Get SEO defaults from settings
  */
-export const getSEODefaults = unstable_cache(
+export const getSEODefaults = createCachedFunction(
   async (): Promise<SiteSettings['seoDefaults']> => {
     try {
+      logCacheOperation('getSEODefaults', {});
       const settings = await getSiteSettingsWithDefaults();
       
       return settings.seoDefaults;
@@ -374,11 +368,8 @@ export const getSEODefaults = unstable_cache(
       throw new Error('Failed to get SEO defaults');
     }
   },
-  ['seo-defaults'],
-  {
-    revalidate: CACHE_REVALIDATE.settings,
-    tags: [CACHE_TAGS.settings],
-  }
+  'seo-defaults',
+  CACHE_CONFIG.seoDefaults
 );
 
 /**
