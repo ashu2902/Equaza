@@ -129,7 +129,7 @@ export default async function HomePage() {
         </div>
 
         {/* Content sections with standardized spacing rhythm */}
-        <div className="flex flex-col gap-2 md:gap-2 lg:gap-1">
+        <div className="flex flex-col gap-1">
           {/* Rugs by Style Collections */}
           <SectionErrorBoundary sectionName="style collections">
             <StyleCollectionsSection

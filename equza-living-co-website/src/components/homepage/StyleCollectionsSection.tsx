@@ -30,22 +30,20 @@ export function StyleCollectionsSection({
   // If no collections are available, show an elegant empty state
   if (!loading && !error && (!collections || collections.length === 0)) {
     return (
-      <section className="py-16 lg:py-24" style={{ backgroundColor: '#f1eee9' }}>
+      <section className="py-8 lg:py-12" style={{ backgroundColor: '#f1eee9' }}>
         <Container size="xl">
           <FadeIn>
-            <div className="text-center space-y-6 mb-16">
+            <div className="space-y-6 mb-16">
               <Typography 
                 variant="h2" 
                 className="text-4xl md:text-5xl font-normal leading-tight font-libre-baskerville"
-                align="center"
                 style={{ color: '#98342d' }}
               >
                 {title}
               </Typography>
               <Typography 
                 variant="subtitle1" 
-                className="text-xl max-w-3xl mx-auto leading-relaxed font-poppins"
-                align="center"
+                className="text-xl max-w-3xl leading-relaxed font-poppins"
                 style={{ color: '#666666' }}
               >
                 {subtitle}
@@ -112,22 +110,20 @@ export function StyleCollectionsSection({
   }
   
   return (
-    <section className="py-16 lg:py-24" style={{ backgroundColor: '#f1eee9' }}>
+    <section className="py-8 lg:py-12" style={{ backgroundColor: '#f1eee9' }}>
       <Container size="xl">
         <FadeIn>
-          <div className="text-center space-y-6 mb-16">
+          <div className="space-y-6 mb-16">
             <Typography 
               variant="h2" 
               className="text-4xl md:text-5xl font-normal leading-tight font-libre-baskerville"
-              align="center"
               style={{ color: '#98342d' }}
             >
               {title}
             </Typography>
             <Typography 
               variant="subtitle1" 
-              className="text-xl max-w-3xl mx-auto leading-relaxed font-poppins"
-              align="center"
+              className="text-xl max-w-3xl leading-relaxed font-poppins"
               style={{ color: '#666666' }}
             >
               {subtitle}

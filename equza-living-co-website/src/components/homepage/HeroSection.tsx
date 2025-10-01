@@ -133,19 +133,19 @@ export function HeroSection({ heroCms }: HeroSectionProps) {
 
       {/* Minimal Hero Content - Clean and Simple */}
       <div className="relative z-10 min-h-screen flex items-center justify-center">
-        <div className="text-center max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-left md:text-center max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeIn>
             <div className="space-y-6">
               {/* Main Headline - Clean and Readable */}
               <Typography 
                 variant="h1" 
-                className="text-4xl md:text-5xl lg:text-6xl font-serif font-normal leading-tight text-white"
+                className="text-4xl md:text-5xl lg:text-6xl font-serif font-normal leading-tight text-white text-left md:text-center"
                 style={{ textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}
               >
                 {currentCmsSlide?.title || 'Crafted Calm for Modern Spaces'}
               </Typography>
               {currentCmsSlide?.subtitle && (
-                <Typography variant="body" className="text-white/90 max-w-2xl mx-auto">
+                <Typography variant="body" className="text-white/90 max-w-2xl mx-auto text-left md:text-center">
                   {currentCmsSlide.subtitle}
                 </Typography>
               )}
@@ -154,7 +154,7 @@ export function HeroSection({ heroCms }: HeroSectionProps) {
 
           {/* Blended CTA Button - Elegant and Soft */}
           <SlideUp delay={0.2}>
-            <div className="mt-8">
+            <div className="mt-8 flex justify-start md:justify-center">
               <Button 
                 asChild 
                 size="lg" 

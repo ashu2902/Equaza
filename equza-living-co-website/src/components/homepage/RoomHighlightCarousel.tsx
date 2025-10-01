@@ -33,7 +33,7 @@ function RoomCard({ collection }: { collection: SafeCollection }) {
   return (
     <Link href={`/collections/${collection.slug}`} className="block group">
       <div className="relative bg-white rounded-2xl overflow-hidden border border-neutral-200">
-        <div className="relative aspect-[4/3]">
+        <div className="relative aspect-[2.5/1]">
           <SafeImage
             src={collection.heroImage.url}
             alt={collection.heroImage.alt}
@@ -67,6 +67,8 @@ export function RoomHighlightCarousel({
   const [index, setIndex] = useState(0);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [touchEndX, setTouchEndX] = useState<number | null>(null);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   const items = useMemo(() => {
     // Keep only living-room, bedroom, and narrow/hallway spaces if available, preserving this order
@@ -81,10 +83,29 @@ export function RoomHighlightCarousel({
     if (index >= items.length) setIndex(0);
   }, [items.length, index]);
 
+  // Autoscroll effect
+  useEffect(() => {
+    if (items.length <= 1 || isHovered || isPaused) return;
+
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % items.length);
+    }, 4000); // Auto-advance every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [items.length, isHovered, isPaused]);
+
   if (items.length === 0) return null;
 
-  const goNext = () => setIndex((prev) => (prev + 1) % items.length);
-  const goPrev = () => setIndex((prev) => (prev - 1 + items.length) % items.length);
+  const goNext = () => {
+    setIndex((prev) => (prev + 1) % items.length);
+    setIsPaused(true); // Pause autoscroll when user manually navigates
+    setTimeout(() => setIsPaused(false), 6000); // Resume after 6 seconds
+  };
+  const goPrev = () => {
+    setIndex((prev) => (prev - 1 + items.length) % items.length);
+    setIsPaused(true); // Pause autoscroll when user manually navigates
+    setTimeout(() => setIsPaused(false), 6000); // Resume after 6 seconds
+  };
 
   const handleTouchStart = (e: any) => {
     if (!e.changedTouches || e.changedTouches.length === 0) return;
@@ -107,6 +128,9 @@ export function RoomHighlightCarousel({
     setTouchEndX(null);
   };
 
+  const handleMouseEnter = () => setIsHovered(true);
+  const handleMouseLeave = () => setIsHovered(false);
+
   return (
     <section className="py-12 md:py-16" style={{ backgroundColor: '#f1eee9' }}>
       <Container size="xl">
@@ -126,6 +150,8 @@ export function RoomHighlightCarousel({
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         >
           {/* Track */}
           <div className="overflow-hidden">
