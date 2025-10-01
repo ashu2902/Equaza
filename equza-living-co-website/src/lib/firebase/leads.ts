@@ -1,6 +1,6 @@
 /**
  * Leads Data Layer
- * Firestore operations for lead management with validation
+ * Firestore operations for lead management with centralized caching and validation
  */
 
 import {
@@ -21,7 +21,6 @@ import {
   DocumentSnapshot,
   QueryDocumentSnapshot,
 } from 'firebase/firestore';
-import { unstable_cache } from 'next/cache';
 
 import type { 
   Lead, 
@@ -35,18 +34,12 @@ import type {
   TradeFormData
 } from '@/types';
 import { db } from './config';
-
-// Cache configuration
-const CACHE_TAGS = {
-  leads: 'leads',
-  lead: (id: string) => `lead-${id}`,
-  leadsStats: 'leads-stats',
-} as const;
-
-const CACHE_REVALIDATE = {
-  leads: 60, // 1 minute (leads need fresh data)
-  leadsStats: 300, // 5 minutes
-} as const;
+import { 
+  createCachedFunction, 
+  CACHE_CONFIG, 
+  invalidateEntityCache,
+  logCacheOperation 
+} from '@/lib/cache/config';
 
 // Helper function to convert Firestore document to typed object with proper serialization
 const convertDoc = <T>(doc: DocumentSnapshot | QueryDocumentSnapshot): T | null => {
@@ -96,9 +89,11 @@ const sanitizeInput = (input: string): string => {
 /**
  * Get leads with filters and caching
  */
-export const getLeads = unstable_cache(
+export const getLeads = createCachedFunction(
   async (filters: LeadFilters = {}): Promise<Lead[]> => {
     try {
+      logCacheOperation('getLeads', { filters });
+      
       const constraints: QueryConstraint[] = [];
       
       // Apply filters
@@ -142,11 +137,8 @@ export const getLeads = unstable_cache(
       throw new Error('Failed to fetch leads');
     }
   },
-  ['leads'],
-  {
-    revalidate: CACHE_REVALIDATE.leads,
-    tags: [CACHE_TAGS.leads],
-  }
+  'leads',
+  CACHE_CONFIG.leads
 );
 
 /**

@@ -46,6 +46,9 @@ export const metadata: Metadata = {
   },
 };
 
+// Revalidate every 5 minutes to ensure fresh data
+export const revalidate = 300;
+
 /**
  * Homepage Data Fetching
  * Uses safe data access with comprehensive error handling

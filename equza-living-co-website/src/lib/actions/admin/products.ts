@@ -16,6 +16,10 @@ import {
   isProductSlugAvailable 
 } from '@/lib/firebase/products';
 import { addProductIdToCollection, removeProductIdFromCollection } from '@/lib/firebase/collections';
+import { 
+  invalidateEntityCache, 
+  invalidateByTags 
+} from '@/lib/cache/config';
 // import { checkAdminStatus } from '@/lib/firebase/auth'; // Not needed in server actions
 import { cookies } from 'next/headers';
 import { getAdminAuth } from '@/lib/firebase/server-app';
@@ -305,18 +309,18 @@ export async function updateAdminProduct(
       console.warn('Collection sync after update failed:', syncErr);
     }
 
-    // Invalidate cache
-    revalidateTag('products');
-    revalidateTag(`product-${productId}`);
-    revalidateTag(`product-slug-${originalProduct.slug}`);
-    if (updates.slug) {
-      revalidateTag(`product-slug-${updates.slug}`);
+    // Invalidate cache using centralized system
+    invalidateEntityCache('product', productId, [
+      'products',
+      'featured-products',
+      'products-stats',
+      'product-filter-options'
+    ]);
+    
+    // Also invalidate slug cache if slug changed
+    if (updates.slug && updates.slug !== originalProduct.slug) {
+      invalidateByTags([`product-slug-${originalProduct.slug}`, `product-slug-${updates.slug}`]);
     }
-    if (updates.isFeatured !== undefined) {
-      revalidateTag('featured-products');
-    }
-    revalidateTag('products-stats');
-    revalidateTag('product-filter-options');
 
     // Log admin action
     console.log('Admin product updated:', {

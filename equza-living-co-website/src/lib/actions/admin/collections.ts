@@ -15,6 +15,10 @@ import {
   getCollectionById,
   isCollectionSlugAvailable 
 } from '@/lib/firebase/collections';
+import { 
+  invalidateEntityCache, 
+  invalidateByTags 
+} from '@/lib/cache/config';
 // import { checkAdminStatus } from '@/lib/firebase/auth'; // Not needed in server actions
 import { cookies } from 'next/headers';
 import { getAdminAuth } from '@/lib/firebase/server-app';

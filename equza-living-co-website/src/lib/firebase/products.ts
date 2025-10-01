@@ -1,6 +1,6 @@
 /**
  * Products Data Layer
- * Firestore operations for products with caching and validation
+ * Firestore operations for products with centralized caching and validation
  */
 
 import {
@@ -21,25 +21,15 @@ import {
   DocumentSnapshot,
   QueryDocumentSnapshot,
 } from 'firebase/firestore';
-import { unstable_cache } from 'next/cache';
 
 import type { Product, ProductFilters } from '@/types';
 import { db } from './config';
-
-// Cache configuration
-const CACHE_TAGS = {
-  products: 'products',
-  product: (id: string) => `product-${id}`,
-  productSlug: (slug: string) => `product-slug-${slug}`,
-  featuredProducts: 'featured-products',
-  collectionProducts: (collectionId: string) => `collection-products-${collectionId}`,
-} as const;
-
-const CACHE_REVALIDATE = {
-  products: 300, // 5 minutes
-  product: 600, // 10 minutes
-  featuredProducts: 300, // 5 minutes
-} as const;
+import { 
+  createCachedFunction, 
+  CACHE_CONFIG, 
+  invalidateEntityCache,
+  logCacheOperation 
+} from '@/lib/cache/config';
 
 // Helper function to convert Firestore document to typed object with proper serialization
 const convertDoc = <T>(doc: DocumentSnapshot | QueryDocumentSnapshot): T | null => {
@@ -85,28 +75,20 @@ const validateProductData = (data: Partial<Product>): void => {
   }
 };
 
-// Cache tags helper
-const getCacheTags = (filters?: ProductFilters): string[] => {
-  const tags: string[] = [CACHE_TAGS.products];
-  if (filters?.collectionId) tags.push(CACHE_TAGS.collectionProducts(filters.collectionId));
-  if (filters?.isFeatured) tags.push(CACHE_TAGS.featuredProducts);
-  return tags;
-};
-
 /**
  * Get products with filters and caching
  */
-export const getProducts = unstable_cache(
+export const getProducts = createCachedFunction(
   async (filters: ProductFilters = {}): Promise<Product[]> => {
     try {
+      logCacheOperation('getProducts', { filters });
+      
       const constraints: QueryConstraint[] = [];
       
       // Apply filters
       if (filters.collectionId) {
         constraints.push(where('collections', 'array-contains', filters.collectionId));
       }
-      
-      // roomTypes removed
       
       if (filters.materials && filters.materials.length > 0) {
         // For materials, we need to check if any of the filter materials match
@@ -144,19 +126,18 @@ export const getProducts = unstable_cache(
       throw new Error('Failed to fetch products');
     }
   },
-  ['products'],
-  {
-    revalidate: CACHE_REVALIDATE.products,
-    tags: getCacheTags(),
-  }
+  'products',
+  CACHE_CONFIG.products
 );
 
 /**
  * Get single product by ID with caching
  */
-export const getProductById = unstable_cache(
+export const getProductById = createCachedFunction(
   async (id: string): Promise<Product | null> => {
     try {
+      logCacheOperation('getProductById', { id });
+      
       const docRef = doc(db, 'products', id);
       const docSnap = await getDoc(docRef);
       
@@ -166,19 +147,18 @@ export const getProductById = unstable_cache(
       throw new Error('Failed to fetch product');
     }
   },
-  ['product-by-id'],
-  {
-    revalidate: CACHE_REVALIDATE.product,
-    tags: [CACHE_TAGS.products],
-  }
+  'product-by-id',
+  CACHE_CONFIG.product
 );
 
 /**
  * Get single product by slug with caching
  */
-export const getProductBySlug = unstable_cache(
+export const getProductBySlug = createCachedFunction(
   async (slug: string): Promise<Product | null> => {
     try {
+      logCacheOperation('getProductBySlug', { slug });
+      
       const q = query(
         collection(db, 'products'),
         where('slug', '==', slug),
@@ -194,19 +174,18 @@ export const getProductBySlug = unstable_cache(
       throw new Error('Failed to fetch product');
     }
   },
-  ['product-by-slug'],
-  {
-    revalidate: CACHE_REVALIDATE.product,
-    tags: [CACHE_TAGS.products],
-  }
+  'product-by-slug',
+  CACHE_CONFIG.productSlug
 );
 
 /**
  * Get featured products
  */
-export const getFeaturedProducts = unstable_cache(
+export const getFeaturedProducts = createCachedFunction(
   async (limitCount: number = 8): Promise<Product[]> => {
     try {
+      logCacheOperation('getFeaturedProducts', { limitCount });
+      
       const q = query(
         collection(db, 'products'),
         where('isActive', '==', true),
@@ -224,29 +203,24 @@ export const getFeaturedProducts = unstable_cache(
       throw new Error('Failed to fetch featured products');
     }
   },
-  ['featured-products'],
-  {
-    revalidate: CACHE_REVALIDATE.featuredProducts,
-    tags: [CACHE_TAGS.products, CACHE_TAGS.featuredProducts],
-  }
+  'featured-products',
+  CACHE_CONFIG.featuredProducts
 );
 
 /**
  * Get products by collection
  */
-export const getProductsByCollection = unstable_cache(
+export const getProductsByCollection = createCachedFunction(
   async (collectionId: string, limitCount?: number): Promise<Product[]> => {
+    logCacheOperation('getProductsByCollection', { collectionId, limitCount });
     return getProducts({ 
       collectionId, 
       isActive: true, 
       limit: limitCount 
     });
   },
-  ['products-by-collection'],
-  {
-    revalidate: CACHE_REVALIDATE.products,
-    tags: [CACHE_TAGS.products],
-  }
+  'products-by-collection',
+  CACHE_CONFIG.products
 );
 
 /**
@@ -321,7 +295,7 @@ export const getRelatedProducts = async (
 /**
  * Get products count and statistics
  */
-export const getProductsStats = unstable_cache(
+export const getProductsStats = createCachedFunction(
   async (): Promise<{
     total: number;
     active: number;
@@ -329,6 +303,8 @@ export const getProductsStats = unstable_cache(
     byCollection: Record<string, number>;
   }> => {
     try {
+      logCacheOperation('getProductsStats', {});
+      
       const [allProducts, activeProducts, featuredProducts] = await Promise.all([
         getProducts({}),
         getProducts({ isActive: true }),
@@ -354,37 +330,34 @@ export const getProductsStats = unstable_cache(
       throw new Error('Failed to get products stats');
     }
   },
-  ['products-stats'],
-  {
-    revalidate: CACHE_REVALIDATE.products,
-    tags: [CACHE_TAGS.products],
-  }
+  'products-stats',
+  CACHE_CONFIG.products
 );
 
 /**
  * Get products by weave type
  */
-export const getProductsByWeaveType = unstable_cache(
+export const getProductsByWeaveType = createCachedFunction(
   async (weaveType: string, limitCount?: number): Promise<Product[]> => {
+    logCacheOperation('getProductsByWeaveType', { weaveType, limitCount });
     return getProducts({ 
       weaveType, 
       isActive: true, 
       limit: limitCount 
     });
   },
-  ['products-by-weave-type'],
-  {
-    revalidate: CACHE_REVALIDATE.products,
-    tags: [CACHE_TAGS.products],
-  }
+  'products-by-weave-type',
+  CACHE_CONFIG.products
 );
 
 /**
  * Get available weave types
  */
-export const getAvailableWeaveTypes = unstable_cache(
+export const getAvailableWeaveTypes = createCachedFunction(
   async (): Promise<string[]> => {
     try {
+      logCacheOperation('getAvailableWeaveTypes', {});
+      
       const products = await getProducts({ isActive: true });
       
       const weaveTypes = new Set<string>();
@@ -401,23 +374,22 @@ export const getAvailableWeaveTypes = unstable_cache(
       throw new Error('Failed to get weave types');
     }
   },
-  ['available-weave-types'],
-  {
-    revalidate: CACHE_REVALIDATE.products,
-    tags: [CACHE_TAGS.products],
-  }
+  'available-weave-types',
+  CACHE_CONFIG.products
 );
 
 /**
  * Get available filter options
  */
-export const getProductFilterOptions = unstable_cache(
+export const getProductFilterOptions = createCachedFunction(
   async (): Promise<{
     materials: string[];
     collections: string[];
     weaveTypes: string[];
   }> => {
     try {
+      logCacheOperation('getProductFilterOptions', {});
+      
       const products = await getProducts({ isActive: true });
       
       const materials = new Set<string>();
@@ -442,11 +414,8 @@ export const getProductFilterOptions = unstable_cache(
       throw new Error('Failed to get filter options');
     }
   },
-  ['product-filter-options'],
-  {
-    revalidate: CACHE_REVALIDATE.products,
-    tags: [CACHE_TAGS.products],
-  }
+  'product-filter-options',
+  CACHE_CONFIG.products
 );
 
 /**
@@ -467,7 +436,14 @@ export const createProduct = async (
     const docRef = await addDoc(collection(db, 'products'), docData);
     
     // Invalidate cache
-    // revalidateTag(CACHE_TAGS.products);
+    invalidateEntityCache('product', docRef.id, [
+      'products',
+      'featured-products',
+      'products-stats',
+      'product-filter-options'
+    ]);
+    
+    logCacheOperation('createProduct', { productId: docRef.id });
     
     return docRef.id;
   } catch (error) {
@@ -495,8 +471,14 @@ export const updateProduct = async (
     await updateDoc(docRef, updateData);
     
     // Invalidate cache
-    // revalidateTag(CACHE_TAGS.products);
-    // revalidateTag(CACHE_TAGS.product(id));
+    invalidateEntityCache('product', id, [
+      'products',
+      'featured-products',
+      'products-stats',
+      'product-filter-options'
+    ]);
+    
+    logCacheOperation('updateProduct', { productId: id, updates: Object.keys(updates) });
   } catch (error) {
     console.error('Error updating product:', error);
     throw new Error('Failed to update product');
@@ -512,8 +494,14 @@ export const deleteProduct = async (id: string): Promise<void> => {
     await deleteDoc(docRef);
     
     // Invalidate cache
-    // revalidateTag(CACHE_TAGS.products);
-    // revalidateTag(CACHE_TAGS.product(id));
+    invalidateEntityCache('product', id, [
+      'products',
+      'featured-products',
+      'products-stats',
+      'product-filter-options'
+    ]);
+    
+    logCacheOperation('deleteProduct', { productId: id });
   } catch (error) {
     console.error('Error deleting product:', error);
     throw new Error('Failed to delete product');

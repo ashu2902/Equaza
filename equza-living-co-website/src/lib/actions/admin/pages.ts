@@ -18,6 +18,10 @@ import {
 } from '@/lib/firebase/settings';
 import { checkAdminStatus } from '@/lib/firebase/auth';
 import { auth } from '@/lib/firebase/config';
+import { 
+  invalidateEntityCache, 
+  invalidateByTags 
+} from '@/lib/cache/config';
 
 export interface AdminPageResult {
   success: boolean;
@@ -151,7 +155,7 @@ export async function updatePageContent(
     }
 
     // Invalidate cache
-    revalidateTag(`page-${pageType}`);
+    invalidateEntityCache('page', pageType, ['pages', 'homepage']);
 
     return {
       success: true,
@@ -208,7 +212,7 @@ export async function updateHomeContent(
     }
 
     await setHomePageData(data);
-    revalidateTag('page-home');
+    invalidateEntityCache('page', 'home', ['pages', 'homepage']);
 
     console.log('Admin homepage content updated', { adminId: auth.userId, keys: Object.keys(data || {}) });
     return { success: true, message: 'Homepage content updated successfully', pageId: 'home' };
@@ -245,11 +249,7 @@ export async function updateAdminSiteSettings(
     await updateSiteSettings(settings, auth.userId);
 
     // Invalidate cache
-    revalidateTag('site-settings');
-    revalidateTag('contact-info');
-    if (settings.seoDefaults) {
-      revalidateTag('seo-defaults');
-    }
+    invalidateByTags(['site-settings', 'contact-info', 'seo-defaults']);
 
     // Log admin action
     console.log('Admin site settings updated:', {

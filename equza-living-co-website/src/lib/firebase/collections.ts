@@ -1,6 +1,6 @@
 /**
  * Collections Data Layer
- * Firestore operations for collections with caching and validation
+ * Firestore operations for collections with centralized caching and validation
  */
 
 import {
@@ -23,22 +23,15 @@ import {
   arrayUnion,
   arrayRemove,
 } from 'firebase/firestore';
-import { unstable_cache } from 'next/cache';
 
 import type { Collection, CollectionFilters } from '@/types';
 import { db } from './config';
-
-// Cache configuration
-const CACHE_TAGS = {
-  collections: 'collections',
-  collection: (id: string) => `collection-${id}`,
-  collectionSlug: (slug: string) => `collection-slug-${slug}`,
-} as const;
-
-const CACHE_REVALIDATE = {
-  collections: 300, // 5 minutes
-  collection: 600, // 10 minutes
-} as const;
+import { 
+  createCachedFunction, 
+  CACHE_CONFIG, 
+  invalidateEntityCache,
+  logCacheOperation 
+} from '@/lib/cache/config';
 
 // Helper function to convert Firestore document to typed object with proper serialization
 const convertDoc = <T>(doc: DocumentSnapshot | QueryDocumentSnapshot): T | null => {
@@ -76,19 +69,14 @@ const validateCollectionData = (data: Partial<Collection>): void => {
   }
 };
 
-// Cache tags helper
-const getCacheTags = (type?: 'style' | 'space'): string[] => {
-  const tags: string[] = [CACHE_TAGS.collections];
-  if (type) tags.push(`collections-${type}`);
-  return tags;
-};
-
 /**
  * Get collections with filters and caching
  */
-export const getCollections = unstable_cache(
+export const getCollections = createCachedFunction(
   async (filters: CollectionFilters = {}): Promise<Collection[]> => {
     try {
+      logCacheOperation('getCollections', { filters });
+      
       const constraints: QueryConstraint[] = [];
       
       // Apply filters
@@ -119,33 +107,30 @@ export const getCollections = unstable_cache(
       throw new Error('Failed to fetch collections');
     }
   },
-  ['collections'],
-  {
-    revalidate: CACHE_REVALIDATE.collections,
-    tags: getCacheTags(),
-  }
+  'collections',
+  CACHE_CONFIG.collections
 );
 
 /**
  * Get collections by type with caching
  */
-export const getCollectionsByType = unstable_cache(
+export const getCollectionsByType = createCachedFunction(
   async (type: 'style' | 'space'): Promise<Collection[]> => {
+    logCacheOperation('getCollectionsByType', { type });
     return getCollections({ type, isActive: true });
   },
-  ['collections-by-type'],
-  {
-    revalidate: CACHE_REVALIDATE.collections,
-    tags: getCacheTags(),
-  }
+  'collections-by-type',
+  CACHE_CONFIG.collections
 );
 
 /**
  * Get single collection by ID with caching
  */
-export const getCollectionById = unstable_cache(
+export const getCollectionById = createCachedFunction(
   async (id: string): Promise<Collection | null> => {
     try {
+      logCacheOperation('getCollectionById', { id });
+      
       const docRef = doc(db, 'collections', id);
       const docSnap = await getDoc(docRef);
       
@@ -155,19 +140,18 @@ export const getCollectionById = unstable_cache(
       throw new Error('Failed to fetch collection');
     }
   },
-  ['collection-by-id'],
-  {
-    revalidate: CACHE_REVALIDATE.collection,
-    tags: [CACHE_TAGS.collections],
-  }
+  'collection-by-id',
+  CACHE_CONFIG.collection
 );
 
 /**
  * Get single collection by slug with caching
  */
-export const getCollectionBySlug = unstable_cache(
+export const getCollectionBySlug = createCachedFunction(
   async (slug: string): Promise<Collection | null> => {
     try {
+      logCacheOperation('getCollectionBySlug', { slug });
+      
       const q = query(
         collection(db, 'collections'),
         where('slug', '==', slug),
@@ -183,11 +167,8 @@ export const getCollectionBySlug = unstable_cache(
       throw new Error('Failed to fetch collection');
     }
   },
-  ['collection-by-slug'],
-  {
-    revalidate: CACHE_REVALIDATE.collection,
-    tags: [CACHE_TAGS.collections],
-  }
+  'collection-by-slug',
+  CACHE_CONFIG.collectionSlug
 );
 
 /**
@@ -297,7 +278,14 @@ export const createCollection = async (
     const docRef = await addDoc(collection(db, 'collections'), docData);
     
     // Invalidate cache
-    // revalidateTag(CACHE_TAGS.collections);
+    invalidateEntityCache('collection', docRef.id, [
+      'collections',
+      'style-collections',
+      'space-collections',
+      'collections-stats'
+    ]);
+    
+    logCacheOperation('createCollection', { collectionId: docRef.id });
     
     return docRef.id;
   } catch (error) {
@@ -325,8 +313,14 @@ export const updateCollection = async (
     await updateDoc(docRef, updateData);
     
     // Invalidate cache
-    // revalidateTag(CACHE_TAGS.collections);
-    // revalidateTag(CACHE_TAGS.collection(id));
+    invalidateEntityCache('collection', id, [
+      'collections',
+      'style-collections',
+      'space-collections',
+      'collections-stats'
+    ]);
+    
+    logCacheOperation('updateCollection', { collectionId: id, updates: Object.keys(updates) });
   } catch (error) {
     console.error('Error updating collection:', error);
     throw new Error('Failed to update collection');
