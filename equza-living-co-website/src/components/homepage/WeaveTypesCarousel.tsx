@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { cn } from '@/lib/utils/cn';
 
@@ -23,10 +22,6 @@ export function WeaveTypesCarousel({ weaveTypes, className }: WeaveTypesCarousel
   const [isPaused, setIsPaused] = useState(false);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [touchEndX, setTouchEndX] = useState<number | null>(null);
-
-  if (!weaveTypes || weaveTypes.length === 0) return null;
-
-  // Responsive layout: 1 item on mobile, 2 items on desktop
   const [isMobile, setIsMobile] = useState(false);
   
   useEffect(() => {
@@ -39,20 +34,23 @@ export function WeaveTypesCarousel({ weaveTypes, className }: WeaveTypesCarousel
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Calculate derived values
   const itemsPerView = isMobile ? 1 : 2;
-  const totalSlides = Math.ceil(weaveTypes.length / itemsPerView);
-
+  const totalSlides = weaveTypes ? Math.ceil(weaveTypes.length / itemsPerView) : 0;
 
   // Autoscroll effect - only on mobile
   useEffect(() => {
-    if (!isMobile || totalSlides <= 1 || isHovered || isPaused) return;
+    if (!weaveTypes || weaveTypes.length === 0 || !isMobile || totalSlides <= 1 || isHovered || isPaused) return;
 
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % totalSlides);
     }, 5000); // Auto-advance every 5 seconds
 
     return () => clearInterval(interval);
-  }, [isMobile, totalSlides, isHovered, isPaused]);
+  }, [weaveTypes, isMobile, totalSlides, isHovered, isPaused]);
+
+  // Early return after all hooks
+  if (!weaveTypes || weaveTypes.length === 0) return null;
 
   const goNext = () => {
     setIndex((prev) => (prev + 1) % totalSlides);
@@ -66,15 +64,19 @@ export function WeaveTypesCarousel({ weaveTypes, className }: WeaveTypesCarousel
     setTimeout(() => setIsPaused(false), 7000);
   };
 
-  const handleTouchStart = (e: any) => {
+  const handleTouchStart = (e: React.TouchEvent) => {
     if (!e.changedTouches || e.changedTouches.length === 0) return;
-    setTouchStartX(e.changedTouches[0].clientX);
+    const touch = e.changedTouches[0];
+    if (!touch) return;
+    setTouchStartX(touch.clientX);
     setTouchEndX(null);
   };
 
-  const handleTouchMove = (e: any) => {
+  const handleTouchMove = (e: React.TouchEvent) => {
     if (!e.changedTouches || e.changedTouches.length === 0) return;
-    setTouchEndX(e.changedTouches[0].clientX);
+    const touch = e.changedTouches[0];
+    if (!touch) return;
+    setTouchEndX(touch.clientX);
   };
 
   const handleTouchEnd = () => {
@@ -92,13 +94,6 @@ export function WeaveTypesCarousel({ weaveTypes, className }: WeaveTypesCarousel
   const handleMouseEnter = () => setIsHovered(true);
   const handleMouseLeave = () => setIsHovered(false);
 
-  // Get items for current slide
-  const getCurrentSlideItems = () => {
-    const startIndex = index * itemsPerView;
-    return weaveTypes.slice(startIndex, startIndex + itemsPerView);
-  };
-
-  const currentItems = getCurrentSlideItems();
 
   return (
     <section className={cn('w-full py-12 md:py-16', className)} aria-label="Weave Types" style={{ backgroundColor: '#f1eee9' }}>
