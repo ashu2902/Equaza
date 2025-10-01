@@ -13,6 +13,11 @@ import {
 
 import type { SiteSettings, Lookbook } from '@/types';
 import { db } from './config';
+import { 
+  createCachedFunction, 
+  CACHE_CONFIG, 
+  logCacheOperation 
+} from '@/lib/cache/config';
 
 // Cache configuration
 const CACHE_TAGS = {
