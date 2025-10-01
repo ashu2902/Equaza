@@ -273,12 +273,11 @@ function CollectionsTabsSection({
   return (
     <SlideUp delay={0.2}>
       <Container size="xl" className="space-y-12">
-        {/* Tab Navigation - Fixed Toggle Switch */}
-        <div className="flex justify-center">
-          <div 
-            className="relative inline-flex"
+        {/* Tab Navigation - Responsive Toggle Switch */}
+        <div className="flex justify-center px-4">
+          <div
+            className="relative inline-flex w-full max-w-sm sm:max-w-md"
             style={{
-              width: '400px',
               height: '60px',
               background: '#E3D0BF',
               border: '2px solid #B49578',
@@ -289,47 +288,47 @@ function CollectionsTabsSection({
             }}
           >
             {/* Moving White Background - Full Coverage */}
-            <div 
+            <div
               className="absolute transition-all duration-300 ease-in-out z-0"
               style={{
-                width: '198px',     // (400-4)/2 = 198 for exact half with minimal padding
+                width: 'calc(50% - 2px)',     // Exactly half minus padding
                 height: '56px',     // 60-4 = 56 for 2px padding on all sides
                 background: '#FFFFFF',
                 borderRadius: '100px',
                 top: '2px',         // 2px from top
-                left: activeTab === 'style' ? '2px' : '200px', // 2px from left, or 2px + half width = 200px
+                left: activeTab === 'style' ? '2px' : 'calc(50% + 2px)', // 2px from left, or half width + 2px
                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
               }}
             />
-            
+
             {/* Tab Buttons Container */}
             <div className="relative flex w-full h-full z-10">
               {/* Style Tab */}
               <button
                 onClick={() => handleTabChange('style')}
-                className="flex-1 flex items-center justify-center text-center transition-all duration-300 font-medium"
+                className="flex-1 flex items-center justify-center text-center transition-all duration-300 font-medium px-2"
                 style={{
                   fontFamily: 'Poppins',
-                  fontSize: '16px',
+                  fontSize: '14px', // Smaller font for mobile
                   color: activeTab === 'style' ? '#98342d' : '#666666',
                   fontWeight: activeTab === 'style' ? '600' : '500'
                 }}
               >
-                Rugs by style
+                <span className="truncate">Rugs by Style</span>
               </button>
-              
+
               {/* Space Tab */}
               <button
                 onClick={() => handleTabChange('space')}
-                className="flex-1 flex items-center justify-center text-center transition-all duration-300 font-medium"
+                className="flex-1 flex items-center justify-center text-center transition-all duration-300 font-medium px-2"
                 style={{
                   fontFamily: 'Poppins',
-                  fontSize: '16px',
+                  fontSize: '14px', // Smaller font for mobile
                   color: activeTab === 'space' ? '#98342d' : '#666666',
                   fontWeight: activeTab === 'space' ? '600' : '500'
                 }}
               >
-                Rugs by Space
+                <span className="truncate">Rugs by Space</span>
               </button>
             </div>
           </div>

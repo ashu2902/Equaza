@@ -101,7 +101,7 @@ export function Header() {
         {/* Logo overlay */}
         <div className="fixed top-2 left-0 right-0 z-40 flex justify-center pointer-events-none">
           <Link href="/" className="pointer-events-auto" aria-label="Equza Living Co. Home">
-            <Image src="/equaza_logo.svg" alt="Equza Living Co. logo" width={140} height={40} priority />
+            <Image src="/equza_-_logo__3_-removebg-preview.svg" alt="Equza Living Co. logo" width={140} height={40} priority />
           </Link>
         </div>
       </>

@@ -35,16 +35,7 @@ export function SafeCollectionTilesSection({
   if (loading) {
     return (
       <section className="py-16 lg:py-24 bg-white">
-        <Container>
-          <div className="text-center space-y-4 mb-12">
-            <Typography variant="h2" className="font-serif">
-              {title}
-            </Typography>
-            <Typography variant="body" className="text-gray-600 max-w-2xl mx-auto">
-              {subtitle}
-            </Typography>
-          </div>
-          
+        <Container>        
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {Array.from({ length: type === 'space' ? 3 : 6 }).map((_, index) => (
               <CollectionTileSkeleton key={index} />
@@ -95,30 +86,7 @@ export function SafeCollectionTilesSection({
   return (
     <section className="py-16 lg:py-24" style={{backgroundColor: '#f1eee9'}}>
       <Container size="xl">
-        <FadeIn>
-          <div className="text-center space-y-6 mb-16">
-            <Typography 
-              variant="h2" 
-              className="text-4xl md:text-5xl font-normal leading-tight font-libre-baskerville"
-              align="center"
-              style={{ 
-                color: '#98342d'
-              }}
-            >
-              {title}
-            </Typography>
-            <Typography 
-              variant="subtitle1" 
-              className="text-xl max-w-3xl mx-auto leading-relaxed font-poppins"
-              align="center"
-              style={{ 
-                color: '#666666'
-              }}
-            >
-              {subtitle}
-            </Typography>
-          </div>
-        </FadeIn>
+        
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {collections.map((collection, index) => (

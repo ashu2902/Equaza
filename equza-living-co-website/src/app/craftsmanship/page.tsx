@@ -61,11 +61,14 @@ function CraftingOverviewSection() {
             </Typography>
           </SlideUp>
           
-          <div className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
             <SlideUp delay={0.3}>
-              <div>
-                <Typography variant="h3" className="mb-4 text-gray-900" style={{color: '#98342d'}}>
-                  150+ Master Artisans
+              <div className="text-center">
+                <Typography variant="h2" className="mb-4 font-bold" style={{color: '#98342d'}}>
+                  150+
+                </Typography>
+                <Typography variant="h4" className="mb-3 text-gray-900 font-semibold">
+                  Master Artisans
                 </Typography>
                 <Typography variant="body" className="text-gray-600 leading-relaxed">
                   Skilled Craftspeople across our weaving partner houses
@@ -74,9 +77,12 @@ function CraftingOverviewSection() {
             </SlideUp>
             
             <SlideUp delay={0.4}>
-              <div>
-                <Typography variant="h3" className="mb-4 text-gray-900" style={{color: '#98342d'}}>
-                  25+ Average Years
+              <div className="text-center">
+                <Typography variant="h2" className="mb-4 font-bold" style={{color: '#98342d'}}>
+                  25+
+                </Typography>
+                <Typography variant="h4" className="mb-3 text-gray-900 font-semibold">
+                  Average Years
                 </Typography>
                 <Typography variant="body" className="text-gray-600 leading-relaxed">
                   of experience per master weaver
@@ -85,9 +91,12 @@ function CraftingOverviewSection() {
             </SlideUp>
             
             <SlideUp delay={0.5}>
-              <div>
-                <Typography variant="h3" className="mb-4 text-gray-900" style={{color: '#98342d'}}>
-                  3 Generations
+              <div className="text-center">
+                <Typography variant="h2" className="mb-4 font-bold" style={{color: '#98342d'}}>
+                  3
+                </Typography>
+                <Typography variant="h4" className="mb-3 text-gray-900 font-semibold">
+                  Generations
                 </Typography>
                 <Typography variant="body" className="text-gray-600 leading-relaxed">
                   Average family legacy in the Rug

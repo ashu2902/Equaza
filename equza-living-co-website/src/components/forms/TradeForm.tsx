@@ -30,7 +30,6 @@ export const TradeForm: FC<TradeFormProps> = ({
   onSubmit,
   className = '',
   title = 'Trade Partnership Enquiry',
-  description = 'Join our network of partners and bring Equza Living Co. products to your customers.',
   showCard = true
 }) => {
   const [formState, setFormState] = useState<FormState>('idle');
@@ -93,47 +92,11 @@ export const TradeForm: FC<TradeFormProps> = ({
             {title}
           </Typography>
         </div>
-        <Typography
-          variant="body1"
-          className="text-stone-600"
-        >
-          {description}
-        </Typography>
+        
+        
       </div>
 
-      {/* Benefits Section */}
-      <div className="bg-stone-50 rounded-lg p-6 border">
-        <Typography
-          variant="h4"
-          className="font-serif text-stone-900 mb-4"
-        >
-          Partnership Benefits
-        </Typography>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Typography variant="body2" className="font-medium text-stone-900">
-              • Competitive wholesale pricing
-            </Typography>
-            <Typography variant="body2" className="font-medium text-stone-900">
-              • Marketing support materials
-            </Typography>
-            <Typography variant="body2" className="font-medium text-stone-900">
-              • Dedicated account management
-            </Typography>
-          </div>
-          <div className="space-y-2">
-            <Typography variant="body2" className="font-medium text-stone-900">
-              • Flexible ordering terms
-            </Typography>
-            <Typography variant="body2" className="font-medium text-stone-900">
-              • Product training & support
-            </Typography>
-            <Typography variant="body2" className="font-medium text-stone-900">
-              • Exclusive partner resources
-            </Typography>
-          </div>
-        </div>
-      </div>
+      
 
       {/* Form */}
       <AnimatePresence mode="wait">

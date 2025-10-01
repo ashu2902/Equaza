@@ -17,8 +17,8 @@ interface OurStorySimpleProps {
 }
 
 export function OurStorySimple({
-  title = 'Where Traditional Craftsmanship Meets Modern Design',
-  body = 'For three generations, our family has woven stories into rugs. Each piece carries the soul of Indian artistry, thoughtfully crafted for contemporary homes.',
+  title = 'EQUZA LIVING CO.',
+  body = 'At Equza Living Co., we collaborate with master weavers from Bhadohi, Jaipur, and Kashmir to craft hand-knotted and hand-tufted rugs. Each rug is a living canvas—where generations of skill, natural fibers, and timeless design converge to bring warmth, artistry, and story into every home.',
   ctaHref = '/our-story',
 }: OurStorySimpleProps) {
   return (

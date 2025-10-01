@@ -115,14 +115,14 @@ function BenefitsSection() {
   return (
     <div className="py-10 md:py-14 lg:py-18 bg-white">
       <Container>
-        <div className="text-center mb-16">
+        <div className="mb-16">
           <SlideUp>
             <Typography variant="h2" className="mb-4 text-gray-900">
               Partnership Benefits
             </Typography>
           </SlideUp>
           <SlideUp delay={0.2}>
-            <Typography variant="body" className="text-gray-600 max-w-2xl mx-auto">
+            <Typography variant="body" className="text-gray-600 max-w-2xl">
               We believe in building long-term partnerships that benefit both your business and our artisan communities.
             </Typography>
           </SlideUp>
@@ -158,14 +158,14 @@ function PartnerTypesSection() {
   return (
     <div className="py-10 md:py-14 lg:py-18" style={{backgroundColor: '#f1eee9'}}>
       <Container>
-        <div className="text-center mb-16">
+        <div className="mb-16">
           <SlideUp>
             <Typography variant="h2" className="mb-4 text-gray-900">
               Who We Partner With
             </Typography>
           </SlideUp>
           <SlideUp delay={0.2}>
-            <Typography variant="body" className="text-gray-600 max-w-2xl mx-auto">
+            <Typography variant="body" className="text-gray-600 max-w-2xl">
               Our partnership program is designed to support various types of businesses in the home décor industry.
             </Typography>
           </SlideUp>
@@ -199,14 +199,14 @@ function ApplicationSection() {
   return (
     <div className="py-10 md:py-14 lg:py-18 bg-white">
       <Container>
-        <div className="text-center mb-16">
+        <div className="mb-16">
           <SlideUp>
             <Typography variant="h2" className="mb-4 text-gray-900">
               Ready to Partner with Us?
             </Typography>
           </SlideUp>
           <SlideUp delay={0.2}>
-            <Typography variant="body" className="text-gray-600 max-w-2xl mx-auto">
+            <Typography variant="body" className="text-gray-600 max-w-2xl">
               Take the first step towards a successful partnership. Fill out our application and we'll be in touch within 3 business days.
             </Typography>
           </SlideUp>
@@ -217,7 +217,7 @@ function ApplicationSection() {
             <TradeForm
               onSubmit={submitTradePageForm}
               title="Partnership Application"
-              description="Tell us about your business and how we can work together."
+             
               showCard={true}
             />
           </SlideUp>

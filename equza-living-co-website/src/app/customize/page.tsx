@@ -103,24 +103,26 @@ We Weave It."
           <section className="py-16 bg-white">
             <Container size="lg">
               <SlideUp delay={0.4}>
-                <div className="text-center mb-16">
-                  <Typography 
-                    variant="h2" 
-                    className="text-3xl md:text-4xl font-bold mb-6"
-                    style={{ 
-                      fontFamily: 'Libre Baskerville',
-                      color: '#98342d'
-                    }}
-                  >
-                    Endless Possibilities
-                  </Typography>
-                  <Typography 
-                    variant="body" 
-                    className="text-lg text-gray-600 max-w-2xl mx-auto"
-                    style={{ fontFamily: 'Poppins' }}
-                  >
-                    Every aspect of your rug can be customized to create something truly unique
-                  </Typography>
+                <div className="max-w-6xl mx-auto">
+                  <div className="mb-16">
+                    <Typography
+                      variant="h2"
+                      className="text-3xl md:text-4xl font-bold mb-6"
+                      style={{
+                        fontFamily: 'Libre Baskerville',
+                        color: '#98342d'
+                      }}
+                    >
+                      Endless Possibilities
+                    </Typography>
+                    <Typography
+                      variant="body"
+                      className="text-lg text-gray-600 max-w-2xl"
+                      style={{ fontFamily: 'Poppins' }}
+                    >
+                      Every aspect of your rug can be customized to create something truly unique
+                    </Typography>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -167,58 +169,67 @@ We Weave It."
           <section className="py-16 md:py-24">
             <Container size="lg">
               <SlideUp delay={0.6}>
-                <div className="text-center mb-16">
-                  <Typography 
-                    variant="h2" 
-                    className="text-3xl md:text-4xl font-bold mb-6"
-                    style={{ 
-                      fontFamily: 'Libre Baskerville',
-                      color: '#98342d'
-                    }}
-                  >
-                    How It Works
-                  </Typography>
-                  <Typography 
-                    variant="body" 
-                    className="text-lg text-gray-600 max-w-2xl mx-auto"
-                    style={{ fontFamily: 'Poppins' }}
-                  >
-                    From concept to creation, we guide you through every step of the journey
-                  </Typography>
+                <div className="max-w-6xl mx-auto">
+                  <div className="mb-16">
+                    <Typography
+                      variant="h2"
+                      className="text-3xl md:text-4xl font-bold mb-6"
+                      style={{
+                        fontFamily: 'Libre Baskerville',
+                        color: '#98342d',
+
+                      }}
+                    >
+                      How It Works
+                    </Typography>
+                    <Typography
+                      variant="body"
+                      className="text-lg text-gray-600 max-w-2xl"
+                      style={{ fontFamily: 'Poppins' }}
+                    >
+                      From concept to creation, we guide you through every step of the journey
+                    </Typography>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                  {processSteps.map((step, index) => (
-                    <SlideUp key={step.step} delay={0.7 + index * 0.1}>
-                      <div className="text-center">
-                        <div 
-                          className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center text-2xl font-bold text-white"
-                          style={{ backgroundColor: '#98342d' }}
-                        >
-                          <span style={{ fontFamily: 'Libre Baskerville' }}>
-                            {step.step}
-                          </span>
+                <div className="flex justify-center">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {processSteps.map((step, index) => (
+                      <SlideUp key={step.step} delay={0.7 + index * 0.1}>
+                        <div className="text-center">
+                          <div 
+                            className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center text-2xl font-bold text-white"
+                            style={{ backgroundColor: '#98342d' }}
+                          >
+                            <span style={{ fontFamily: 'Libre Baskerville',  }}>
+                              {step.step}
+                            </span>
+                          </div>
+                          <div className="max-w-xs mx-auto">
+                            <Typography
+                              variant="h3"
+                              className="text-lg font-bold mb-4 text-center leading-tight"
+                              style={{
+                                fontFamily: 'Libre Baskerville',
+                                color: '#98342d'
+                              }}
+                            >
+                              {step.title}
+                            </Typography>
+                          </div>
+                          <div className="max-w-sm mx-auto">
+                            <Typography
+                              variant="body"
+                              className="text-gray-600 text-sm text-center leading-relaxed"
+                              style={{ fontFamily: 'Poppins' }}
+                            >
+                              {step.description}
+                            </Typography>
+                          </div>
                         </div>
-                        <Typography 
-                          variant="h3" 
-                          className="text-lg font-bold mb-4"
-                          style={{ 
-                            fontFamily: 'Libre Baskerville',
-                            color: '#98342d'
-                          }}
-                        >
-                          {step.title}
-                        </Typography>
-                        <Typography 
-                          variant="body" 
-                          className="text-gray-600 text-sm"
-                          style={{ fontFamily: 'Poppins' }}
-                        >
-                          {step.description}
-                        </Typography>
-                      </div>
-                    </SlideUp>
-                  ))}
+                      </SlideUp>
+                    ))}
+                  </div>
                 </div>
               </SlideUp>
             </Container>
@@ -231,7 +242,7 @@ We Weave It."
             <Container size="lg">
               <SlideUp delay={0.8}>
                 <div className="max-w-6xl mx-auto">
-                  <div className="text-center mb-12">
+                  <div className="mb-12">
                     <Typography 
                       variant="h2" 
                       className="text-3xl md:text-4xl font-bold mb-6"
@@ -244,7 +255,7 @@ We Weave It."
                     </Typography>
                     <Typography 
                       variant="body" 
-                      className="text-lg text-gray-600"
+                      className="text-lg text-gray-600 max-w-2xl"
                       style={{ fontFamily: 'Poppins' }}
                     >
                       Share your vision with us and let our artisans create something extraordinary

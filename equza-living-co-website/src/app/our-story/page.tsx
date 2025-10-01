@@ -83,26 +83,26 @@ const timelineEvents = [
 
 const coreValues = [
   {
-    title: 'Heritage Preservation',
-    description: 'We are guardians of ancient techniques, ensuring traditional rug-making knowledge passes to future generations.',
+    title: 'Timeless Craft',
+    description: 'We safeguard centuries-old weaving traditions, ensuring the art of handwoven rugs thrives for generations to come. generations.',
     icon: Clock,
     color: '#98342d'
   },
   {
-    title: 'Artisan Partnership',
-    description: 'Fair trade relationships built on respect, transparency, and shared success with our master craftspeople.',
+    title: 'Artisan Alliances',
+    description: ' Building enduring relationships with skilled artisans based on respect, fairness, and shared dedication to craft.',
     icon: Users,
     color: '#98342d'
   },
   {
-    title: 'Quality Excellence',
-    description: 'Every rug meets the highest standards of craftsmanship, materials, and finishing that honor centuries of tradition.',
+    title: 'Unmatched Craftsmanship',
+    description: 'Every rug reflects the pinnacle of skill, materials, and finishing—honoring generations of mastery.',
     icon: Award,
     color: '#98342d'
   },
   {
-    title: 'Modern Relevance',
-    description: 'Bridging timeless beauty with contemporary design needs, creating pieces that enhance modern living spaces.',
+    title: 'Contemporary Elegance',
+    description: "Blending heritage techniques with modern aesthetics, creating rugs that enrich today's living spaces.",
     icon: Heart,
     color: '#98342d'
   }
@@ -127,8 +127,8 @@ function OurStoryHeroSection() {
   return (
     <HeroSection
       pageType="our-story"
-      title="Our Story"
-      subtitle="From a passion for heritage crafts to becoming guardians of traditional artistry, our journey is woven with threads of respect, authenticity, and timeless beauty."
+      title="Origins"
+      subtitle="Discover the world behind every thread, where craft becomes living art."
       textAlignment="left"
       overlayOpacity={0.4}
       className="min-h-[70vh] md:min-h-screen flex items-center"
@@ -148,22 +148,21 @@ function MissionSection() {
           </SlideUp>
           <SlideUp delay={0.2}>
             <Typography variant="lead" className="text-gray-600 mb-12 leading-relaxed">
-              To preserve and celebrate the ancient art of handcrafted rug making while creating 
-              meaningful connections between traditional artisans and contemporary homes worldwide.
+            To craft rugs where every hand-knotted or hand-tufted fiber carries the legacy of master artisans, yet speaks in the refined language of contemporary design. By seamlessly blending heritage craftsmanship with modern aesthetics, we create pieces that infuse warmth, artistry, and enduring luxury into every home.
             </Typography>
           </SlideUp>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
             {coreValues.map((value, index) => (
               <ScaleIn key={index} delay={index * 0.1}>
-                <div className="text-center">
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4" style={{backgroundColor: '#98342d'}}>
+                <div className="text-center flex flex-col items-center h-full px-4">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-6" style={{backgroundColor: '#98342d'}}>
                     <value.icon className="w-8 h-8 text-white" />
                   </div>
-                  <Typography variant="h5" className="text-gray-900 mb-3">
+                  <Typography variant="h5" className="text-gray-900 mb-4 font-semibold text-center">
                     {value.title}
                   </Typography>
-                  <Typography variant="body" className="text-gray-600 text-sm leading-relaxed">
+                  <Typography variant="body" className="text-gray-600 text-sm leading-relaxed flex-grow text-center max-w-xs">
                     {value.description}
                   </Typography>
                 </div>
@@ -176,83 +175,6 @@ function MissionSection() {
   );
 }
 
-function ContentSection() {
-  return (
-    <div className="py-10 md:py-14 lg:py-18" style={{backgroundColor: '#f1eee9'}}>
-      <Container>
-        <div className="max-w-4xl mx-auto space-y-8">
-          <SlideUp>
-            <Typography variant="h2" className="mb-8 text-gray-900">
-              Origins
-            </Typography>
-          </SlideUp>
-          <SlideUp delay={0.2}>
-            <Typography variant="lead" className="text-gray-600 mb-12 leading-relaxed">
-              Discover the world behind every thread, where craft becomes living art.
-            </Typography>
-          </SlideUp>
-          
-          <div className="space-y-12">
-            <SlideUp delay={0.3}>
-              <div>
-                <Typography variant="h3" className="mb-6 text-gray-900">
-                  Our Mission
-                </Typography>
-                <Typography variant="body" className="text-gray-600 leading-relaxed mb-8">
-                  To craft rugs where every hand-knotted or hand-tufted fiber carries the legacy of master artisans, yet speaks in the refined language of contemporary design. By seamlessly blending heritage craftsmanship with modern aesthetics, we create pieces that infuse warmth, artistry, and enduring luxury into every home.
-                </Typography>
-              </div>
-            </SlideUp>
-            
-            <SlideUp delay={0.4}>
-              <div>
-                <Typography variant="h4" className="mb-4 text-gray-900" style={{color: '#98342d'}}>
-                  Icon - Timeless Craft
-                </Typography>
-                <Typography variant="body" className="text-gray-600 leading-relaxed mb-8">
-                  We safeguard centuries-old weaving traditions, ensuring the art of handwoven rugs thrives for generations to come.
-                </Typography>
-              </div>
-            </SlideUp>
-            
-            <SlideUp delay={0.5}>
-              <div>
-                <Typography variant="h4" className="mb-4 text-gray-900" style={{color: '#98342d'}}>
-                  Icon - Artisan Alliances
-                </Typography>
-                <Typography variant="body" className="text-gray-600 leading-relaxed mb-8">
-                  Building enduring relationships with skilled artisans based on respect, fairness, and shared dedication to craft.
-                </Typography>
-              </div>
-            </SlideUp>
-            
-            <SlideUp delay={0.6}>
-              <div>
-                <Typography variant="h4" className="mb-4 text-gray-900" style={{color: '#98342d'}}>
-                  Icon - Unmatched Craftsmanship
-                </Typography>
-                <Typography variant="body" className="text-gray-600 leading-relaxed mb-8">
-                  Every rug reflects the pinnacle of skill, materials, and finishing—honoring generations of mastery.
-                </Typography>
-              </div>
-            </SlideUp>
-            
-            <SlideUp delay={0.7}>
-              <div>
-                <Typography variant="h4" className="mb-4 text-gray-900" style={{color: '#98342d'}}>
-                  Icon - Contemporary Elegance
-                </Typography>
-                <Typography variant="body" className="text-gray-600 leading-relaxed">
-                  Blending heritage techniques with modern aesthetics, creating rugs that enrich today's living spaces.
-                </Typography>
-              </div>
-            </SlideUp>
-          </div>
-        </div>
-      </Container>
-    </div>
-  );
-}
 
 
 
@@ -352,11 +274,6 @@ export default function OurStoryPage() {
         {/* Mission & Values */}
         <SectionErrorBoundary sectionName="mission section">
           <MissionSection />
-        </SectionErrorBoundary>
-
-        {/* Content */}
-        <SectionErrorBoundary sectionName="content section">
-          <ContentSection />
         </SectionErrorBoundary>
 
         {/* Story Content */}
