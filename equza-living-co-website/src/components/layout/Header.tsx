@@ -24,6 +24,7 @@ export function Header() {
     }
   })();
   const isAdminRoute = typeof nextPathname === 'string' && nextPathname.startsWith('/admin');
+  const isHomePage = nextPathname === '/';
 
   const handleLogoClick = () => {
     if (typeof window !== 'undefined') {
@@ -89,12 +90,12 @@ export function Header() {
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, [isAdminRoute]);
+  }, [isAdminRoute, isHomePage]);
 
   return (
     <>
-    {/* Centered logo overlay with top black gradient when header is hidden (disabled on admin routes) */}
-    {!isAdminRoute && !showHeader && (
+    {/* Centered logo overlay with top black gradient when header is hidden (only on home page) */}
+    {isHomePage && !isAdminRoute && !showHeader && (
       <>
         {/* Full-width black gradient to improve logo contrast over imagery */}
         <div className="fixed top-0 left-0 right-0 z-30 h-50 bg-gradient-to-b from-black/95 via-black/65 via-black/55 via-black/25  to-transparent pointer-events-none" />
