@@ -5,7 +5,6 @@
 
 'use server';
 
-import { revalidateTag } from 'next/cache';
 import { EnquiryFormData } from '@/types';
 import { enquiryFormSchema } from '@/lib/utils/validation';
 import { createEnquiryLead } from '@/lib/firebase/leads';
@@ -59,9 +58,6 @@ export async function submitEnquiryForm(
     // Create lead in Firestore
     const leadId = await createEnquiryLead(validatedData, source);
 
-    // Invalidate cache tags
-    revalidateTag('leads');
-    revalidateTag('leads-stats');
 
     // TODO: Send email notifications (Phase 6.2 email integration)
     // await sendEnquiryNotificationEmail(validatedData, leadId, product);

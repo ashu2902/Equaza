@@ -5,7 +5,6 @@
 
 'use server';
 
-import { revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 import type { Collection } from '@/types';
 import { 
@@ -15,10 +14,6 @@ import {
   getCollectionById,
   isCollectionSlugAvailable 
 } from '@/lib/firebase/collections';
-import { 
-  invalidateEntityCache, 
-  invalidateByTags 
-} from '@/lib/cache/config';
 // import { checkAdminStatus } from '@/lib/firebase/auth'; // Not needed in server actions
 import { cookies } from 'next/headers';
 import { getAdminAuth } from '@/lib/firebase/server-app';
@@ -154,9 +149,6 @@ export async function createAdminCollection(
     // Create collection
     const collectionId = await createCollection(collectionData);
 
-    // Invalidate cache
-    revalidateTag('collections');
-    revalidateTag('collections-count');
 
     // Log admin action
     console.log('Admin collection created:', {
@@ -230,13 +222,6 @@ export async function updateAdminCollection(
     // Update collection
     await updateCollection(collectionId, updates);
 
-    // Invalidate cache
-    revalidateTag('collections');
-    revalidateTag(`collection-${collectionId}`);
-    revalidateTag(`collection-slug-${originalCollection.slug}`);
-    if (updates.slug) {
-      revalidateTag(`collection-slug-${updates.slug}`);
-    }
 
     // Log admin action
     console.log('Admin collection updated:', {
@@ -295,11 +280,6 @@ export async function deleteAdminCollection(
     // Delete collection
     await deleteCollection(collectionId);
 
-    // Invalidate cache
-    revalidateTag('collections');
-    revalidateTag(`collection-${collectionId}`);
-    revalidateTag(`collection-slug-${collection.slug}`);
-    revalidateTag('collections-count');
 
     // Log admin action
     console.log('Admin collection deleted:', {
@@ -345,8 +325,6 @@ export async function updateCollectionSortOrders(
       )
     );
 
-    // Invalidate cache
-    revalidateTag('collections');
 
     // Log admin action
     console.log('Admin collection sort orders updated:', {
@@ -386,9 +364,6 @@ export async function toggleCollectionStatus(
     // Update collection status
     await updateCollection(collectionId, { isActive });
 
-    // Invalidate cache
-    revalidateTag('collections');
-    revalidateTag(`collection-${collectionId}`);
 
     // Log admin action
     console.log('Admin collection status toggled:', {
@@ -463,8 +438,6 @@ export async function duplicateCollection(
 
     const newCollectionId = await createCollection(duplicateData);
 
-    // Invalidate cache
-    revalidateTag('collections');
 
     // Log admin action
     console.log('Admin collection duplicated:', {

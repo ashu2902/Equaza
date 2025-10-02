@@ -5,7 +5,6 @@
 
 'use server';
 
-import { revalidateTag } from 'next/cache';
 import { ContactFormData } from '@/types';
 import { contactFormSchema } from '@/lib/utils/validation';
 import { createContactLead } from '@/lib/firebase/leads';
@@ -47,9 +46,6 @@ export async function submitContactForm(
     // Create lead in Firestore
     const leadId = await createContactLead(validatedData, source);
 
-    // Invalidate cache tags
-    revalidateTag('leads');
-    revalidateTag('leads-stats');
 
     // TODO: Send email notifications (Phase 6.2 email integration)
     // await sendContactNotificationEmail(validatedData, leadId);

@@ -1,6 +1,6 @@
 /**
  * Settings Data Layer
- * Firestore operations for site settings with caching and validation
+ * Firestore operations for site settings with validation
  */
 
 import {
@@ -13,22 +13,7 @@ import {
 
 import type { SiteSettings, Lookbook } from '@/types';
 import { db } from './config';
-import { 
-  createCachedFunction, 
-  CACHE_CONFIG, 
-  logCacheOperation 
-} from '@/lib/cache/config';
 
-// Cache configuration
-const CACHE_TAGS = {
-  settings: 'site-settings',
-  lookbook: 'lookbook',
-} as const;
-
-const CACHE_REVALIDATE = {
-  settings: 3600, // 1 hour
-  lookbook: 1800, // 30 minutes
-} as const;
 
 // Settings document ID (single document approach)
 const SETTINGS_DOC_ID = 'site-settings';
@@ -82,57 +67,52 @@ const sanitizeInput = (input: string): string => {
 };
 
 /**
- * Get site settings with caching
+ * Get site settings
  */
-export const getSiteSettings = createCachedFunction(
-  async (): Promise<SiteSettings | null> => {
-    try {
-      logCacheOperation('getSiteSettings', {});
-      const docRef = doc(db, 'settings', SETTINGS_DOC_ID);
-      const docSnap = await getDoc(docRef);
-      
-      if (!docSnap.exists()) {
-        return null;
-      }
-      
-      const data = docSnap.data();
-      const convertedData = { ...data };
-      
-      // Convert Firestore Timestamps to ISO strings for client components
-      Object.keys(convertedData).forEach(key => {
-        if (convertedData[key] && typeof convertedData[key] === 'object' && convertedData[key].toDate) {
-          convertedData[key] = convertedData[key].toDate().toISOString();
-        }
-      });
-      
-      // Ensure all required properties are present with defaults
-      const settings: SiteSettings = {
-        siteName: convertedData.siteName || 'Equza Living Co.',
-        siteDescription: convertedData.siteDescription || 'Premium handcrafted rugs that bring crafted calm to modern spaces',
-        contactEmail: convertedData.contactEmail || 'hello@equzaliving.com',
-        calendlyUrl: convertedData.calendlyUrl || 'https://calendly.com/equza-living',
-        socialLinks: convertedData.socialLinks || {
-          instagram: 'https://instagram.com/equzaliving',
-          pinterest: 'https://pinterest.com/equzaliving',
-        },
-        seoDefaults: convertedData.seoDefaults || {
-          defaultTitle: 'Equza Living Co. - Handcrafted Rugs for Modern Spaces',
-          defaultDescription: 'Discover premium handcrafted rugs that bring crafted calm to modern spaces.',
-          ogImage: '/images/og-default.jpg',
-        },
-        updatedAt: convertedData.updatedAt || Timestamp.now(),
-        updatedBy: convertedData.updatedBy || 'system',
-      };
-      
-      return settings;
-    } catch (error) {
-      console.error('Error fetching site settings:', error);
-      throw new Error('Failed to fetch site settings');
+export const getSiteSettings = async (): Promise<SiteSettings | null> => {
+  try {
+    const docRef = doc(db, 'settings', SETTINGS_DOC_ID);
+    const docSnap = await getDoc(docRef);
+    
+    if (!docSnap.exists()) {
+      return null;
     }
-  },
-  'site-settings',
-  CACHE_CONFIG.siteSettings
-);
+    
+    const data = docSnap.data();
+    const convertedData = { ...data };
+    
+    // Convert Firestore Timestamps to ISO strings for client components
+    Object.keys(convertedData).forEach(key => {
+      if (convertedData[key] && typeof convertedData[key] === 'object' && convertedData[key].toDate) {
+        convertedData[key] = convertedData[key].toDate().toISOString();
+      }
+    });
+    
+    // Ensure all required properties are present with defaults
+    const settings: SiteSettings = {
+      siteName: convertedData.siteName || 'Equza Living Co.',
+      siteDescription: convertedData.siteDescription || 'Premium handcrafted rugs that bring crafted calm to modern spaces',
+      contactEmail: convertedData.contactEmail || 'hello@equzaliving.com',
+      calendlyUrl: convertedData.calendlyUrl || 'https://calendly.com/equza-living',
+      socialLinks: convertedData.socialLinks || {
+        instagram: 'https://instagram.com/equzaliving',
+        pinterest: 'https://pinterest.com/equzaliving',
+      },
+      seoDefaults: convertedData.seoDefaults || {
+        defaultTitle: 'Equza Living Co. - Handcrafted Rugs for Modern Spaces',
+        defaultDescription: 'Discover premium handcrafted rugs that bring crafted calm to modern spaces.',
+        ogImage: '/images/og-default.jpg',
+      },
+      updatedAt: convertedData.updatedAt || Timestamp.now(),
+      updatedBy: convertedData.updatedBy || 'system',
+    };
+    
+    return settings;
+  } catch (error) {
+    console.error('Error fetching site settings:', error);
+    throw new Error('Failed to fetch site settings');
+  }
+};
 
 /**
  * Get site settings with fallback defaults
@@ -199,9 +179,6 @@ export const updateSiteSettings = async (
     };
     
     await updateDoc(docRef, updateData);
-    
-    // Invalidate cache
-    // revalidateTag(CACHE_TAGS.settings);
   } catch (error) {
     console.error('Error updating site settings:', error);
     throw new Error('Failed to update site settings');
@@ -226,9 +203,6 @@ export const initializeSiteSettings = async (
     };
     
     await setDoc(docRef, docData);
-    
-    // Invalidate cache
-    // revalidateTag(CACHE_TAGS.settings);
   } catch (error) {
     console.error('Error initializing site settings:', error);
     throw new Error('Failed to initialize site settings');
@@ -236,50 +210,45 @@ export const initializeSiteSettings = async (
 };
 
 /**
- * Get current lookbook with caching
+ * Get current lookbook
  */
-export const getCurrentLookbook = createCachedFunction(
-  async (): Promise<Lookbook | null> => {
-    try {
-      logCacheOperation('getCurrentLookbook', {});
-      const docRef = doc(db, 'settings', LOOKBOOK_DOC_ID);
-      const docSnap = await getDoc(docRef);
-      
-      if (!docSnap.exists()) {
-        return null;
-      }
-      
-      const data = docSnap.data();
-      const convertedData = { ...data };
-      
-      // Convert Firestore Timestamps to ISO strings for client components
-      Object.keys(convertedData).forEach(key => {
-        if (convertedData[key] && typeof convertedData[key] === 'object' && convertedData[key].toDate) {
-          convertedData[key] = convertedData[key].toDate().toISOString();
-        }
-      });
-      
-      // Ensure all required properties are present with defaults
-      const lookbook: Lookbook = {
-        version: convertedData.version || '1.0',
-        filename: convertedData.filename || 'lookbook.pdf',
-        url: convertedData.url || '',
-        storageRef: convertedData.storageRef || '',
-        uploadedAt: convertedData.uploadedAt || Timestamp.now(),
-        uploadedBy: convertedData.uploadedBy || 'system',
-        isActive: convertedData.isActive || false,
-      };
-      
-      // Only return if it's active
-      return lookbook.isActive ? lookbook : null;
-    } catch (error) {
-      console.error('Error fetching current lookbook:', error);
-      throw new Error('Failed to fetch current lookbook');
+export const getCurrentLookbook = async (): Promise<Lookbook | null> => {
+  try {
+    const docRef = doc(db, 'settings', LOOKBOOK_DOC_ID);
+    const docSnap = await getDoc(docRef);
+    
+    if (!docSnap.exists()) {
+      return null;
     }
-  },
-  'current-lookbook',
-  CACHE_CONFIG.lookbook
-);
+    
+    const data = docSnap.data();
+    const convertedData = { ...data };
+    
+    // Convert Firestore Timestamps to ISO strings for client components
+    Object.keys(convertedData).forEach(key => {
+      if (convertedData[key] && typeof convertedData[key] === 'object' && convertedData[key].toDate) {
+        convertedData[key] = convertedData[key].toDate().toISOString();
+      }
+    });
+    
+    // Ensure all required properties are present with defaults
+    const lookbook: Lookbook = {
+      version: convertedData.version || '1.0',
+      filename: convertedData.filename || 'lookbook.pdf',
+      url: convertedData.url || '',
+      storageRef: convertedData.storageRef || '',
+      uploadedAt: convertedData.uploadedAt || Timestamp.now(),
+      uploadedBy: convertedData.uploadedBy || 'system',
+      isActive: convertedData.isActive || false,
+    };
+    
+    // Only return if it's active
+    return lookbook.isActive ? lookbook : null;
+  } catch (error) {
+    console.error('Error fetching current lookbook:', error);
+    throw new Error('Failed to fetch current lookbook');
+  }
+};
 
 /**
  * Update current lookbook (admin only)
@@ -301,9 +270,6 @@ export const updateCurrentLookbook = async (
     };
     
     await setDoc(docRef, docData);
-    
-    // Invalidate cache
-    // revalidateTag(CACHE_TAGS.lookbook);
   } catch (error) {
     console.error('Error updating current lookbook:', error);
     throw new Error('Failed to update current lookbook');
@@ -322,9 +288,6 @@ export const deactivateLookbook = async (updatedBy: string = 'admin'): Promise<v
       uploadedBy: sanitizeInput(updatedBy),
       uploadedAt: Timestamp.now(),
     });
-    
-    // Invalidate cache
-    // revalidateTag(CACHE_TAGS.lookbook);
   } catch (error) {
     console.error('Error deactivating lookbook:', error);
     throw new Error('Failed to deactivate lookbook');
@@ -334,48 +297,38 @@ export const deactivateLookbook = async (updatedBy: string = 'admin'): Promise<v
 /**
  * Get contact information from settings
  */
-export const getContactInfo = createCachedFunction(
-  async (): Promise<{
-    email: string;
-    calendlyUrl: string;
-    socialLinks: SiteSettings['socialLinks'];
-  }> => {
-    try {
-      logCacheOperation('getContactInfo', {});
-      const settings = await getSiteSettingsWithDefaults();
-      
-      return {
-        email: settings.contactEmail,
-        calendlyUrl: settings.calendlyUrl,
-        socialLinks: settings.socialLinks,
-      };
-    } catch (error) {
-      console.error('Error getting contact info:', error);
-      throw new Error('Failed to get contact info');
-    }
-  },
-  'contact-info',
-  CACHE_CONFIG.contactInfo
-);
+export const getContactInfo = async (): Promise<{
+  email: string;
+  calendlyUrl: string;
+  socialLinks: SiteSettings['socialLinks'];
+}> => {
+  try {
+    const settings = await getSiteSettingsWithDefaults();
+    
+    return {
+      email: settings.contactEmail,
+      calendlyUrl: settings.calendlyUrl,
+      socialLinks: settings.socialLinks,
+    };
+  } catch (error) {
+    console.error('Error getting contact info:', error);
+    throw new Error('Failed to get contact info');
+  }
+};
 
 /**
  * Get SEO defaults from settings
  */
-export const getSEODefaults = createCachedFunction(
-  async (): Promise<SiteSettings['seoDefaults']> => {
-    try {
-      logCacheOperation('getSEODefaults', {});
-      const settings = await getSiteSettingsWithDefaults();
-      
-      return settings.seoDefaults;
-    } catch (error) {
-      console.error('Error getting SEO defaults:', error);
-      throw new Error('Failed to get SEO defaults');
-    }
-  },
-  'seo-defaults',
-  CACHE_CONFIG.seoDefaults
-);
+export const getSEODefaults = async (): Promise<SiteSettings['seoDefaults']> => {
+  try {
+    const settings = await getSiteSettingsWithDefaults();
+    
+    return settings.seoDefaults;
+  } catch (error) {
+    console.error('Error getting SEO defaults:', error);
+    throw new Error('Failed to get SEO defaults');
+  }
+};
 
 /**
  * Update social links only

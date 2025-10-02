@@ -5,7 +5,6 @@
 
 'use server';
 
-import { revalidateTag } from 'next/cache';
 import { uploadFile, uploadMultipleFiles, deleteFile } from '@/lib/firebase/storage';
 import { FILE_UPLOAD } from '@/lib/utils/constants';
 
@@ -273,10 +272,6 @@ export async function deleteFileAction(
   try {
     await deleteFile(fileUrl);
     
-    // Invalidate relevant cache tags
-    if (context) {
-      revalidateTag(`files-${context}`);
-    }
     
     return {
       success: true,

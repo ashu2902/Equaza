@@ -5,7 +5,6 @@
 
 'use server';
 
-import { revalidateTag } from 'next/cache';
 import { TradeFormData } from '@/types';
 import { tradeFormSchema } from '@/lib/utils/validation';
 import { createTradeLead } from '@/lib/firebase/leads';
@@ -63,9 +62,6 @@ export async function submitTradeForm(
     // TODO: Update lead with application ID
     // await updateLead(leadId, { applicationId });
 
-    // Invalidate cache tags
-    revalidateTag('leads');
-    revalidateTag('leads-stats');
 
     // TODO: Send email notifications (Phase 6.2 email integration)
     // await sendTradeNotificationEmail(validatedData, leadId, applicationId);

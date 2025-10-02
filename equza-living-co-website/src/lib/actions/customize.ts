@@ -5,7 +5,6 @@
 
 'use server';
 
-import { revalidateTag } from 'next/cache';
 import { CustomizeFormData } from '@/types';
 import { customizeFormSchema } from '@/lib/utils/validation';
 import { createCustomizeLead } from '@/lib/firebase/leads';
@@ -118,9 +117,6 @@ export async function submitCustomizeForm(
       // });
     }
 
-    // Invalidate cache tags
-    revalidateTag('leads');
-    revalidateTag('leads-stats');
 
     // TODO: Send email notifications (Phase 6.2 email integration)
     // await sendCustomizeNotificationEmail(validatedData, leadId, uploadedFiles);

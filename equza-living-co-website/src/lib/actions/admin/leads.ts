@@ -5,7 +5,6 @@
 
 'use server';
 
-import { revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 import type { Lead, LeadStatus, LeadNote } from '@/types';
 import { 
@@ -77,9 +76,6 @@ export async function updateAdminLeadStatus(
     // Update lead status
     await updateLeadStatus(leadId, status, assignedTo);
 
-    // Invalidate cache
-    revalidateTag('leads');
-    revalidateTag('leads-stats');
 
     // Log admin action
     console.log('Admin lead status updated:', {
@@ -131,8 +127,6 @@ export async function addAdminLeadNote(
     // Add note to lead
     await addLeadNote(leadId, noteContent.trim(), auth.userId);
 
-    // Invalidate cache
-    revalidateTag('leads');
 
     // Log admin action
     console.log('Admin lead note added:', {
@@ -202,8 +196,6 @@ export async function updateAdminLead(
     // Update lead
     await updateLead(leadId, updates);
 
-    // Invalidate cache
-    revalidateTag('leads');
 
     // Log admin action
     console.log('Admin lead updated:', {
@@ -253,9 +245,6 @@ export async function deleteAdminLead(
     // Delete lead
     await deleteLead(leadId);
 
-    // Invalidate cache
-    revalidateTag('leads');
-    revalidateTag('leads-stats');
 
     // Log admin action
     console.log('Admin lead deleted:', {
@@ -298,8 +287,6 @@ export async function assignLead(
     // Update lead assignment
     await updateLead(leadId, { assignedTo: assignToUserId });
 
-    // Invalidate cache
-    revalidateTag('leads');
 
     // Log admin action
     console.log('Admin lead assigned:', {
@@ -373,9 +360,6 @@ export async function bulkUpdateLeadStatus(
       }
     }
 
-    // Invalidate cache
-    revalidateTag('leads');
-    revalidateTag('leads-stats');
 
     // Log admin action
     console.log('Admin bulk lead status update:', {
@@ -454,9 +438,6 @@ export async function bulkDeleteLeads(
       }
     }
 
-    // Invalidate cache
-    revalidateTag('leads');
-    revalidateTag('leads-stats');
 
     // Log admin action
     console.log('Admin bulk lead delete:', {

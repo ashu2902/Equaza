@@ -1,6 +1,6 @@
 /**
  * Collections Data Layer
- * Firestore operations for collections with centralized caching and validation
+ * Firestore operations for collections with validation
  */
 
 import {
@@ -26,12 +26,6 @@ import {
 
 import type { Collection, CollectionFilters } from '@/types';
 import { db } from './config';
-import { 
-  createCachedFunction, 
-  CACHE_CONFIG, 
-  invalidateEntityCache,
-  logCacheOperation 
-} from '@/lib/cache/config';
 
 // Helper function to convert Firestore document to typed object with proper serialization
 const convertDoc = <T>(doc: DocumentSnapshot | QueryDocumentSnapshot): T | null => {
@@ -70,134 +64,106 @@ const validateCollectionData = (data: Partial<Collection>): void => {
 };
 
 /**
- * Get collections with filters and caching
+ * Get collections with filters
  */
-export const getCollections = createCachedFunction(
-  async (filters: CollectionFilters = {}): Promise<Collection[]> => {
-    try {
-      logCacheOperation('getCollections', { filters });
-      
-      const constraints: QueryConstraint[] = [];
-      
-      // Apply filters
-      if (filters.type) {
-        constraints.push(where('type', '==', filters.type));
-      }
-      
-      if (filters.isActive !== undefined) {
-        constraints.push(where('isActive', '==', filters.isActive));
-      }
-      
-      // Default ordering
-      constraints.push(orderBy('sortOrder', 'asc'));
-      
-      // Pagination
-      if (filters.limit) {
-        constraints.push(limit(filters.limit));
-      }
-      
-      const q = query(collection(db, 'collections'), ...constraints);
-      const snapshot = await getDocs(q);
-      
-      return snapshot.docs
-        .map(doc => convertDoc<Collection>(doc))
-        .filter(Boolean) as Collection[];
-    } catch (error) {
-      console.error('Error fetching collections:', error);
-      throw new Error('Failed to fetch collections');
+export const getCollections = async (filters: CollectionFilters = {}): Promise<Collection[]> => {
+  try {
+    const constraints: QueryConstraint[] = [];
+    
+    // Apply filters
+    if (filters.type) {
+      constraints.push(where('type', '==', filters.type));
     }
-  },
-  'collections',
-  CACHE_CONFIG.collections
-);
+    
+    if (filters.isActive !== undefined) {
+      constraints.push(where('isActive', '==', filters.isActive));
+    }
+    
+    // Default ordering
+    constraints.push(orderBy('sortOrder', 'asc'));
+    
+    // Pagination
+    if (filters.limit) {
+      constraints.push(limit(filters.limit));
+    }
+    
+    const q = query(collection(db, 'collections'), ...constraints);
+    const snapshot = await getDocs(q);
+    
+    return snapshot.docs
+      .map(doc => convertDoc<Collection>(doc))
+      .filter(Boolean) as Collection[];
+  } catch (error) {
+    console.error('Error fetching collections:', error);
+    throw new Error('Failed to fetch collections');
+  }
+};
 
 /**
- * Get collections by type with caching
+ * Get collections by type
  */
-export const getCollectionsByType = createCachedFunction(
-  async (type: 'style' | 'space'): Promise<Collection[]> => {
-    logCacheOperation('getCollectionsByType', { type });
-    return getCollections({ type, isActive: true });
-  },
-  'collections-by-type',
-  CACHE_CONFIG.collections
-);
+export const getCollectionsByType = async (type: 'style' | 'space'): Promise<Collection[]> => {
+  return getCollections({ type, isActive: true });
+};
 
 /**
- * Get single collection by ID with caching
+ * Get single collection by ID
  */
-export const getCollectionById = createCachedFunction(
-  async (id: string): Promise<Collection | null> => {
-    try {
-      logCacheOperation('getCollectionById', { id });
-      
-      const docRef = doc(db, 'collections', id);
-      const docSnap = await getDoc(docRef);
-      
-      return convertDoc<Collection>(docSnap);
-    } catch (error) {
-      console.error('Error fetching collection by ID:', error);
-      throw new Error('Failed to fetch collection');
-    }
-  },
-  'collection-by-id',
-  CACHE_CONFIG.collection
-);
+export const getCollectionById = async (id: string): Promise<Collection | null> => {
+  try {
+    const docRef = doc(db, 'collections', id);
+    const docSnap = await getDoc(docRef);
+    
+    return convertDoc<Collection>(docSnap);
+  } catch (error) {
+    console.error('Error fetching collection by ID:', error);
+    throw new Error('Failed to fetch collection');
+  }
+};
 
 /**
- * Get single collection by slug with caching
+ * Get single collection by slug
  */
-export const getCollectionBySlug = createCachedFunction(
-  async (slug: string): Promise<Collection | null> => {
-    try {
-      logCacheOperation('getCollectionBySlug', { slug });
-      
-      const q = query(
-        collection(db, 'collections'),
-        where('slug', '==', slug),
-        where('isActive', '==', true)
-      );
-      const snapshot = await getDocs(q);
-      
-      if (snapshot.empty) return null;
-      
-      return convertDoc<Collection>(snapshot.docs[0]!);
-    } catch (error) {
-      console.error('Error fetching collection by slug:', error);
-      throw new Error('Failed to fetch collection');
-    }
-  },
-  'collection-by-slug',
-  CACHE_CONFIG.collectionSlug
-);
+export const getCollectionBySlug = async (slug: string): Promise<Collection | null> => {
+  try {
+    const q = query(
+      collection(db, 'collections'),
+      where('slug', '==', slug),
+      where('isActive', '==', true)
+    );
+    const snapshot = await getDocs(q);
+    
+    if (snapshot.empty) return null;
+    
+    return convertDoc<Collection>(snapshot.docs[0]!);
+  } catch (error) {
+    console.error('Error fetching collection by slug:', error);
+    throw new Error('Failed to fetch collection');
+  }
+};
 
 /**
  * Get featured collections
  */
-export const getFeaturedCollections = createCachedFunction(
-  async (limitCount: number = 6): Promise<Collection[]> => {
-    try {
-      logCacheOperation('getFeaturedCollections', { limitCount });
-      const q = query(
-        collection(db, 'collections'),
-        where('isActive', '==', true),
-        where('isFeatured', '==', true),
-        orderBy('sortOrder', 'asc'),
-        limit(limitCount)
-      );
-      const snapshot = await getDocs(q);
-      
-      return snapshot.docs
-        .map(doc => convertDoc<Collection>(doc))
-        .filter(Boolean) as Collection[];
-    } catch (error) {
-      console.error('Error fetching featured collections:', error);
-      throw new Error('Failed to fetch featured collections');
-    }
-  },
-  'featured-collections',
-  CACHE_CONFIG.featuredCollections
-);
+export const getFeaturedCollections = async (limitCount: number = 6): Promise<Collection[]> => {
+  try {
+    const q = query(
+      collection(db, 'collections'),
+      where('isActive', '==', true),
+      where('isFeatured', '==', true),
+      orderBy('sortOrder', 'asc'),
+      limit(limitCount)
+    );
+    const snapshot = await getDocs(q);
+    
+    return snapshot.docs
+      .map(doc => convertDoc<Collection>(doc))
+      .filter(Boolean) as Collection[];
+  } catch (error) {
+    console.error('Error fetching featured collections:', error);
+    throw new Error('Failed to fetch featured collections');
+  }
+};
 
 /**
  * Search collections by name
@@ -232,29 +198,24 @@ export const searchCollections = async (
 /**
  * Get collections count by type
  */
-export const getCollectionsCount = createCachedFunction(
-  async (): Promise<{ total: number; style: number; space: number }> => {
-    try {
-      logCacheOperation('getCollectionsCount', {});
-      const [allCollections, styleCollections, spaceCollections] = await Promise.all([
-        getCollections({ isActive: true }),
-        getCollections({ type: 'style', isActive: true }),
-        getCollections({ type: 'space', isActive: true }),
-      ]);
-      
-      return {
-        total: allCollections.length,
-        style: styleCollections.length,
-        space: spaceCollections.length,
-      };
-    } catch (error) {
-      console.error('Error getting collections count:', error);
-      throw new Error('Failed to get collections count');
-    }
-  },
-  'collections-count',
-  CACHE_CONFIG.collectionsStats
-);
+export const getCollectionsCount = async (): Promise<{ total: number; style: number; space: number }> => {
+  try {
+    const [allCollections, styleCollections, spaceCollections] = await Promise.all([
+      getCollections({ isActive: true }),
+      getCollections({ type: 'style', isActive: true }),
+      getCollections({ type: 'space', isActive: true }),
+    ]);
+    
+    return {
+      total: allCollections.length,
+      style: styleCollections.length,
+      space: spaceCollections.length,
+    };
+  } catch (error) {
+    console.error('Error getting collections count:', error);
+    throw new Error('Failed to get collections count');
+  }
+};
 
 /**
  * Create new collection (admin only)
@@ -273,15 +234,6 @@ export const createCollection = async (
     
     const docRef = await addDoc(collection(db, 'collections'), docData);
     
-    // Invalidate cache
-    invalidateEntityCache('collection', docRef.id, [
-      'collections',
-      'style-collections',
-      'space-collections',
-      'collections-stats'
-    ]);
-    
-    logCacheOperation('createCollection', { collectionId: docRef.id });
     
     return docRef.id;
   } catch (error) {
@@ -308,15 +260,6 @@ export const updateCollection = async (
     
     await updateDoc(docRef, updateData);
     
-    // Invalidate cache
-    invalidateEntityCache('collection', id, [
-      'collections',
-      'style-collections',
-      'space-collections',
-      'collections-stats'
-    ]);
-    
-    logCacheOperation('updateCollection', { collectionId: id, updates: Object.keys(updates) });
   } catch (error) {
     console.error('Error updating collection:', error);
     throw new Error('Failed to update collection');
@@ -369,9 +312,6 @@ export const deleteCollection = async (id: string): Promise<void> => {
     const docRef = doc(db, 'collections', id);
     await deleteDoc(docRef);
     
-    // Invalidate cache
-    // revalidateTag(CACHE_TAGS.collections);
-    // revalidateTag(CACHE_TAGS.collection(id));
   } catch (error) {
     console.error('Error deleting collection:', error);
     throw new Error('Failed to delete collection');

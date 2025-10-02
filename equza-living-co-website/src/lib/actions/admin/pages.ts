@@ -5,7 +5,6 @@
 
 'use server';
 
-import { revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 import type { Page, PageType, SiteSettings, Lookbook } from '@/types';
 import { setHomePageData, setContentPageData } from '@/lib/firebase/pages';
@@ -18,10 +17,6 @@ import {
 } from '@/lib/firebase/settings';
 import { checkAdminStatus } from '@/lib/firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { 
-  invalidateEntityCache, 
-  invalidateByTags 
-} from '@/lib/cache/config';
 
 export interface AdminPageResult {
   success: boolean;
@@ -154,8 +149,6 @@ export async function updatePageContent(
       await setContentPageData(pageType, pageData as any);
     }
 
-    // Invalidate cache
-    invalidateEntityCache('page', pageType, ['pages', 'homepage']);
 
     return {
       success: true,
@@ -212,7 +205,6 @@ export async function updateHomeContent(
     }
 
     await setHomePageData(data);
-    invalidateEntityCache('page', 'home', ['pages', 'homepage']);
 
     console.log('Admin homepage content updated', { adminId: auth.userId, keys: Object.keys(data || {}) });
     return { success: true, message: 'Homepage content updated successfully', pageId: 'home' };
@@ -248,8 +240,6 @@ export async function updateAdminSiteSettings(
     // Update site settings
     await updateSiteSettings(settings, auth.userId);
 
-    // Invalidate cache
-    invalidateByTags(['site-settings', 'contact-info', 'seo-defaults']);
 
     // Log admin action
     console.log('Admin site settings updated:', {
@@ -311,8 +301,6 @@ export async function updateAdminLookbook(
     // Update lookbook
     await updateCurrentLookbook(lookbookData, auth.userId);
 
-    // Invalidate cache
-    revalidateTag('lookbook');
 
     // Log admin action
     console.log('Admin lookbook updated:', {
@@ -350,8 +338,6 @@ export async function deactivateAdminLookbook(): Promise<AdminSettingsResult> {
     // Deactivate lookbook
     await deactivateLookbook(auth.userId);
 
-    // Invalidate cache
-    revalidateTag('lookbook');
 
     // Log admin action
     console.log('Admin lookbook deactivated:', {
@@ -416,9 +402,6 @@ export async function updateSEODefaults(
     // Update SEO defaults
     await updateSiteSettings({ seoDefaults }, auth.userId);
 
-    // Invalidate cache
-    revalidateTag('site-settings');
-    revalidateTag('seo-defaults');
 
     // Log admin action
     console.log('Admin SEO defaults updated:', {
@@ -479,9 +462,6 @@ export async function updateSocialLinks(
     // Update social links
     await updateSiteSettings({ socialLinks }, auth.userId);
 
-    // Invalidate cache
-    revalidateTag('site-settings');
-    revalidateTag('contact-info');
 
     // Log admin action
     console.log('Admin social links updated:', {

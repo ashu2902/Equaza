@@ -5,7 +5,6 @@
 
 'use server';
 
-import { revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 import type { Product } from '@/types';
 import { 
@@ -16,10 +15,6 @@ import {
   isProductSlugAvailable 
 } from '@/lib/firebase/products';
 import { addProductIdToCollection, removeProductIdFromCollection } from '@/lib/firebase/collections';
-import { 
-  invalidateEntityCache, 
-  invalidateByTags 
-} from '@/lib/cache/config';
 // import { checkAdminStatus } from '@/lib/firebase/auth'; // Not needed in server actions
 import { cookies } from 'next/headers';
 import { getAdminAuth } from '@/lib/firebase/server-app';
@@ -213,13 +208,6 @@ export async function createAdminProduct(
       console.warn('Collection sync after create failed:', syncErr);
     }
 
-    // Invalidate cache
-    revalidateTag('products');
-    revalidateTag('products-stats');
-    revalidateTag('product-filter-options');
-    if (productData.isFeatured) {
-      revalidateTag('featured-products');
-    }
 
     // Log admin action
     console.log('Admin product created:', {
@@ -309,18 +297,6 @@ export async function updateAdminProduct(
       console.warn('Collection sync after update failed:', syncErr);
     }
 
-    // Invalidate cache using centralized system
-    invalidateEntityCache('product', productId, [
-      'products',
-      'featured-products',
-      'products-stats',
-      'product-filter-options'
-    ]);
-    
-    // Also invalidate slug cache if slug changed
-    if (updates.slug && updates.slug !== originalProduct.slug) {
-      invalidateByTags([`product-slug-${originalProduct.slug}`, `product-slug-${updates.slug}`]);
-    }
 
     // Log admin action
     console.log('Admin product updated:', {
@@ -379,15 +355,6 @@ export async function deleteAdminProduct(
     // Delete product
     await deleteProduct(productId);
 
-    // Invalidate cache
-    revalidateTag('products');
-    revalidateTag(`product-${productId}`);
-    revalidateTag(`product-slug-${product.slug}`);
-    revalidateTag('products-stats');
-    revalidateTag('product-filter-options');
-    if (product.isFeatured) {
-      revalidateTag('featured-products');
-    }
 
     // Log admin action
     console.log('Admin product deleted:', {
@@ -433,8 +400,6 @@ export async function updateProductSortOrders(
       )
     );
 
-    // Invalidate cache
-    revalidateTag('products');
 
     // Log admin action
     console.log('Admin product sort orders updated:', {
@@ -474,9 +439,6 @@ export async function toggleProductStatus(
     // Update product status
     await updateProduct(productId, { isActive });
 
-    // Invalidate cache
-    revalidateTag('products');
-    revalidateTag(`product-${productId}`);
 
     // Log admin action
     console.log('Admin product status toggled:', {
@@ -518,10 +480,6 @@ export async function toggleProductFeatured(
     // Update product featured status
     await updateProduct(productId, { isFeatured });
 
-    // Invalidate cache
-    revalidateTag('products');
-    revalidateTag(`product-${productId}`);
-    revalidateTag('featured-products');
 
     // Log admin action
     console.log('Admin product featured status toggled:', {
@@ -597,8 +555,6 @@ export async function duplicateProduct(
 
     const newProductId = await createProduct(duplicateData);
 
-    // Invalidate cache
-    revalidateTag('products');
 
     // Log admin action
     console.log('Admin product duplicated:', {
@@ -671,10 +627,7 @@ export async function bulkUpdateProducts(
       }
     }
 
-    // Invalidate cache
-    revalidateTag('products');
     if (updates.isFeatured !== undefined) {
-      revalidateTag('featured-products');
     }
 
     // Log admin action

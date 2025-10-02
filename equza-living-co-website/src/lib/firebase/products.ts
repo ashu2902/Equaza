@@ -1,6 +1,6 @@
 /**
  * Products Data Layer
- * Firestore operations for products with centralized caching and validation
+ * Firestore operations for products with validation
  */
 
 import {
@@ -24,12 +24,6 @@ import {
 
 import type { Product, ProductFilters } from '@/types';
 import { db } from './config';
-import { 
-  createCachedFunction, 
-  CACHE_CONFIG, 
-  invalidateEntityCache,
-  logCacheOperation 
-} from '@/lib/cache/config';
 
 // Helper function to convert Firestore document to typed object with proper serialization
 const convertDoc = <T>(doc: DocumentSnapshot | QueryDocumentSnapshot): T | null => {
@@ -76,152 +70,123 @@ const validateProductData = (data: Partial<Product>): void => {
 };
 
 /**
- * Get products with filters and caching
+ * Get products with filters
  */
-export const getProducts = createCachedFunction(
-  async (filters: ProductFilters = {}): Promise<Product[]> => {
-    try {
-      logCacheOperation('getProducts', { filters });
-      
-      const constraints: QueryConstraint[] = [];
-      
-      // Apply filters
-      if (filters.collectionId) {
-        constraints.push(where('collections', 'array-contains', filters.collectionId));
-      }
-      
-      if (filters.materials && filters.materials.length > 0) {
-        // For materials, we need to check if any of the filter materials match
-        constraints.push(where('specifications.materials', 'array-contains-any', filters.materials));
-      }
-      
-      if (filters.weaveType) {
-        constraints.push(where('specifications.weaveType', '==', filters.weaveType));
-      }
-      
-      if (filters.isActive !== undefined) {
-        constraints.push(where('isActive', '==', filters.isActive));
-      }
-      
-      if (filters.isFeatured !== undefined) {
-        constraints.push(where('isFeatured', '==', filters.isFeatured));
-      }
-      
-      // Default ordering
-      constraints.push(orderBy('sortOrder', 'asc'));
-      
-      // Pagination
-      if (filters.limit) {
-        constraints.push(limit(filters.limit));
-      }
-      
-      const q = query(collection(db, 'products'), ...constraints);
-      const snapshot = await getDocs(q);
-      
-      return snapshot.docs
-        .map(doc => convertDoc<Product>(doc))
-        .filter(Boolean) as Product[];
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      throw new Error('Failed to fetch products');
+export const getProducts = async (filters: ProductFilters = {}): Promise<Product[]> => {
+  try {
+    const constraints: QueryConstraint[] = [];
+    
+    // Apply filters
+    if (filters.collectionId) {
+      constraints.push(where('collections', 'array-contains', filters.collectionId));
     }
-  },
-  'products',
-  CACHE_CONFIG.products
-);
+    
+    if (filters.materials && filters.materials.length > 0) {
+      // For materials, we need to check if any of the filter materials match
+      constraints.push(where('specifications.materials', 'array-contains-any', filters.materials));
+    }
+    
+    if (filters.weaveType) {
+      constraints.push(where('specifications.weaveType', '==', filters.weaveType));
+    }
+    
+    if (filters.isActive !== undefined) {
+      constraints.push(where('isActive', '==', filters.isActive));
+    }
+    
+    if (filters.isFeatured !== undefined) {
+      constraints.push(where('isFeatured', '==', filters.isFeatured));
+    }
+    
+    // Default ordering
+    constraints.push(orderBy('sortOrder', 'asc'));
+    
+    // Pagination
+    if (filters.limit) {
+      constraints.push(limit(filters.limit));
+    }
+    
+    const q = query(collection(db, 'products'), ...constraints);
+    const snapshot = await getDocs(q);
+    
+    return snapshot.docs
+      .map(doc => convertDoc<Product>(doc))
+      .filter(Boolean) as Product[];
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    throw new Error('Failed to fetch products');
+  }
+};
 
 /**
- * Get single product by ID with caching
+ * Get single product by ID
  */
-export const getProductById = createCachedFunction(
-  async (id: string): Promise<Product | null> => {
-    try {
-      logCacheOperation('getProductById', { id });
-      
-      const docRef = doc(db, 'products', id);
-      const docSnap = await getDoc(docRef);
-      
-      return convertDoc<Product>(docSnap);
-    } catch (error) {
-      console.error('Error fetching product by ID:', error);
-      throw new Error('Failed to fetch product');
-    }
-  },
-  'product-by-id',
-  CACHE_CONFIG.product
-);
+export const getProductById = async (id: string): Promise<Product | null> => {
+  try {
+    const docRef = doc(db, 'products', id);
+    const docSnap = await getDoc(docRef);
+    
+    return convertDoc<Product>(docSnap);
+  } catch (error) {
+    console.error('Error fetching product by ID:', error);
+    throw new Error('Failed to fetch product');
+  }
+};
 
 /**
- * Get single product by slug with caching
+ * Get single product by slug
  */
-export const getProductBySlug = createCachedFunction(
-  async (slug: string): Promise<Product | null> => {
-    try {
-      logCacheOperation('getProductBySlug', { slug });
-      
-      const q = query(
-        collection(db, 'products'),
-        where('slug', '==', slug),
-        where('isActive', '==', true)
-      );
-      const snapshot = await getDocs(q);
-      
-      if (snapshot.empty) return null;
-      
-      return convertDoc<Product>(snapshot.docs[0]!);
-    } catch (error) {
-      console.error('Error fetching product by slug:', error);
-      throw new Error('Failed to fetch product');
-    }
-  },
-  'product-by-slug',
-  CACHE_CONFIG.productSlug
-);
+export const getProductBySlug = async (slug: string): Promise<Product | null> => {
+  try {
+    const q = query(
+      collection(db, 'products'),
+      where('slug', '==', slug),
+      where('isActive', '==', true)
+    );
+    const snapshot = await getDocs(q);
+    
+    if (snapshot.empty) return null;
+    
+    return convertDoc<Product>(snapshot.docs[0]!);
+  } catch (error) {
+    console.error('Error fetching product by slug:', error);
+    throw new Error('Failed to fetch product');
+  }
+};
 
 /**
  * Get featured products
  */
-export const getFeaturedProducts = createCachedFunction(
-  async (limitCount: number = 8): Promise<Product[]> => {
-    try {
-      logCacheOperation('getFeaturedProducts', { limitCount });
-      
-      const q = query(
-        collection(db, 'products'),
-        where('isActive', '==', true),
-        where('isFeatured', '==', true),
-        orderBy('sortOrder', 'asc'),
-        limit(limitCount)
-      );
-      const snapshot = await getDocs(q);
-      
-      return snapshot.docs
-        .map(doc => convertDoc<Product>(doc))
-        .filter(Boolean) as Product[];
-    } catch (error) {
-      console.error('Error fetching featured products:', error);
-      throw new Error('Failed to fetch featured products');
-    }
-  },
-  'featured-products',
-  CACHE_CONFIG.featuredProducts
-);
+export const getFeaturedProducts = async (limitCount: number = 8): Promise<Product[]> => {
+  try {
+    const q = query(
+      collection(db, 'products'),
+      where('isActive', '==', true),
+      where('isFeatured', '==', true),
+      orderBy('sortOrder', 'asc'),
+      limit(limitCount)
+    );
+    const snapshot = await getDocs(q);
+    
+    return snapshot.docs
+      .map(doc => convertDoc<Product>(doc))
+      .filter(Boolean) as Product[];
+  } catch (error) {
+    console.error('Error fetching featured products:', error);
+    throw new Error('Failed to fetch featured products');
+  }
+};
 
 /**
  * Get products by collection
  */
-export const getProductsByCollection = createCachedFunction(
-  async (collectionId: string, limitCount?: number): Promise<Product[]> => {
-    logCacheOperation('getProductsByCollection', { collectionId, limitCount });
-    return getProducts({ 
-      collectionId, 
-      isActive: true, 
-      limit: limitCount 
-    });
-  },
-  'products-by-collection',
-  CACHE_CONFIG.products
-);
+export const getProductsByCollection = async (collectionId: string, limitCount?: number): Promise<Product[]> => {
+  return getProducts({ 
+    collectionId, 
+    isActive: true, 
+    limit: limitCount 
+  });
+};
 
 /**
  * Get products by room type
@@ -295,128 +260,105 @@ export const getRelatedProducts = async (
 /**
  * Get products count and statistics
  */
-export const getProductsStats = createCachedFunction(
-  async (): Promise<{
-    total: number;
-    active: number;
-    featured: number;
-    byCollection: Record<string, number>;
-  }> => {
-    try {
-      logCacheOperation('getProductsStats', {});
-      
-      const [allProducts, activeProducts, featuredProducts] = await Promise.all([
-        getProducts({}),
-        getProducts({ isActive: true }),
-        getProducts({ isActive: true, isFeatured: true }),
-      ]);
-      
-      // Count by collection
-      const byCollection: Record<string, number> = {};
-      activeProducts.forEach(product => {
-        product.collections.forEach(collectionId => {
-          byCollection[collectionId] = (byCollection[collectionId] || 0) + 1;
-        });
+export const getProductsStats = async (): Promise<{
+  total: number;
+  active: number;
+  featured: number;
+  byCollection: Record<string, number>;
+}> => {
+  try {
+    const [allProducts, activeProducts, featuredProducts] = await Promise.all([
+      getProducts({}),
+      getProducts({ isActive: true }),
+      getProducts({ isActive: true, isFeatured: true }),
+    ]);
+    
+    // Count by collection
+    const byCollection: Record<string, number> = {};
+    activeProducts.forEach(product => {
+      product.collections.forEach(collectionId => {
+        byCollection[collectionId] = (byCollection[collectionId] || 0) + 1;
       });
-      
-      return {
-        total: allProducts.length,
-        active: activeProducts.length,
-        featured: featuredProducts.length,
-        byCollection,
-      };
-    } catch (error) {
-      console.error('Error getting products stats:', error);
-      throw new Error('Failed to get products stats');
-    }
-  },
-  'products-stats',
-  CACHE_CONFIG.products
-);
+    });
+    
+    return {
+      total: allProducts.length,
+      active: activeProducts.length,
+      featured: featuredProducts.length,
+      byCollection,
+    };
+  } catch (error) {
+    console.error('Error getting products stats:', error);
+    throw new Error('Failed to get products stats');
+  }
+};
 
 /**
  * Get products by weave type
  */
-export const getProductsByWeaveType = createCachedFunction(
-  async (weaveType: string, limitCount?: number): Promise<Product[]> => {
-    logCacheOperation('getProductsByWeaveType', { weaveType, limitCount });
-    return getProducts({ 
-      weaveType, 
-      isActive: true, 
-      limit: limitCount 
-    });
-  },
-  'products-by-weave-type',
-  CACHE_CONFIG.products
-);
+export const getProductsByWeaveType = async (weaveType: string, limitCount?: number): Promise<Product[]> => {
+  return getProducts({ 
+    weaveType, 
+    isActive: true, 
+    limit: limitCount 
+  });
+};
 
 /**
  * Get available weave types
  */
-export const getAvailableWeaveTypes = createCachedFunction(
-  async (): Promise<string[]> => {
-    try {
-      logCacheOperation('getAvailableWeaveTypes', {});
-      
-      const products = await getProducts({ isActive: true });
-      
-      const weaveTypes = new Set<string>();
-      
-      products.forEach(product => {
-        if (product.specifications.weaveType) {
-          weaveTypes.add(product.specifications.weaveType);
-        }
-      });
-      
-      return Array.from(weaveTypes).sort();
-    } catch (error) {
-      console.error('Error getting available weave types:', error);
-      throw new Error('Failed to get weave types');
-    }
-  },
-  'available-weave-types',
-  CACHE_CONFIG.products
-);
+export const getAvailableWeaveTypes = async (): Promise<string[]> => {
+  try {
+    const products = await getProducts({ isActive: true });
+    
+    const weaveTypes = new Set<string>();
+    
+    products.forEach(product => {
+      if (product.specifications.weaveType) {
+        weaveTypes.add(product.specifications.weaveType);
+      }
+    });
+    
+    return Array.from(weaveTypes).sort();
+  } catch (error) {
+    console.error('Error getting available weave types:', error);
+    throw new Error('Failed to get weave types');
+  }
+};
 
 /**
  * Get available filter options
  */
-export const getProductFilterOptions = createCachedFunction(
-  async (): Promise<{
-    materials: string[];
-    collections: string[];
-    weaveTypes: string[];
-  }> => {
-    try {
-      logCacheOperation('getProductFilterOptions', {});
-      
-      const products = await getProducts({ isActive: true });
-      
-      const materials = new Set<string>();
-      const collections = new Set<string>();
-      const weaveTypes = new Set<string>();
-      
-      products.forEach(product => {
-        product.specifications.materials.forEach(material => materials.add(material));
-        product.collections.forEach(collection => collections.add(collection));
-        if (product.specifications.weaveType) {
-          weaveTypes.add(product.specifications.weaveType);
-        }
-      });
-      
-      return {
-        materials: Array.from(materials).sort(),
-        collections: Array.from(collections).sort(),
-        weaveTypes: Array.from(weaveTypes).sort(),
-      };
-    } catch (error) {
-      console.error('Error getting product filter options:', error);
-      throw new Error('Failed to get filter options');
-    }
-  },
-  'product-filter-options',
-  CACHE_CONFIG.products
-);
+export const getProductFilterOptions = async (): Promise<{
+  materials: string[];
+  collections: string[];
+  weaveTypes: string[];
+}> => {
+  try {
+    const products = await getProducts({ isActive: true });
+    
+    const materials = new Set<string>();
+    const collections = new Set<string>();
+    const weaveTypes = new Set<string>();
+    
+    products.forEach(product => {
+      product.specifications.materials.forEach(material => materials.add(material));
+      product.collections.forEach(collection => collections.add(collection));
+      if (product.specifications.weaveType) {
+        weaveTypes.add(product.specifications.weaveType);
+      }
+    });
+    
+    return {
+      materials: Array.from(materials).sort(),
+      collections: Array.from(collections).sort(),
+      weaveTypes: Array.from(weaveTypes).sort(),
+    };
+  } catch (error) {
+    console.error('Error getting product filter options:', error);
+    throw new Error('Failed to get filter options');
+  }
+};
 
 /**
  * Create new product (admin only)
@@ -435,15 +377,6 @@ export const createProduct = async (
     
     const docRef = await addDoc(collection(db, 'products'), docData);
     
-    // Invalidate cache
-    invalidateEntityCache('product', docRef.id, [
-      'products',
-      'featured-products',
-      'products-stats',
-      'product-filter-options'
-    ]);
-    
-    logCacheOperation('createProduct', { productId: docRef.id });
     
     return docRef.id;
   } catch (error) {
@@ -470,15 +403,6 @@ export const updateProduct = async (
     
     await updateDoc(docRef, updateData);
     
-    // Invalidate cache
-    invalidateEntityCache('product', id, [
-      'products',
-      'featured-products',
-      'products-stats',
-      'product-filter-options'
-    ]);
-    
-    logCacheOperation('updateProduct', { productId: id, updates: Object.keys(updates) });
   } catch (error) {
     console.error('Error updating product:', error);
     throw new Error('Failed to update product');
@@ -493,15 +417,6 @@ export const deleteProduct = async (id: string): Promise<void> => {
     const docRef = doc(db, 'products', id);
     await deleteDoc(docRef);
     
-    // Invalidate cache
-    invalidateEntityCache('product', id, [
-      'products',
-      'featured-products',
-      'products-stats',
-      'product-filter-options'
-    ]);
-    
-    logCacheOperation('deleteProduct', { productId: id });
   } catch (error) {
     console.error('Error deleting product:', error);
     throw new Error('Failed to delete product');

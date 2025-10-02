@@ -204,19 +204,3 @@ export const FEATURES = {
   tradePartnership: true,
   adminPanel: false, // Will be enabled in future phases
 } as const;
-
-// Cache Configuration
-export const CACHE = {
-  revalidate: {
-    collections: 3600, // 1 hour
-    products: 1800, // 30 minutes
-    pages: 7200, // 2 hours
-    settings: 86400, // 24 hours
-  },
-  tags: {
-    collections: 'collections',
-    products: 'products',
-    pages: 'pages',
-    settings: 'settings',
-  },
-} as const; 

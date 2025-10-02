@@ -1,6 +1,6 @@
 /**
  * Leads Data Layer
- * Firestore operations for lead management with centralized caching and validation
+ * Firestore operations for lead management with validation
  */
 
 import {
@@ -34,12 +34,6 @@ import type {
   TradeFormData
 } from '@/types';
 import { db } from './config';
-import { 
-  createCachedFunction, 
-  CACHE_CONFIG, 
-  invalidateEntityCache,
-  logCacheOperation 
-} from '@/lib/cache/config';
 
 // Helper function to convert Firestore document to typed object with proper serialization
 const convertDoc = <T>(doc: DocumentSnapshot | QueryDocumentSnapshot): T | null => {
@@ -87,59 +81,53 @@ const sanitizeInput = (input: string): string => {
 };
 
 /**
- * Get leads with filters and caching
+ * Get leads with filters
  */
-export const getLeads = createCachedFunction(
-  async (filters: LeadFilters = {}): Promise<Lead[]> => {
-    try {
-      logCacheOperation('getLeads', { filters });
-      
-      const constraints: QueryConstraint[] = [];
-      
-      // Apply filters
-      if (filters.type) {
-        constraints.push(where('type', '==', filters.type));
-      }
-      
-      if (filters.status) {
-        constraints.push(where('status', '==', filters.status));
-      }
-      
-      if (filters.assignedTo) {
-        constraints.push(where('assignedTo', '==', filters.assignedTo));
-      }
-      
-      // Date range filtering (simplified - in production you'd want better date handling)
-      if (filters.dateFrom) {
-        constraints.push(where('createdAt', '>=', Timestamp.fromDate(filters.dateFrom)));
-      }
-      
-      if (filters.dateTo) {
-        constraints.push(where('createdAt', '<=', Timestamp.fromDate(filters.dateTo)));
-      }
-      
-      // Default ordering (newest first)
-      constraints.push(orderBy('createdAt', 'desc'));
-      
-      // Pagination
-      if (filters.limit) {
-        constraints.push(limit(filters.limit));
-      }
-      
-      const q = query(collection(db, 'leads'), ...constraints);
-      const snapshot = await getDocs(q);
-      
-      return snapshot.docs
-        .map(doc => convertDoc<Lead>(doc))
-        .filter(Boolean) as Lead[];
-    } catch (error) {
-      console.error('Error fetching leads:', error);
-      throw new Error('Failed to fetch leads');
+export const getLeads = async (filters: LeadFilters = {}): Promise<Lead[]> => {
+  try {
+    const constraints: QueryConstraint[] = [];
+    
+    // Apply filters
+    if (filters.type) {
+      constraints.push(where('type', '==', filters.type));
     }
-  },
-  'leads',
-  CACHE_CONFIG.leads
-);
+    
+    if (filters.status) {
+      constraints.push(where('status', '==', filters.status));
+    }
+    
+    if (filters.assignedTo) {
+      constraints.push(where('assignedTo', '==', filters.assignedTo));
+    }
+    
+    // Date range filtering (simplified - in production you'd want better date handling)
+    if (filters.dateFrom) {
+      constraints.push(where('createdAt', '>=', Timestamp.fromDate(filters.dateFrom)));
+    }
+    
+    if (filters.dateTo) {
+      constraints.push(where('createdAt', '<=', Timestamp.fromDate(filters.dateTo)));
+    }
+    
+    // Default ordering (newest first)
+    constraints.push(orderBy('createdAt', 'desc'));
+    
+    // Pagination
+    if (filters.limit) {
+      constraints.push(limit(filters.limit));
+    }
+    
+    const q = query(collection(db, 'leads'), ...constraints);
+    const snapshot = await getDocs(q);
+    
+    return snapshot.docs
+      .map(doc => convertDoc<Lead>(doc))
+      .filter(Boolean) as Lead[];
+  } catch (error) {
+    console.error('Error fetching leads:', error);
+    throw new Error('Failed to fetch leads');
+  }
+};
 
 /**
  * Get single lead by ID
@@ -159,92 +147,72 @@ export const getLeadById = async (id: string): Promise<Lead | null> => {
 /**
  * Get leads by status
  */
-export const getLeadsByStatus = createCachedFunction(
-  async (status: LeadStatus): Promise<Lead[]> => {
-    logCacheOperation('getLeadsByStatus', { status });
-    return getLeads({ status });
-  },
-  'leads-by-status',
-  CACHE_CONFIG.leads
-);
+export const getLeadsByStatus = async (status: LeadStatus): Promise<Lead[]> => {
+  return getLeads({ status });
+};
 
 /**
  * Get leads by type
  */
-export const getLeadsByType = createCachedFunction(
-  async (type: LeadType): Promise<Lead[]> => {
-    logCacheOperation('getLeadsByType', { type });
-    return getLeads({ type });
-  },
-  'leads-by-type',
-  CACHE_CONFIG.leads
-);
+export const getLeadsByType = async (type: LeadType): Promise<Lead[]> => {
+  return getLeads({ type });
+};
 
 /**
  * Get recent leads
  */
-export const getRecentLeads = createCachedFunction(
-  async (limitCount: number = 10): Promise<Lead[]> => {
-    logCacheOperation('getRecentLeads', { limitCount });
-    return getLeads({ limit: limitCount });
-  },
-  'recent-leads',
-  CACHE_CONFIG.leads
-);
+export const getRecentLeads = async (limitCount: number = 10): Promise<Lead[]> => {
+  return getLeads({ limit: limitCount });
+};
 
 /**
  * Get leads statistics
  */
-export const getLeadsStats = createCachedFunction(
-  async (): Promise<{
-    total: number;
-    byStatus: Record<LeadStatus, number>;
-    byType: Record<LeadType, number>;
-    recent: number; // last 7 days
-  }> => {
-    try {
-      logCacheOperation('getLeadsStats', {});
-      const allLeads = await getLeads({});
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+export const getLeadsStats = async (): Promise<{
+  total: number;
+  byStatus: Record<LeadStatus, number>;
+  byType: Record<LeadType, number>;
+  recent: number; // last 7 days
+}> => {
+  try {
+    const allLeads = await getLeads({});
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    
+    const stats = {
+      total: allLeads.length,
+      byStatus: {
+        new: 0,
+        contacted: 0,
+        qualified: 0,
+        converted: 0,
+        closed: 0,
+      } as Record<LeadStatus, number>,
+      byType: {
+        contact: 0,
+        trade: 0,
+        customize: 0,
+        'product-enquiry': 0,
+      } as Record<LeadType, number>,
+      recent: 0,
+    };
+    
+    allLeads.forEach(lead => {
+      stats.byStatus[lead.status]++;
+      stats.byType[lead.type]++;
       
-      const stats = {
-        total: allLeads.length,
-        byStatus: {
-          new: 0,
-          contacted: 0,
-          qualified: 0,
-          converted: 0,
-          closed: 0,
-        } as Record<LeadStatus, number>,
-        byType: {
-          contact: 0,
-          trade: 0,
-          customize: 0,
-          'product-enquiry': 0,
-        } as Record<LeadType, number>,
-        recent: 0,
-      };
-      
-      allLeads.forEach(lead => {
-        stats.byStatus[lead.status]++;
-        stats.byType[lead.type]++;
-        
-        const leadDate = lead.createdAt.toDate();
-        if (leadDate >= sevenDaysAgo) {
-          stats.recent++;
-        }
-      });
-      
-      return stats;
-    } catch (error) {
-      console.error('Error getting leads stats:', error);
-      throw new Error('Failed to get leads stats');
-    }
-  },
-  'leads-stats',
-  CACHE_CONFIG.leadsStats
-);
+      const leadDate = lead.createdAt.toDate();
+      if (leadDate >= sevenDaysAgo) {
+        stats.recent++;
+      }
+    });
+    
+    return stats;
+  } catch (error) {
+    console.error('Error getting leads stats:', error);
+    throw new Error('Failed to get leads stats');
+  }
+};
 
 /**
  * Create lead from contact form
