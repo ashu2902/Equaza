@@ -1,6 +1,6 @@
 /**
  * Room Highlight Carousel
- * Swipable carousel showing space collection cards
+ * Swipable carousel showing key room cards: Living Room, Bedroom, Narrow Spaces
  */
 
 'use client';
@@ -22,8 +22,13 @@ interface RoomHighlightCarouselProps {
 }
 
 function RoomCard({ collection }: { collection: SafeCollection }) {
-  // Use a generic icon for all space types
-  const Icon = MoveHorizontal;
+  const icon = (() => {
+    const slug = collection.slug.toLowerCase();
+    if (slug.includes('living')) return Sofa;
+    if (slug.includes('bed')) return Bed;
+    return MoveHorizontal; // Narrow / hallway
+  })();
+  const Icon = icon;
 
   return (
     <Link href={`/collections/${collection.slug}`} className="block group">
@@ -55,8 +60,8 @@ function RoomCard({ collection }: { collection: SafeCollection }) {
 }
 
 export function RoomHighlightCarousel({
-  title = 'Rugs by Space',
-  subtitle = 'Swipe to explore different spaces',
+  title = 'Living Room',
+  subtitle = 'Swipe to explore Bedroom and Narrow Spaces',
   spaceCollections,
 }: RoomHighlightCarouselProps) {
   const [index, setIndex] = useState(0);
@@ -66,8 +71,12 @@ export function RoomHighlightCarousel({
   const [isPaused, setIsPaused] = useState(false);
 
   const items = useMemo(() => {
-    // Show all space collections without filtering by slug
-    return spaceCollections;
+    // Keep only living-room, bedroom, and narrow/hallway spaces if available, preserving this order
+    const bySlug = (s: string) => spaceCollections.find((c) => c.slug.toLowerCase().includes(s));
+    const living = bySlug('living');
+    const bedroom = bySlug('bed');
+    const narrow = bySlug('narrow') || bySlug('hall') || bySlug('entry');
+    return [living, bedroom, narrow].filter(Boolean) as SafeCollection[];
   }, [spaceCollections]);
 
   useEffect(() => {
