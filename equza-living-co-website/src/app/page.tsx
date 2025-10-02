@@ -66,7 +66,7 @@ async function getHomepageData() {
     ] = await Promise.all([
       getSafeHomepageData(),
       getSafeStyleCollections(6),
-      getSafeSpaceCollections(3),
+      getSafeSpaceCollections(),
       getSafeFeaturedProducts(9),
       getSafeWeaveTypesWithImages(),
       getHomePageData()
