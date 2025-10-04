@@ -352,6 +352,21 @@ export async function deleteAdminProduct(
     //   };
     // }
 
+    // Remove product from all associated collections before deletion
+    if (product.collections && product.collections.length > 0) {
+      try {
+        await Promise.all(
+          product.collections.map(collectionId => 
+            removeProductIdFromCollection(collectionId, productId)
+          )
+        );
+        console.log(`Removed product ${productId} from ${product.collections.length} collections`);
+      } catch (syncErr) {
+        console.warn('Collection cleanup failed:', syncErr);
+        // Continue with deletion even if collection cleanup fails
+      }
+    }
+
     // Delete product
     await deleteProduct(productId);
 
