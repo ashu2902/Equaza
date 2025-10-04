@@ -39,7 +39,7 @@ function CraftsmanshipHeroSection() {
       title="Hands of Heritage"
       subtitle="Every rug tells a story of ancient techniques, patient hands, and timeless traditions. Journey with us through the sacred art of handcrafted excellence."
       textAlignment="left"
-      overlayOpacity={0.3}
+      overlayOpacity={0.4}
       className="min-h-[70vh] md:min-h-screen flex items-center"
     />
   );

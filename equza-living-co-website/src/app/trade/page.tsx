@@ -27,6 +27,7 @@ import { HeroSection } from '@/components/ui/HeroSection';
 import { TradeForm } from '@/components/forms/TradeForm';
 import { ErrorBoundary, SectionErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { FadeIn, SlideUp, ScaleIn } from '@/components/ui/MotionWrapper';
+import { ScrollToApplicationButton } from '@/components/trade/ScrollToApplicationButton';
 
 // Actions
 import { submitTradePageForm } from '@/lib/actions/trade';
@@ -102,9 +103,7 @@ function TradeHeroSection() {
     >
       <SlideUp delay={0.6}>
         <div className="flex flex-col sm:flex-row gap-4">
-          <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100">
-            Partner With Us
-          </Button>
+          <ScrollToApplicationButton />
         </div>
       </SlideUp>
     </HeroSection>
@@ -197,7 +196,7 @@ function PartnerTypesSection() {
 
 function ApplicationSection() {
   return (
-    <div className="py-10 md:py-14 lg:py-18 bg-white">
+    <div id="partnership-application" className="py-10 md:py-14 lg:py-18 bg-white">
       <Container>
         <div className="mb-16">
           <SlideUp>

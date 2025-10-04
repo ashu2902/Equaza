@@ -93,7 +93,7 @@ export default function CustomizePage() {
 We Weave It."
             subtitle="Create a one-of-a-kind handcrafted rug that perfectly captures your vision. Our master artisans will transform your ideas into a stunning reality."
             textAlignment="left"
-            overlayOpacity={0.2}
+            overlayOpacity={0.4}
             className="py-16 md:py-24"
           />
         </SectionErrorBoundary>
