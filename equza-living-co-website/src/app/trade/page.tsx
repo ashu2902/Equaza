@@ -28,6 +28,7 @@ import { TradeForm } from '@/components/forms/TradeForm';
 import { ErrorBoundary, SectionErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { FadeIn, SlideUp, ScaleIn } from '@/components/ui/MotionWrapper';
 import { ScrollToApplicationButton } from '@/components/trade/ScrollToApplicationButton';
+import { MinimalFooter } from '@/components/layout/MinimalFooter';
 
 // Actions
 import { submitTradePageForm } from '@/lib/actions/trade';
@@ -226,62 +227,6 @@ function ApplicationSection() {
   );
 }
 
-function FooterSection() {
-  return (
-    <div className="py-16" style={{backgroundColor: '#d4b896'}}>
-      <Container>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Company Info */}
-          <div className="md:col-span-2">
-            <Typography variant="h4" className="font-bold text-gray-900 mb-4">
-              EQUZA LIVING CO.
-            </Typography>
-            <Typography variant="body" className="text-gray-700 mb-4">
-              Crafting stories, one rug at a time. Committed to the world.
-            </Typography>
-          </div>
-          
-          {/* Explore */}
-          <div>
-            <Typography variant="h6" className="font-bold text-gray-900 mb-4">
-              Explore
-            </Typography>
-            <div className="space-y-2">
-              <Typography variant="body" className="text-gray-700">Our Story</Typography>
-              <Typography variant="body" className="text-gray-700">Craftsmanship</Typography>
-              <Typography variant="body" className="text-gray-700">Collections</Typography>
-            </div>
-          </div>
-          
-          {/* Connect */}
-          <div>
-            <Typography variant="h6" className="font-bold text-gray-900 mb-4">
-              Connect
-            </Typography>
-            <div className="space-y-2">
-              <Typography variant="body" className="text-gray-700">hello@equzaliving.com</Typography>
-              <Typography variant="body" className="text-gray-700">+91 81269 65999</Typography>
-              <Typography variant="body" className="text-gray-700">Unit 1096, Vaishali Nagar</Typography>
-              <Typography variant="body" className="text-gray-700">Jaipur 302021</Typography>
-            </div>
-          </div>
-        </div>
-        
-        {/* Bottom */}
-        <div className="mt-12 pt-8 border-t border-gray-600 flex flex-col md:flex-row justify-between items-center">
-          <Typography variant="small" className="text-gray-700 mb-4 md:mb-0">
-            © 2024 Equza Living Co.
-          </Typography>
-          <div className="flex items-center space-x-4">
-            {/* Social media icons would go here */}
-            <div className="w-6 h-6 bg-gray-700 rounded"></div>
-            <div className="w-6 h-6 bg-gray-700 rounded"></div>
-          </div>
-        </div>
-      </Container>
-    </div>
-  );
-}
 
 export default function TradePage() {
   return (
@@ -317,7 +262,7 @@ export default function TradePage() {
 
         {/* Footer */}
         <SectionErrorBoundary sectionName="footer section">
-          <FooterSection />
+          <MinimalFooter />
         </SectionErrorBoundary>
       </div>
     </ErrorBoundary>

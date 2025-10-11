@@ -32,6 +32,7 @@ import { FeatureStrip } from '@/components/homepage/FeatureStrip';
 import { DualCardHighlight } from '@/components/homepage/DualCardHighlight';
 import RoomHighlightCarousel from '@/components/homepage/RoomHighlightCarousel';
 import { WeaveTypesCarousel } from '@/components/homepage/WeaveTypesCarousel';
+import { MinimalFooter } from '@/components/layout/MinimalFooter';
 
 // Loading components
 import { LoadingSkeleton } from '@/components/homepage/LoadingSkeleton';
@@ -193,6 +194,11 @@ export default async function HomePage() {
             <ContactSection siteSettings={null} />
           </SectionErrorBoundary>
         </div>
+
+        {/* Footer */}
+        <SectionErrorBoundary sectionName="footer section">
+          <MinimalFooter />
+        </SectionErrorBoundary>
       </div>
     </ErrorBoundary>
   );

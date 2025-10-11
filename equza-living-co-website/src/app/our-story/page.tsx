@@ -19,6 +19,7 @@ import { Card, CardContent } from '@/components/ui/Card';
 import { HeroSection } from '@/components/ui/HeroSection';
 import { ErrorBoundary, SectionErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { FadeIn, SlideUp, ScaleIn } from '@/components/ui/MotionWrapper';
+import { MinimalFooter } from '@/components/layout/MinimalFooter';
 
 export const metadata: Metadata = {
   title: 'Our Story | Equza Living Co. - Heritage of Handcrafted Excellence',
@@ -284,6 +285,11 @@ export default function OurStoryPage() {
         {/* Call to Action */}
         <SectionErrorBoundary sectionName="cta section">
           <CallToActionSection />
+        </SectionErrorBoundary>
+
+        {/* Footer */}
+        <SectionErrorBoundary sectionName="footer section">
+          <MinimalFooter />
         </SectionErrorBoundary>
       </div>
     </ErrorBoundary>

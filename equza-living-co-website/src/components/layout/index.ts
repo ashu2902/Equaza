@@ -4,6 +4,7 @@
  */
 
 export { Header } from './Header';
-export { Footer } from './Footer';
+// export { Footer } from './Footer'; // Deprecated - use MinimalFooter instead
+export { MinimalFooter } from './MinimalFooter';
 export { LeftNavigation } from './LeftNavigation';
 export { UtilityBanner } from './UtilityBanner'; 

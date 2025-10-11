@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/Button';
 import { HeroSection } from '@/components/ui/HeroSection';
 import { ErrorBoundary, SectionErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { FadeIn, SlideUp } from '@/components/ui/MotionWrapper';
+import { MinimalFooter } from '@/components/layout/MinimalFooter';
 
 export const metadata: Metadata = {
   title: 'Craftsmanship | Equza Living Co. - Heritage of Handcrafted Excellence',
@@ -242,6 +243,11 @@ export default function CraftsmanshipPage() {
         {/* Call to Action */}
         <SectionErrorBoundary sectionName="cta section">
           <CallToActionSection />
+        </SectionErrorBoundary>
+
+        {/* Footer */}
+        <SectionErrorBoundary sectionName="footer section">
+          <MinimalFooter />
         </SectionErrorBoundary>
       </div>
     </ErrorBoundary>

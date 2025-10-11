@@ -1,4 +1,4 @@
-import { UtilityBanner, Header, LeftNavigation, Footer } from '@/components/layout';
+import { UtilityBanner, Header, LeftNavigation, MinimalFooter } from '@/components/layout';
 
 interface PublicPageTemplateProps {
   children: React.ReactNode;
@@ -28,7 +28,7 @@ export function PublicPageTemplate({
       </main>
       
       {/* Footer */}
-      <Footer />
+      <MinimalFooter />
     </div>
   );
 } 
