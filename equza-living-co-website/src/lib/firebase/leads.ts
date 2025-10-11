@@ -35,6 +35,7 @@ import type {
 } from '@/types';
 import { db } from './config';
 import { getAdminFirestore } from './server-app';
+import { Timestamp as AdminTimestamp } from 'firebase-admin/firestore';
 
 // Helper function to convert Firestore document to typed object with proper serialization
 const convertDoc = <T>(doc: DocumentSnapshot | QueryDocumentSnapshot): T | null => {
@@ -433,7 +434,7 @@ export const updateLeadStatusAdmin = async (
     const adminDb = getAdminFirestore();
     const updateData: any = {
       status,
-      updatedAt: adminDb.Timestamp.now(),
+      updatedAt: AdminTimestamp.now(),
     };
     
     if (assignedTo !== undefined) {
@@ -491,17 +492,18 @@ export const addLeadNoteAdmin = async (
     if (!lead) throw new Error('Lead not found');
     
     const adminDb = getAdminFirestore();
+    const adminTimestamp = AdminTimestamp.now();
     const newNote: LeadNote = {
       content: sanitizeInput(noteContent),
       createdBy: sanitizeInput(createdBy),
-      createdAt: adminDb.Timestamp.now(),
+      createdAt: Timestamp.fromDate(adminTimestamp.toDate()),
     };
     
     const updatedNotes = [...lead.notes, newNote];
     
     await adminDb.collection('leads').doc(id).update({
       notes: updatedNotes,
-      updatedAt: adminDb.Timestamp.now(),
+      updatedAt: AdminTimestamp.now(),
     });
   } catch (error) {
     console.error('Error adding lead note (admin):', error);
@@ -545,7 +547,7 @@ export const updateLeadAdmin = async (
     const adminDb = getAdminFirestore();
     const updateData = {
       ...updates,
-      updatedAt: adminDb.Timestamp.now(),
+      updatedAt: AdminTimestamp.now(),
     };
     
     await adminDb.collection('leads').doc(id).update(updateData);
