@@ -52,7 +52,7 @@ export function HeroEditor({ initialSlides }: HeroEditorProps) {
       updateSlide(index, { 
         image: { 
           src: url, 
-          alt: slides[index].image?.alt || file.name, 
+          alt: slides[index]?.image?.alt || file.name, 
           storageRef: path 
         } 
       });
@@ -65,13 +65,13 @@ export function HeroEditor({ initialSlides }: HeroEditorProps) {
 
   const removeImage = async (index: number) => {
     const slide = slides[index];
-    if (!slide.image?.storageRef) {
+    if (!slide?.image?.storageRef) {
       updateSlide(index, { image: { src: '', alt: '' } });
       return;
     }
 
     try {
-      const result = await deleteFileAction(slide.image.storageRef);
+      const result = await deleteFileAction(slide?.image?.storageRef);
       if (result.success) {
         updateSlide(index, { image: { src: '', alt: '', storageRef: undefined } });
       } else {

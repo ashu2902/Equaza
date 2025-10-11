@@ -238,11 +238,11 @@ export async function getSafeWeaveTypesWithImages(): Promise<SafeResult<WeaveTyp
       return { data: null, error: weaveTypesResult.error, loading: false };
     }
 
-    const weaveTypesWithImages: WeaveTypeWithImage[] = weaveTypesResult.data.map(wt => ({
+    const weaveTypesWithImages: WeaveTypeWithImage[] = weaveTypesResult.data?.map(wt => ({
       weaveType: wt.name,
       image: { src: wt.image.url, alt: wt.image.alt },
       productCount: 0, // Product count is no longer calculated here
-    }));
+    })) || [];
     
     return { data: weaveTypesWithImages, error: null, loading: false };
   } catch (error) {

@@ -10,11 +10,12 @@ import { getWeaveTypeById } from '@/lib/firebase/weave-types';
 import { notFound } from 'next/navigation';
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const weaveType = await getWeaveTypeById(params.id);
+  const { id } = await params;
+  const weaveType = await getWeaveTypeById(id);
   
   return {
     title: weaveType ? `Edit ${weaveType.name} | Admin` : 'Edit Weave Type | Admin',
@@ -22,7 +23,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function AdminEditWeaveTypePage({ params }: Props) {
-  const weaveType = await getWeaveTypeById(params.id);
+  const { id } = await params;
+  const weaveType = await getWeaveTypeById(id);
 
   if (!weaveType) {
     notFound();
