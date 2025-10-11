@@ -5,7 +5,8 @@
 
 'use server';
 
-import { uploadFile, uploadMultipleFiles, deleteFile } from '@/lib/firebase/storage';
+import { uploadFile, uploadMultipleFiles } from '@/lib/firebase/storage';
+import { deleteFileAdmin } from '@/lib/firebase/admin-storage';
 import { FILE_UPLOAD } from '@/lib/utils/constants';
 
 export interface FileUploadResult {
@@ -270,8 +271,24 @@ export async function deleteFileAction(
   context?: string
 ): Promise<{ success: boolean; message: string }> {
   try {
-    await deleteFile(fileUrl);
+    let filePath: string;
     
+    // Check if the input is a full URL or just a file path
+    if (fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
+      // It's a full URL - extract the file path from Firebase Storage URL
+      const url = new URL(fileUrl);
+      const pathMatch = url.pathname.match(/\/o\/(.+?)\?/);
+      filePath = pathMatch ? decodeURIComponent(pathMatch[1]) : null;
+      
+      if (!filePath) {
+        throw new Error('Could not extract file path from URL');
+      }
+    } else {
+      // It's already a file path - use it directly
+      filePath = fileUrl;
+    }
+    
+    await deleteFileAdmin(filePath);
     
     return {
       success: true,
@@ -285,13 +302,13 @@ export async function deleteFileAction(
     const firebaseError = error as any;
     let errorMessage = 'Failed to delete file';
     
-    if (firebaseError.code === 'storage/object-not-found') {
+    if (firebaseError.code === 'storage/object-not-found' || firebaseError.message?.includes('not found')) {
       errorMessage = 'File not found in storage. Clearing local reference.';
       // Treat as success if file is not found, as the goal is to clear the reference
       return { success: true, message: errorMessage };
     }
     
-    if (firebaseError.code === 'storage/unauthorized') {
+    if (firebaseError.code === 'storage/unauthorized' || firebaseError.message?.includes('permission')) {
       errorMessage = 'Permission denied. Check Firebase Storage rules.';
     } else if (error instanceof Error) {
       errorMessage = error.message;

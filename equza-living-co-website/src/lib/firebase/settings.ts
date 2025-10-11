@@ -3,16 +3,8 @@
  * Firestore operations for site settings with validation
  */
 
-import {
-  doc,
-  getDoc,
-  updateDoc,
-  setDoc,
-  Timestamp,
-} from 'firebase/firestore';
-
 import type { SiteSettings, Lookbook } from '@/types';
-import { db } from './config';
+import { getAdminFirestore } from './server-app';
 
 
 // Settings document ID (single document approach)
@@ -71,10 +63,11 @@ const sanitizeInput = (input: string): string => {
  */
 export const getSiteSettings = async (): Promise<SiteSettings | null> => {
   try {
-    const docRef = doc(db, 'settings', SETTINGS_DOC_ID);
-    const docSnap = await getDoc(docRef);
+    const db = getAdminFirestore();
+    const docRef = db.collection('settings').doc(SETTINGS_DOC_ID);
+    const docSnap = await docRef.get();
     
-    if (!docSnap.exists()) {
+    if (!docSnap.exists) {
       return null;
     }
     
@@ -103,7 +96,7 @@ export const getSiteSettings = async (): Promise<SiteSettings | null> => {
         defaultDescription: 'Discover premium handcrafted rugs that bring crafted calm to modern spaces.',
         ogImage: '/images/og-default.jpg',
       },
-      updatedAt: convertedData.updatedAt || Timestamp.now(),
+      updatedAt: convertedData.updatedAt || new Date(),
       updatedBy: convertedData.updatedBy || 'system',
     };
     
@@ -140,7 +133,7 @@ export const getSiteSettingsWithDefaults = async (): Promise<SiteSettings> => {
         defaultDescription: 'Discover premium handcrafted rugs that bring crafted calm to modern spaces. Browse our collections of artisanal rugs crafted with traditional techniques.',
         ogImage: '/images/og-default.jpg',
       },
-      updatedAt: Timestamp.now(),
+      updatedAt: new Date() as any,
       updatedBy: 'system',
     };
   } catch (error) {
@@ -171,14 +164,15 @@ export const updateSiteSettings = async (
       sanitizedUpdates.contactEmail = sanitizeInput(sanitizedUpdates.contactEmail);
     }
     
-    const docRef = doc(db, 'settings', SETTINGS_DOC_ID);
+    const db = getAdminFirestore();
+    const docRef = db.collection('settings').doc(SETTINGS_DOC_ID);
     const updateData = {
       ...sanitizedUpdates,
-      updatedAt: Timestamp.now(),
+      updatedAt: new Date() as any,
       updatedBy: sanitizeInput(updatedBy),
     };
     
-    await updateDoc(docRef, updateData);
+    await docRef.update(updateData);
   } catch (error) {
     console.error('Error updating site settings:', error);
     throw new Error('Failed to update site settings');
@@ -195,14 +189,15 @@ export const initializeSiteSettings = async (
   try {
     validateSettingsData(settingsData);
     
-    const docRef = doc(db, 'settings', SETTINGS_DOC_ID);
+    const db = getAdminFirestore();
+    const docRef = db.collection('settings').doc(SETTINGS_DOC_ID);
     const docData = {
       ...settingsData,
-      updatedAt: Timestamp.now(),
+      updatedAt: new Date() as any,
       updatedBy: sanitizeInput(updatedBy),
     };
     
-    await setDoc(docRef, docData);
+    await docRef.set(docData);
   } catch (error) {
     console.error('Error initializing site settings:', error);
     throw new Error('Failed to initialize site settings');
@@ -214,10 +209,11 @@ export const initializeSiteSettings = async (
  */
 export const getCurrentLookbook = async (): Promise<Lookbook | null> => {
   try {
-    const docRef = doc(db, 'settings', LOOKBOOK_DOC_ID);
-    const docSnap = await getDoc(docRef);
+    const db = getAdminFirestore();
+    const docRef = db.collection('settings').doc(LOOKBOOK_DOC_ID);
+    const docSnap = await docRef.get();
     
-    if (!docSnap.exists()) {
+    if (!docSnap.exists) {
       return null;
     }
     
@@ -237,7 +233,7 @@ export const getCurrentLookbook = async (): Promise<Lookbook | null> => {
       filename: convertedData.filename || 'lookbook.pdf',
       url: convertedData.url || '',
       storageRef: convertedData.storageRef || '',
-      uploadedAt: convertedData.uploadedAt || Timestamp.now(),
+      uploadedAt: convertedData.uploadedAt || new Date(),
       uploadedBy: convertedData.uploadedBy || 'system',
       isActive: convertedData.isActive || false,
     };
@@ -260,16 +256,17 @@ export const updateCurrentLookbook = async (
   try {
     validateLookbookData(lookbookData);
     
-    const docRef = doc(db, 'settings', LOOKBOOK_DOC_ID);
+    const db = getAdminFirestore();
+    const docRef = db.collection('settings').doc(LOOKBOOK_DOC_ID);
     const docData = {
       ...lookbookData,
       version: sanitizeInput(lookbookData.version),
       filename: sanitizeInput(lookbookData.filename),
-      uploadedAt: Timestamp.now(),
+      uploadedAt: new Date(),
       uploadedBy: sanitizeInput(uploadedBy),
     };
     
-    await setDoc(docRef, docData);
+    await docRef.set(docData);
   } catch (error) {
     console.error('Error updating current lookbook:', error);
     throw new Error('Failed to update current lookbook');
@@ -281,12 +278,13 @@ export const updateCurrentLookbook = async (
  */
 export const deactivateLookbook = async (updatedBy: string = 'admin'): Promise<void> => {
   try {
-    const docRef = doc(db, 'settings', LOOKBOOK_DOC_ID);
+    const db = getAdminFirestore();
+    const docRef = db.collection('settings').doc(LOOKBOOK_DOC_ID);
     
-    await updateDoc(docRef, {
+    await docRef.update({
       isActive: false,
       uploadedBy: sanitizeInput(updatedBy),
-      uploadedAt: Timestamp.now(),
+      uploadedAt: new Date(),
     });
   } catch (error) {
     console.error('Error deactivating lookbook:', error);

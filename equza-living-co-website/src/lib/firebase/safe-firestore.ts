@@ -19,6 +19,7 @@ import {
   QueryConstraint
 } from 'firebase/firestore';
 import { db } from './config';
+import { getAdminFirestore } from './server-app';
 import { transformProducts, transformCollections, transformProduct, transformCollection, transformWeaveTypes } from './transformers';
 import { SafeProduct, SafeCollection, SafeWeaveType, SafeResult } from '@/types/safe';
 
@@ -29,7 +30,11 @@ function handleFirebaseError(error: any, operation: string): string {
   console.error(`Firebase ${operation} error:`, error);
 
   if (!error) {
-    return `Unknown error occurred during ${operation}`;
+    return `Unknown error occurred during ${operation} operation: The error object was null or undefined.`;
+  }
+
+  if (error.message) {
+    return `Failed to ${operation}: ${error.message}`;
   }
 
   if (error.code === 'permission-denied') {
@@ -609,20 +614,20 @@ export interface AdminStats {
  */
 export async function getSafeAdminStats(): Promise<SafeResult<AdminStats>> {
   try {
+    const adminDb = getAdminFirestore();
+    
     // Get products count
-    const productsSnapshot = await getDocs(collection(db, 'products'));
+    const productsSnapshot = await adminDb.collection('products').get();
     const totalProducts = productsSnapshot.size;
 
     // Get collections count
-    const collectionsSnapshot = await getDocs(collection(db, 'collections'));
+    const collectionsSnapshot = await adminDb.collection('collections').get();
     const totalCollections = collectionsSnapshot.size;
 
     // Get pending leads count
-    const leadsQuery = query(
-      collection(db, 'leads'),
-      where('status', 'in', ['new', 'pending'])
-    );
-    const leadsSnapshot = await getDocs(leadsQuery);
+    const leadsSnapshot = await adminDb.collection('leads')
+      .where('status', 'in', ['new', 'pending'])
+      .get();
     const pendingLeads = leadsSnapshot.size;
 
     // For now, assume single admin user
@@ -641,6 +646,7 @@ export async function getSafeAdminStats(): Promise<SafeResult<AdminStats>> {
 
     return { data: stats, error: null, loading: false };
   } catch (error) {
+    console.error('Error in getSafeAdminStats:', error);
     return { 
       data: null, 
       error: handleFirebaseError(error, 'fetch admin stats'), 

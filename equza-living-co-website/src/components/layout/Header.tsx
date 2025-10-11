@@ -32,11 +32,12 @@ export function Header() {
     }
   };
 
+  // Don't render header for admin routes
+  if (isAdminRoute) {
+    return null;
+  }
+
   useEffect(() => {
-    if (isAdminRoute) {
-      setShowHeader(true);
-      return;
-    }
     // Prefer hero visibility via IntersectionObserver; fallback to scroll threshold
     const findHero = () => {
       return (

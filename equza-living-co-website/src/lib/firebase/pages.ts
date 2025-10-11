@@ -1,5 +1,4 @@
-import { collection, doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from './config';
+import { getAdminFirestore } from './server-app';
 import type { PageType } from '@/types';
 
 export interface HeroSlide {
@@ -26,10 +25,11 @@ export interface HomePageData {
 
 export async function getHomePageData(): Promise<HomePageData | null> {
   try {
-    const ref = doc(collection(db, 'pages'), 'home');
-    const snap = await getDoc(ref);
-    if (!snap.exists()) return null;
-    const data = snap.data() as HomePageData;
+    const db = getAdminFirestore();
+    const docRef = db.collection('pages').doc('home');
+    const doc = await docRef.get();
+    if (!doc.exists) return null;
+    const data = doc.data() as HomePageData;
     return data || null;
   } catch (error) {
     console.error('Failed to fetch pages/home:', error);
@@ -45,8 +45,9 @@ export async function setHomePageData(
   data: Partial<HomePageData>
 ): Promise<void> {
   try {
-    const ref = doc(collection(db, 'pages'), 'home');
-    await setDoc(ref, { ...data, updatedAt: serverTimestamp() }, { merge: true });
+    const db = getAdminFirestore();
+    const docRef = db.collection('pages').doc('home');
+    await docRef.set({ ...data, updatedAt: new Date() }, { merge: true });
   } catch (error) {
     console.error('Failed to update pages/home:', error);
     throw new Error('Failed to update homepage content');
@@ -61,8 +62,9 @@ export async function setContentPageData(
   data: Record<string, any>
 ): Promise<void> {
   try {
-    const ref = doc(collection(db, 'pages'), pageType);
-    await setDoc(ref, { ...data, updatedAt: serverTimestamp() }, { merge: true });
+    const db = getAdminFirestore();
+    const docRef = db.collection('pages').doc(pageType);
+    await docRef.set({ ...data, updatedAt: new Date() }, { merge: true });
   } catch (error) {
     console.error(`Failed to update pages/${pageType}:`, error);
     throw new Error('Failed to update content page');

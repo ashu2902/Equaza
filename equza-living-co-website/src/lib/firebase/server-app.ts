@@ -40,8 +40,20 @@ export function getAdminApp(): App {
 
   // Add service account credentials if available
   if (env.firebase.clientEmail && env.firebase.privateKey) {
+    console.log('--- Debug: Raw env.firebase.privateKey ---');
+    console.log(env.firebase.privateKey);
+    console.log('-----------------------------------------');
+
     config.clientEmail = env.firebase.clientEmail;
-    config.privateKey = env.firebase.privateKey.replace(/\\n/g, '\n');
+    // Process the private key to convert literal \\n to actual newlines and clean up formatting
+    config.privateKey = env.firebase.privateKey
+      .replace(/\\n/g, '\n')
+      .replace(/\\$/gm, '')  // Remove trailing backslashes
+      .trim();  // Remove leading/trailing whitespace
+
+    console.log('--- Debug: Processed config.privateKey ---');
+    console.log(config.privateKey);
+    console.log('------------------------------------------');
   }
 
   try {
