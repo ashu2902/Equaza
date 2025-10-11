@@ -67,6 +67,17 @@ export interface SafeCollection {
   updatedAt: string; // ISO string, not Timestamp
 }
 
+export interface SafeWeaveType {
+  id: string;
+  name: string;
+  slug: string;
+  image: SafeImage; // Dedicated image for the weave type
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: string; // ISO string, not Timestamp
+  updatedAt: string; // ISO string, not Timestamp
+}
+
 // Fallback constants for when data is missing/invalid
 export const FALLBACK_PRODUCT_IMAGE: SafeImage = {
   url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjVGNUY0Ii8+CjxyZWN0IHg9IjUwIiB5PSI1MCIgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNFNUU3RUIiLz4KPHN2ZyB4PSIxNzUiIHk9IjE3NSIgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9IiM5ODM0MkQiPgo8cGF0aCBkPSJNMTIgMkwyIDdMMTIgMTJMMjIgN0wxMiAyWiIvPgo8cGF0aCBkPSJNMiA3TDEyIDEyVjIyTDIgMTdWN1oiLz4KPHN2Zz4KPHN2Zz4=',

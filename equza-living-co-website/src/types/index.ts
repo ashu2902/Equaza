@@ -72,6 +72,18 @@ export interface Collection {
   productIds: string[];
 }
 
+// Weave Type interface
+export interface WeaveType {
+  id: string;
+  name: string;
+  slug: string;
+  image: ProductImage; // Reusing ProductImage structure
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
 // Lead interfaces
 export interface UploadedFile {
   filename: string;

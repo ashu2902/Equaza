@@ -20,7 +20,7 @@ import { isDataResult, ErrorResult } from '@/types/safe';
 // Safe components with error boundaries
 import { HeroSection } from '@/components/homepage/HeroSection';
 
-import { StyleCollectionsSection } from '@/components/homepage/StyleCollectionsSection';
+import { StyleCollectionsCarousel } from '@/components/homepage/StyleCollectionsCarousel';
 import { SafeSpaceTilesSection } from '@/components/homepage/SafeSpaceTilesSection';
 import { CustomRugBanner } from '@/components/homepage/CustomRugBanner';
 import { OurStoryTeaser } from '@/components/homepage/OurStoryTeaser';
@@ -135,7 +135,7 @@ export default async function HomePage() {
         <div className="flex flex-col gap-1">
           {/* Rugs by Style Collections */}
           <SectionErrorBoundary sectionName="style collections">
-            <StyleCollectionsSection
+            <StyleCollectionsCarousel
               title="Rugs by Style"
               subtitle="Discover our curated collections, each telling a unique story through craftsmanship and design"
               collections={styleCollections}

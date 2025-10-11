@@ -43,6 +43,11 @@ const navigationItems = [
     icon: Grid3X3,
   },
   {
+    href: '/admin/weave-types',
+    label: 'Weave Types',
+    icon: FileText,
+  },
+  {
     href: '/admin/leads',
     label: 'Leads',
     icon: MessageSquare,

@@ -140,11 +140,11 @@ export function SafeSpaceTilesSection({
     return (
       <section className="py-16 lg:py-24" style={{backgroundColor: '#f1eee9'}}>
         <Container>
-          <div className="text-center space-y-6">
-            <Typography variant="h2" className="text-4xl md:text-5xl font-normal leading-tight font-libre-baskerville" style={{ color: '#98342d' }}>
+          <div className="text-center space-y-4">
+            <Typography variant="h2" className="text-3xl md:text-4xl font-normal font-libre-baskerville" style={{ color: '#98342d' }}>
               {title}
             </Typography>
-            <Typography variant="subtitle1" className="text-xl max-w-3xl mx-auto leading-relaxed font-poppins" style={{ color: '#666666' }}>
+            <Typography variant="body" className="text-base md:text-lg font-poppins" style={{ color: '#666666' }}>
               {subtitle}
             </Typography>
             <div className="mt-8 p-8 bg-white/50 backdrop-blur-sm rounded-2xl max-w-md mx-auto" style={{ boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)' }}>
@@ -163,11 +163,11 @@ export function SafeSpaceTilesSection({
     <section className="py-16 lg:py-24" style={{backgroundColor: '#f1eee9'}}>
       <Container size="xl">
         <FadeIn>
-          <div className="text-center space-y-6 mb-16">
-            <Typography variant="h2" className="text-4xl md:text-5xl font-normal leading-tight font-libre-baskerville" style={{ color: '#98342d' }}>
+          <div className="text-center space-y-4 mb-16">
+            <Typography variant="h2" className="text-3xl md:text-4xl font-normal font-libre-baskerville" style={{ color: '#98342d' }}>
               {title}
             </Typography>
-            <Typography variant="subtitle1" className="text-xl max-w-3xl mx-auto leading-relaxed font-poppins" style={{ color: '#666666' }}>
+            <Typography variant="body" className="text-base md:text-lg font-poppins" style={{ color: '#666666' }}>
               {subtitle}
             </Typography>
           </div>

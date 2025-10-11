@@ -9,6 +9,7 @@ import { DocumentSnapshot } from 'firebase/firestore';
 import { 
   SafeProduct, 
   SafeCollection, 
+  SafeWeaveType, 
   SafeImage, 
   SafeProductSize,
   SafeProductSpecifications,
@@ -251,6 +252,45 @@ export function transformCollection(doc: DocumentSnapshot): SafeCollection | nul
 }
 
 /**
+ * Transform Firebase document to SafeWeaveType
+ * Returns null if document is invalid or missing required fields
+ */
+export function transformWeaveType(doc: DocumentSnapshot): SafeWeaveType | null {
+  if (!doc.exists()) return null;
+  
+  const data = doc.data();
+  if (!data) return null;
+  
+  // Validate required fields
+  if (!data.name || typeof data.name !== 'string' || data.name.trim().length === 0) return null;
+  if (!data.slug || typeof data.slug !== 'string' || data.slug.trim().length === 0) return null;
+  
+  // Transform image with guaranteed fallback
+  let image: SafeImage;
+  const transformedImage = transformImage(data.image);
+  
+  if (transformedImage) {
+    image = transformedImage;
+  } else {
+    image = {
+      ...FALLBACK_PRODUCT_IMAGE,
+      alt: `${data.name} weave type`
+    };
+  }
+  
+  return {
+    id: doc.id,
+    name: data.name.trim(),
+    slug: data.slug.trim(),
+    image,
+    isActive: data.isActive !== false, // Default to true
+    sortOrder: typeof data.sortOrder === 'number' ? data.sortOrder : 0,
+    createdAt: transformTimestamp(data.createdAt),
+    updatedAt: transformTimestamp(data.updatedAt)
+  };
+}
+
+/**
  * Batch transform multiple documents with error isolation
  * If one document fails, others still succeed
  */
@@ -278,4 +318,17 @@ export function transformCollections(docs: DocumentSnapshot[]): SafeCollection[]
       }
     })
     .filter((collection): collection is SafeCollection => collection !== null);
+}
+
+export function transformWeaveTypes(docs: DocumentSnapshot[]): SafeWeaveType[] {
+  return docs
+    .map(doc => {
+      try {
+        return transformWeaveType(doc);
+      } catch (error) {
+        console.error(`Error transforming weave type ${doc.id}:`, error);
+        return null;
+      }
+    })
+    .filter((weaveType): weaveType is SafeWeaveType => weaveType !== null);
 }

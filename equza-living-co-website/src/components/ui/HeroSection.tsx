@@ -15,7 +15,7 @@ import { useHeroImage, type PageType } from '@/lib/hooks/useHeroImage';
 
 export interface HeroSectionProps {
   pageType: PageType;
-  title: string;
+  title: React.ReactNode;
   subtitle?: string;
   showBackLink?: boolean;
   backLinkText?: string;

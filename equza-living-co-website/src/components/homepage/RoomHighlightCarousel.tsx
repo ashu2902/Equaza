@@ -127,12 +127,12 @@ export function RoomHighlightCarousel({
       <Container size="xl">
         <FadeIn>
           <div className="text-center space-y-4 mb-8">
-            <Typography variant="h2" className="text-3xl md:text-4xl font-normal font-libre-baskerville" style={{ color: '#98342d' }}>
+            <h2 className="text-3xl md:text-4xl font-normal font-libre-baskerville" style={{ color: '#98342d' }}>
               {title}
-            </Typography>
-            <Typography variant="subtitle1" className="text-base md:text-lg font-poppins" style={{ color: '#666666' }}>
+            </h2>
+            <p className="text-base md:text-lg font-poppins" style={{ color: '#666666' }}>
               {subtitle}
-            </Typography>
+            </p>
           </div>
         </FadeIn>
 

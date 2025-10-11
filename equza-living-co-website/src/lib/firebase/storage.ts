@@ -201,7 +201,7 @@ export async function deleteFile(path: string): Promise<void> {
     await deleteObject(storageRef);
   } catch (error) {
     console.error('Error deleting file:', error);
-    throw new Error('Failed to delete file');
+    throw error;
   }
 }
 
@@ -329,6 +329,9 @@ export const generatePaths = {
   
   collectionImage: (filename: string, collectionId?: string) => 
     generateFilePath(`images/collections/${collectionId || 'general'}`, filename),
+  
+  weaveTypeImage: (filename: string, weaveTypeId?: string) => 
+    generateFilePath(`images/weave-types/${weaveTypeId || 'general'}`, filename),
   
   tempUpload: (filename: string, sessionId: string) => 
     generateFilePath(`uploads/temp/${sessionId}`, filename),

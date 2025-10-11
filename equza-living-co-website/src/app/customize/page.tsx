@@ -89,12 +89,17 @@ export default function CustomizePage() {
         <SectionErrorBoundary sectionName="customize hero">
           <HeroSection
             pageType="customize"
-            title="You Imagine It.
-We Weave It."
+            title={
+              <>
+                You Imagine It.
+                <br />
+                We Weave It.
+              </>
+            }
             subtitle="Create a one-of-a-kind handcrafted rug that perfectly captures your vision. Our master artisans will transform your ideas into a stunning reality."
             textAlignment="left"
             overlayOpacity={0.4}
-            className="py-16 md:py-24"
+            className="min-h-screen flex items-center"
           />
         </SectionErrorBoundary>
 

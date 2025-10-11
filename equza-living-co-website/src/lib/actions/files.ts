@@ -281,9 +281,25 @@ export async function deleteFileAction(
   } catch (error) {
     console.error('Error deleting file:', error);
     
+    // Check for Firebase Storage error codes
+    const firebaseError = error as any;
+    let errorMessage = 'Failed to delete file';
+    
+    if (firebaseError.code === 'storage/object-not-found') {
+      errorMessage = 'File not found in storage. Clearing local reference.';
+      // Treat as success if file is not found, as the goal is to clear the reference
+      return { success: true, message: errorMessage };
+    }
+    
+    if (firebaseError.code === 'storage/unauthorized') {
+      errorMessage = 'Permission denied. Check Firebase Storage rules.';
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to delete file',
+      message: errorMessage,
     };
   }
 }

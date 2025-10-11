@@ -138,10 +138,21 @@ export function Header() {
           {/* Right: CTA + Mobile menu */}
           <div className="flex items-center gap-3">
             <Link 
-              href="https://calendly.com/equzaliving" 
+              href="https://calendar.app.google/Ph8XoPBvjmKGzbTC6" 
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden lg:inline-flex bg-primary-600 text-cream-50 px-6 py-2 rounded-md hover:bg-primary-700 transition-colors font-medium"
+              className="hidden lg:inline-flex px-6 py-2 rounded-md transition-colors font-medium shadow-sm"
+              style={{ 
+                backgroundColor: '#98342d', 
+                color: '#FEFDFB',
+                border: 'none'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#7a2822';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#98342d';
+              }}
             >
               Book a Call
             </Link>
@@ -204,10 +215,21 @@ export function Header() {
                 </Link>
                 <hr className="border-warm-200" />
                 <Link
-                  href="https://calendly.com/equzaliving"
+                  href="https://calendar.app.google/Ph8XoPBvjmKGzbTC6"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block text-lg font-medium text-primary-600 hover:text-primary-700 transition-colors"
+                  className="block text-lg font-medium px-6 py-3 rounded-md transition-colors text-center shadow-sm"
+                  style={{ 
+                    backgroundColor: '#98342d', 
+                    color: '#FEFDFB',
+                    border: 'none'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#7a2822';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#98342d';
+                  }}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Book a Call

@@ -163,13 +163,11 @@ function TheCraftSection() {
             </Typography>
           </SlideUp>
           
-          <div className="border-t border-gray-200 pt-8 mt-12">
-            <SlideUp delay={0.9}>
-              <Typography variant="body" className="text-gray-600 leading-relaxed">
-                What arrives in your home is more than a rug. It is a living archive of human craft, refined over generations and designed to bring lasting beauty to modern life.
-              </Typography>
-            </SlideUp>
-          </div>
+          <SlideUp delay={0.9}>
+            <Typography variant="body" className="text-gray-600 leading-relaxed">
+              What arrives in your home is more than a rug. It is a living archive of human craft, refined over generations and designed to bring lasting beauty to modern life.
+            </Typography>
+          </SlideUp>
         </div>
       </Container>
     </div>

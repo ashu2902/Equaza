@@ -19,8 +19,8 @@ import {
   QueryConstraint
 } from 'firebase/firestore';
 import { db } from './config';
-import { transformProducts, transformCollections, transformProduct, transformCollection } from './transformers';
-import { SafeProduct, SafeCollection, SafeResult } from '@/types/safe';
+import { transformProducts, transformCollections, transformProduct, transformCollection, transformWeaveTypes } from './transformers';
+import { SafeProduct, SafeCollection, SafeWeaveType, SafeResult } from '@/types/safe';
 
 /**
  * Generic error handler for Firebase operations
@@ -174,6 +174,27 @@ export async function getSafeProductsByWeaveType(weaveType: string, limit?: numb
   return getSafeProducts({ weaveType, limit });
 }
 
+export async function getSafeWeaveTypes(): Promise<SafeResult<SafeWeaveType[]>> {
+  try {
+    const q = query(
+      collection(db, 'weaveTypes'),
+      where('isActive', '==', true),
+      orderBy('sortOrder', 'asc')
+    );
+    
+    const snapshot = await getDocs(q);
+    const weaveTypes = transformWeaveTypes(snapshot.docs);
+    
+    return { data: weaveTypes, error: null, loading: false };
+  } catch (error) {
+    return { 
+      data: null, 
+      error: handleFirebaseError(error, 'fetch weave types'), 
+      loading: false 
+    };
+  }
+}
+
 export interface WeaveTypeWithImage {
   weaveType: string;
   image?: { src: string; alt: string };
@@ -211,40 +232,17 @@ export async function getSafeAvailableWeaveTypes(): Promise<SafeResult<string[]>
 
 export async function getSafeWeaveTypesWithImages(): Promise<SafeResult<WeaveTypeWithImage[]>> {
   try {
-    const q = query(
-      collection(db, 'products'),
-      where('isActive', '==', true),
-      orderBy('sortOrder', 'asc')
-    );
-    
-    const snapshot = await getDocs(q);
-    const weaveTypeMap = new Map<string, WeaveTypeWithImage>();
-    
-    snapshot.docs.forEach(doc => {
-      const data = doc.data();
-      const weaveType = data.specifications?.weaveType;
-      
-      if (weaveType && typeof weaveType === 'string') {
-        if (!weaveTypeMap.has(weaveType)) {
-          // Get the main image from the first product of this weave type
-          const mainImage = data.images?.find((img: any) => img.isMain) || data.images?.[0];
-          
-          weaveTypeMap.set(weaveType, {
-            weaveType,
-            image: mainImage ? { src: mainImage.url, alt: mainImage.alt || weaveType } : undefined,
-            productCount: 1
-          });
-        } else {
-          // Increment product count for this weave type
-          const existing = weaveTypeMap.get(weaveType)!;
-          existing.productCount += 1;
-        }
-      }
-    });
+    const weaveTypesResult = await getSafeWeaveTypes();
 
-    const weaveTypesWithImages = Array.from(weaveTypeMap.values()).sort((a, b) => 
-      a.weaveType.localeCompare(b.weaveType)
-    );
+    if (weaveTypesResult.error) {
+      return { data: null, error: weaveTypesResult.error, loading: false };
+    }
+
+    const weaveTypesWithImages: WeaveTypeWithImage[] = weaveTypesResult.data.map(wt => ({
+      weaveType: wt.name,
+      image: { src: wt.image.url, alt: wt.image.alt },
+      productCount: 0, // Product count is no longer calculated here
+    }));
     
     return { data: weaveTypesWithImages, error: null, loading: false };
   } catch (error) {

@@ -9,12 +9,14 @@ import { Label } from '@/components/ui/Label';
 import { Textarea } from '@/components/ui/Textarea';
 import { Typography } from '@/components/ui/Typography';
 import { updateHomeContent } from '@/lib/actions/admin/pages';
+import { uploadFile, generatePaths } from '@/lib/firebase/storage';
+import { deleteFileAction } from '@/lib/actions/files';
 
 export interface AdminHeroSlide {
   title?: string;
   subtitle?: string;
   cta?: { label: string; href: string };
-  image: { src: string; alt: string };
+  image: { src: string; alt: string; storageRef?: string }; // Added storageRef
 }
 
 interface HeroEditorProps {
@@ -24,7 +26,9 @@ interface HeroEditorProps {
 export function HeroEditor({ initialSlides }: HeroEditorProps) {
   const [slides, setSlides] = useState<AdminHeroSlide[]>(initialSlides || []);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [status, setStatus] = useState<{ text: string | null; isError: boolean }>({ text: null, isError: false });
+  const [uploadErrors, setUploadErrors] = useState<Record<number, string>>({});
+  const [uploadPending, setUploadPending] = useState<Record<number, boolean>>({});
 
   const updateSlide = (index: number, next: Partial<AdminHeroSlide>) => {
     setSlides((prev) => {
@@ -32,6 +36,50 @@ export function HeroEditor({ initialSlides }: HeroEditorProps) {
       copy[index] = { ...copy[index], ...next } as AdminHeroSlide;
       return copy;
     });
+  };
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadPending(prev => ({ ...prev, [index]: true }));
+    setUploadErrors(prev => ({ ...prev, [index]: '' }));
+
+    try {
+      const path = generatePaths.adminUpload(file.name, 'hero-banners');
+      const url = await uploadFile({ path, file });
+      
+      updateSlide(index, { 
+        image: { 
+          src: url, 
+          alt: slides[index].image?.alt || file.name, 
+          storageRef: path 
+        } 
+      });
+    } catch (err: any) {
+      setUploadErrors(prev => ({ ...prev, [index]: err?.message || 'Upload failed' }));
+    } finally {
+      setUploadPending(prev => ({ ...prev, [index]: false }));
+    }
+  };
+
+  const removeImage = async (index: number) => {
+    const slide = slides[index];
+    if (!slide.image?.storageRef) {
+      updateSlide(index, { image: { src: '', alt: '' } });
+      return;
+    }
+
+    try {
+      const result = await deleteFileAction(slide.image.storageRef);
+      if (result.success) {
+        updateSlide(index, { image: { src: '', alt: '', storageRef: undefined } });
+      } else {
+        setUploadErrors(prev => ({ ...prev, [index]: result.message }));
+      }
+    } catch (err: any) {
+      setUploadErrors(prev => ({ ...prev, [index]: err?.message || 'Failed to remove image' }));
+    }
   };
 
   const addSlide = () => {
@@ -47,12 +95,16 @@ export function HeroEditor({ initialSlides }: HeroEditorProps) {
 
   const onSave = async () => {
     setSaving(true);
-    setMessage(null);
+    setStatus({ text: null, isError: false });
     try {
       const res = await updateHomeContent({ hero: slides } as any);
-      setMessage(res.success ? 'Saved successfully' : res.message || 'Save failed');
+      if (res.success) {
+        setStatus({ text: 'Homepage content updated successfully', isError: false });
+      } else {
+        setStatus({ text: res.message || 'Save failed', isError: true });
+      }
     } catch (e: any) {
-      setMessage(e?.message || 'Save failed');
+      setStatus({ text: e?.message || 'Save failed', isError: true });
     } finally {
       setSaving(false);
     }
@@ -65,8 +117,16 @@ export function HeroEditor({ initialSlides }: HeroEditorProps) {
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          {message && (
-            <div className="text-sm text-warm-900 bg-cream-100 border border-warm-200 rounded p-3">{message}</div>
+          {status.text && (
+            <div 
+              className={`text-sm rounded p-3 ${
+                status.isError 
+                  ? 'bg-red-50 border border-red-200 text-red-700' 
+                  : 'bg-green-50 border border-green-200 text-green-700'
+              }`}
+            >
+              {status.text}
+            </div>
           )}
           {slides.map((slide, idx) => (
             <div key={idx} className="rounded-md border border-warm-200 p-4 space-y-4">
@@ -91,9 +151,32 @@ export function HeroEditor({ initialSlides }: HeroEditorProps) {
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
+                  <div className="space-y-2">
                     <Label htmlFor={`imageSrc-${idx}`}>Image URL</Label>
-                    <Input id={`imageSrc-${idx}`} value={slide.image?.src || ''} onChange={(e) => updateSlide(idx, { image: { ...(slide.image || { src: '', alt: '' }), src: e.target.value } })} />
+                    <div className="flex items-center space-x-2">
+                      <Input 
+                        id={`imageSrc-${idx}`} 
+                        value={slide.image?.src || ''} 
+                        onChange={(e) => updateSlide(idx, { image: { ...(slide.image || { src: '', alt: '' }), src: e.target.value } })} 
+                        placeholder="Enter URL or upload below"
+                        disabled={uploadPending[idx]}
+                      />
+                      {slide.image?.src && (
+                        <Button type="button" variant="destructive" size="sm" onClick={() => removeImage(idx)}>
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleUpload(e, idx)}
+                        disabled={uploadPending[idx]}
+                      />
+                      {uploadPending[idx] && <Typography variant="caption">Uploading...</Typography>}
+                    </div>
+                    {uploadErrors[idx] && <Typography variant="caption" className="text-red-600">{uploadErrors[idx]}</Typography>}
                   </div>
                   <div>
                     <Label htmlFor={`imageAlt-${idx}`}>Image Alt</Label>

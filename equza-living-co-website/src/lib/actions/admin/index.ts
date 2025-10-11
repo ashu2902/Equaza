@@ -14,6 +14,16 @@ export {
   type AdminCollectionResult,
 } from './collections';
 
+// Weave Type Management
+export {
+  createAdminWeaveType,
+  updateAdminWeaveType,
+  deleteAdminWeaveType,
+  updateWeaveTypeSortOrders,
+  toggleWeaveTypeStatus,
+  type AdminWeaveTypeResult,
+} from './weave-types';
+
 // Product Management
 export {
   createAdminProduct,
@@ -64,8 +74,10 @@ export {
   getAdminUserLogs,
   generateAuditReport,
   cleanupAuditLogs,
-  createChangeLog,
   type AuditLogEntry,
   type AuditLogResult,
   type AuditLogQuery,
 } from './audit';
+
+// Change tracking utilities
+export { createChangeLog } from '@/lib/utils/change-tracking';

@@ -84,7 +84,7 @@ export function SafeCollectionTile({
               </span>
             </div>
             
-            {/* Product Count Badge */}
+            {/* Product Count Badge
             {collection.productIds.length > 0 && (
               <div className="absolute top-6 right-6 z-10">
                 <span 
@@ -98,7 +98,7 @@ export function SafeCollectionTile({
                   {collection.productIds.length} {collection.productIds.length === 1 ? 'Piece' : 'Pieces'}
                 </span>
               </div>
-            )}
+            )} */}
             
             {/* Bottom Content with Better Background */}
             <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
