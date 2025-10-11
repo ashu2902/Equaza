@@ -32,8 +32,8 @@ import { FadeIn, SlideUp } from '@/components/ui/MotionWrapper';
 import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
 
 // Firebase
-import { getSafeWeaveTypes } from '@/lib/firebase/safe-firestore';
-import { isDataResult, SafeWeaveType } from '@/types/safe';
+// Firebase - using API routes instead of direct imports
+import { SafeWeaveType } from '@/types/safe';
 
 // Actions
 import { deleteAdminWeaveType } from '@/lib/actions/admin/weave-types';
@@ -43,12 +43,20 @@ import { deleteAdminWeaveType } from '@/lib/actions/admin/weave-types';
  */
 async function getWeaveTypesData() {
   try {
-    const result = await getSafeWeaveTypes();
+    const response = await fetch('/api/admin/weave-types');
+    const result = await response.json();
     
-    return {
-      weaveTypes: isDataResult(result) ? result.data : [],
-      error: result.error
-    };
+    if (result.success) {
+      return {
+        weaveTypes: result.data || [],
+        error: result.error
+      };
+    } else {
+      return {
+        weaveTypes: [],
+        error: result.error || 'Failed to fetch weave types'
+      };
+    }
   } catch (error) {
     console.error('Weave Types data fetch error:', error);
     return {

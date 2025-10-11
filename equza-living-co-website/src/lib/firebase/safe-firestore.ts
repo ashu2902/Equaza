@@ -21,7 +21,30 @@ import {
 import { db } from './config';
 import { getAdminFirestore } from './server-app';
 import { transformProducts, transformCollections, transformProduct, transformCollection, transformWeaveTypes } from './transformers';
+import { DocumentSnapshot } from 'firebase/firestore';
 import { SafeProduct, SafeCollection, SafeWeaveType, SafeResult } from '@/types/safe';
+
+/**
+ * Convert Admin Firestore QueryDocumentSnapshot to DocumentSnapshot format
+ * This is needed because transformers expect client-side DocumentSnapshot format
+ */
+function convertAdminDocToClientDoc(adminDoc: any): DocumentSnapshot {
+  return {
+    id: adminDoc.id,
+    exists: () => adminDoc.exists,
+    data: () => adminDoc.data(),
+    ref: adminDoc.ref,
+    metadata: adminDoc.metadata || { fromCache: false, hasPendingWrites: false },
+    toJSON: () => adminDoc.toJSON ? adminDoc.toJSON() : {}
+  } as DocumentSnapshot;
+}
+
+/**
+ * Convert array of Admin Firestore documents to client-side format
+ */
+function convertAdminDocsToClientDocs(adminDocs: any[]): DocumentSnapshot[] {
+  return adminDocs.map(convertAdminDocToClientDoc);
+}
 
 /**
  * Generic error handler for Firebase operations
@@ -660,13 +683,12 @@ export async function getSafeAdminStats(): Promise<SafeResult<AdminStats>> {
  */
 export async function getSafeLeads(): Promise<SafeResult<any[]>> {
   try {
-    const leadsQuery = query(
-      collection(db, 'leads'),
-      orderBy('createdAt', 'desc'),
-      firestoreLimit(50)
-    );
+    const adminDb = getAdminFirestore();
+    const snapshot = await adminDb.collection('leads')
+      .orderBy('createdAt', 'desc')
+      .limit(50)
+      .get();
     
-    const snapshot = await getDocs(leadsQuery);
     const leads = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
@@ -689,23 +711,21 @@ export async function getSafeLeads(): Promise<SafeResult<any[]>> {
  */
 export async function getSafeAdminCollections(type?: 'style' | 'space'): Promise<SafeResult<SafeCollection[]>> {
   try {
-    let collectionsQuery;
+    const adminDb = getAdminFirestore();
+    let snapshot;
     
     if (type) {
-      collectionsQuery = query(
-        collection(db, 'collections'),
-        where('type', '==', type),
-        orderBy('name', 'asc')
-      );
+      snapshot = await adminDb.collection('collections')
+        .where('type', '==', type)
+        .orderBy('name', 'asc')
+        .get();
     } else {
-      collectionsQuery = query(
-        collection(db, 'collections'),
-        orderBy('name', 'asc')
-      );
+      snapshot = await adminDb.collection('collections')
+        .orderBy('name', 'asc')
+        .get();
     }
     
-    const snapshot = await getDocs(collectionsQuery);
-    const collections = transformCollections(snapshot.docs);
+    const collections = transformCollections(convertAdminDocsToClientDocs(snapshot.docs));
 
     return { data: collections, error: null, loading: false };
   } catch (error) {
@@ -722,14 +742,13 @@ export async function getSafeAdminCollections(type?: 'style' | 'space'): Promise
  */
 export async function getSafeAdminProducts(): Promise<SafeResult<SafeProduct[]>> {
   try {
-    const productsQuery = query(
-      collection(db, 'products'),
-      orderBy('updatedAt', 'desc'),
-      firestoreLimit(100)
-    );
+    const adminDb = getAdminFirestore();
+    const snapshot = await adminDb.collection('products')
+      .orderBy('updatedAt', 'desc')
+      .limit(100)
+      .get();
     
-    const snapshot = await getDocs(productsQuery);
-    const products = transformProducts(snapshot.docs);
+    const products = transformProducts(convertAdminDocsToClientDocs(snapshot.docs));
 
     return { data: products, error: null, loading: false };
   } catch (error) {

@@ -37,8 +37,7 @@ import { FadeIn, SlideUp } from '@/components/ui/MotionWrapper';
 import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
 
 // Firebase
-import { getSafeAdminProducts } from '@/lib/firebase/safe-firestore';
-import { isDataResult } from '@/types/safe';
+// Firebase - using API routes instead of direct imports
 
 // Actions
 import { deleteAdminProduct } from '@/lib/actions/admin/products';
@@ -50,12 +49,20 @@ import { deleteAdminProduct } from '@/lib/actions/admin/products';
  */
 async function getProductsData() {
   try {
-    const products = await getSafeAdminProducts();
+    const response = await fetch('/api/admin/products');
+    const result = await response.json();
     
-    return {
-      products: isDataResult(products) ? products.data : [],
-      error: products.error
-    };
+    if (result.success) {
+      return {
+        products: result.data || [],
+        error: result.error
+      };
+    } else {
+      return {
+        products: [],
+        error: result.error || 'Failed to fetch products'
+      };
+    }
   } catch (error) {
     console.error('Products data fetch error:', error);
     return {

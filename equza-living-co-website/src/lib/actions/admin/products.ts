@@ -12,7 +12,9 @@ import {
   updateProduct,
   deleteProduct,
   getProductById,
-  isProductSlugAvailable 
+  getProductByIdAdmin,
+  isProductSlugAvailable,
+  isProductSlugAvailableAdmin 
 } from '@/lib/firebase/products';
 import { addProductIdToCollection, removeProductIdFromCollection } from '@/lib/firebase/collections';
 // import { checkAdminStatus } from '@/lib/firebase/auth'; // Not needed in server actions
@@ -185,7 +187,7 @@ export async function createAdminProduct(
     }
 
     // Check slug availability
-    const isSlugAvailable = await isProductSlugAvailable(productData.slug);
+    const isSlugAvailable = await isProductSlugAvailableAdmin(productData.slug);
     if (!isSlugAvailable) {
       return {
         success: false,
@@ -259,7 +261,7 @@ export async function updateAdminProduct(
 
     // Check slug availability if slug is being updated
     if (updates.slug) {
-      const isSlugAvailable = await isProductSlugAvailable(updates.slug, productId);
+      const isSlugAvailable = await isProductSlugAvailableAdmin(updates.slug, productId);
       if (!isSlugAvailable) {
         return {
           success: false,
@@ -270,7 +272,7 @@ export async function updateAdminProduct(
     }
 
     // Get original product for comparison
-    const originalProduct = await getProductById(productId);
+    const originalProduct = await getProductByIdAdmin(productId);
     if (!originalProduct) {
       return {
         success: false,
@@ -335,7 +337,7 @@ export async function deleteAdminProduct(
     }
 
     // Get product for logging
-    const product = await getProductById(productId);
+    const product = await getProductByIdAdmin(productId);
     if (!product) {
       return {
         success: false,
@@ -535,7 +537,7 @@ export async function duplicateProduct(
     }
 
     // Get original product
-    const originalProduct = await getProductById(productId);
+    const originalProduct = await getProductByIdAdmin(productId);
     if (!originalProduct) {
       return {
         success: false,
@@ -544,7 +546,7 @@ export async function duplicateProduct(
     }
 
     // Check slug availability
-    const isSlugAvailable = await isProductSlugAvailable(newSlug);
+    const isSlugAvailable = await isProductSlugAvailableAdmin(newSlug);
     if (!isSlugAvailable) {
       return {
         success: false,
@@ -615,7 +617,7 @@ export async function bulkUpdateProducts(
     // Process each product
     for (const productId of productIds) {
       try {
-        const product = await getProductById(productId);
+        const product = await getProductByIdAdmin(productId);
         if (!product) {
           results.push({
             error: 'Product not found',

@@ -9,10 +9,15 @@ import { redirect } from 'next/navigation';
 import type { Lead, LeadStatus, LeadNote } from '@/types';
 import { 
   updateLead,
+  updateLeadAdmin,
   deleteLead,
+  deleteLeadAdmin,
   updateLeadStatus,
+  updateLeadStatusAdmin,
   addLeadNote,
-  getLeadById 
+  addLeadNoteAdmin,
+  getLeadById,
+  getLeadByIdAdmin 
 } from '@/lib/firebase/leads';
 import { checkAdminStatus } from '@/lib/firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -65,7 +70,7 @@ export async function updateAdminLeadStatus(
     }
 
     // Get current lead for logging
-    const currentLead = await getLeadById(leadId);
+    const currentLead = await getLeadByIdAdmin(leadId);
     if (!currentLead) {
       return {
         success: false,
@@ -74,7 +79,7 @@ export async function updateAdminLeadStatus(
     }
 
     // Update lead status
-    await updateLeadStatus(leadId, status, assignedTo);
+    await updateLeadStatusAdmin(leadId, status, assignedTo);
 
 
     // Log admin action
@@ -125,7 +130,7 @@ export async function addAdminLeadNote(
     }
 
     // Add note to lead
-    await addLeadNote(leadId, noteContent.trim(), auth.userId);
+    await addLeadNoteAdmin(leadId, noteContent.trim(), auth.userId);
 
 
     // Log admin action
@@ -185,7 +190,7 @@ export async function updateAdminLead(
     }
 
     // Get current lead for logging
-    const currentLead = await getLeadById(leadId);
+    const currentLead = await getLeadByIdAdmin(leadId);
     if (!currentLead) {
       return {
         success: false,
@@ -194,7 +199,7 @@ export async function updateAdminLead(
     }
 
     // Update lead
-    await updateLead(leadId, updates);
+    await updateLeadAdmin(leadId, updates);
 
 
     // Log admin action
@@ -234,7 +239,7 @@ export async function deleteAdminLead(
     }
 
     // Get lead for logging
-    const lead = await getLeadById(leadId);
+    const lead = await getLeadByIdAdmin(leadId);
     if (!lead) {
       return {
         success: false,
@@ -243,7 +248,7 @@ export async function deleteAdminLead(
     }
 
     // Delete lead
-    await deleteLead(leadId);
+    await deleteLeadAdmin(leadId);
 
 
     // Log admin action
@@ -333,7 +338,7 @@ export async function bulkUpdateLeadStatus(
     // Process each lead
     for (const leadId of leadIds) {
       try {
-        const lead = await getLeadById(leadId);
+        const lead = await getLeadByIdAdmin(leadId);
         if (!lead) {
           results.push({
             error: 'Lead not found',
@@ -343,7 +348,7 @@ export async function bulkUpdateLeadStatus(
           continue;
         }
 
-        await updateLeadStatus(leadId, status, assignedTo);
+        await updateLeadStatusAdmin(leadId, status, assignedTo);
         results.push({
           id: leadId,
           name: lead.name,
@@ -411,7 +416,7 @@ export async function bulkDeleteLeads(
     // Process each lead
     for (const leadId of leadIds) {
       try {
-        const lead = await getLeadById(leadId);
+        const lead = await getLeadByIdAdmin(leadId);
         if (!lead) {
           results.push({
             error: 'Lead not found',
@@ -421,7 +426,7 @@ export async function bulkDeleteLeads(
           continue;
         }
 
-        await deleteLead(leadId);
+        await deleteLeadAdmin(leadId);
         results.push({
           id: leadId,
           name: lead.name,

@@ -34,6 +34,7 @@ import type {
   TradeFormData
 } from '@/types';
 import { db } from './config';
+import { getAdminFirestore } from './server-app';
 
 // Helper function to convert Firestore document to typed object with proper serialization
 const convertDoc = <T>(doc: DocumentSnapshot | QueryDocumentSnapshot): T | null => {
@@ -140,6 +141,33 @@ export const getLeadById = async (id: string): Promise<Lead | null> => {
     return convertDoc<Lead>(docSnap);
   } catch (error) {
     console.error('Error fetching lead by ID:', error);
+    throw new Error('Failed to fetch lead');
+  }
+};
+
+/**
+ * Get lead by ID (admin-side)
+ */
+export const getLeadByIdAdmin = async (id: string): Promise<Lead | null> => {
+  try {
+    const adminDb = getAdminFirestore();
+    const docSnap = await adminDb.collection('leads').doc(id).get();
+    
+    if (!docSnap.exists) return null;
+    
+    const data = docSnap.data();
+    const convertedData = { ...data };
+    
+    // Convert Firestore Timestamps to ISO strings for client components
+    Object.keys(convertedData).forEach(key => {
+      if (convertedData[key] && typeof convertedData[key] === 'object' && convertedData[key].toDate) {
+        convertedData[key] = convertedData[key].toDate().toISOString();
+      }
+    });
+    
+    return { id: docSnap.id, ...convertedData } as Lead;
+  } catch (error) {
+    console.error('Error fetching lead by ID (admin):', error);
     throw new Error('Failed to fetch lead');
   }
 };
@@ -394,6 +422,32 @@ export const updateLeadStatus = async (
 };
 
 /**
+ * Update lead status (admin-side)
+ */
+export const updateLeadStatusAdmin = async (
+  id: string,
+  status: LeadStatus,
+  assignedTo?: string
+): Promise<void> => {
+  try {
+    const adminDb = getAdminFirestore();
+    const updateData: any = {
+      status,
+      updatedAt: adminDb.Timestamp.now(),
+    };
+    
+    if (assignedTo !== undefined) {
+      updateData.assignedTo = assignedTo;
+    }
+    
+    await adminDb.collection('leads').doc(id).update(updateData);
+  } catch (error) {
+    console.error('Error updating lead status (admin):', error);
+    throw new Error('Failed to update lead status');
+  }
+};
+
+/**
  * Add note to lead
  */
 export const addLeadNote = async (
@@ -425,6 +479,37 @@ export const addLeadNote = async (
 };
 
 /**
+ * Add note to lead (admin-side)
+ */
+export const addLeadNoteAdmin = async (
+  id: string,
+  noteContent: string,
+  createdBy: string
+): Promise<void> => {
+  try {
+    const lead = await getLeadByIdAdmin(id);
+    if (!lead) throw new Error('Lead not found');
+    
+    const adminDb = getAdminFirestore();
+    const newNote: LeadNote = {
+      content: sanitizeInput(noteContent),
+      createdBy: sanitizeInput(createdBy),
+      createdAt: adminDb.Timestamp.now(),
+    };
+    
+    const updatedNotes = [...lead.notes, newNote];
+    
+    await adminDb.collection('leads').doc(id).update({
+      notes: updatedNotes,
+      updatedAt: adminDb.Timestamp.now(),
+    });
+  } catch (error) {
+    console.error('Error adding lead note (admin):', error);
+    throw new Error('Failed to add lead note');
+  }
+};
+
+/**
  * Update lead
  */
 export const updateLead = async (
@@ -448,6 +533,29 @@ export const updateLead = async (
 };
 
 /**
+ * Update lead (admin-side)
+ */
+export const updateLeadAdmin = async (
+  id: string,
+  updates: Partial<Omit<Lead, 'id' | 'createdAt'>>
+): Promise<void> => {
+  try {
+    validateLeadData(updates);
+    
+    const adminDb = getAdminFirestore();
+    const updateData = {
+      ...updates,
+      updatedAt: adminDb.Timestamp.now(),
+    };
+    
+    await adminDb.collection('leads').doc(id).update(updateData);
+  } catch (error) {
+    console.error('Error updating lead (admin):', error);
+    throw new Error('Failed to update lead');
+  }
+};
+
+/**
  * Delete lead (admin only)
  */
 export const deleteLead = async (id: string): Promise<void> => {
@@ -456,6 +564,19 @@ export const deleteLead = async (id: string): Promise<void> => {
     await deleteDoc(docRef);
   } catch (error) {
     console.error('Error deleting lead:', error);
+    throw new Error('Failed to delete lead');
+  }
+};
+
+/**
+ * Delete lead (admin-side)
+ */
+export const deleteLeadAdmin = async (id: string): Promise<void> => {
+  try {
+    const adminDb = getAdminFirestore();
+    await adminDb.collection('leads').doc(id).delete();
+  } catch (error) {
+    console.error('Error deleting lead (admin):', error);
     throw new Error('Failed to delete lead');
   }
 };

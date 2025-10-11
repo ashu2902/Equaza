@@ -19,9 +19,23 @@ import {
   DocumentSnapshot,
   QueryDocumentSnapshot,
 } from 'firebase/firestore';
+import { Timestamp as AdminTimestamp } from 'firebase-admin/firestore';
 
 import type { WeaveType } from '@/types'; // Assuming WeaveType is defined here
 import { db } from './config';
+import { getAdminFirestore } from './server-app';
+
+// Helper function to convert Admin Firestore DocumentSnapshot to client-side format
+const convertAdminDocToClientDoc = (adminDoc: any): DocumentSnapshot => {
+  return {
+    id: adminDoc.id,
+    exists: () => adminDoc.exists,
+    data: () => adminDoc.data(),
+    ref: adminDoc.ref,
+    metadata: adminDoc.metadata || { fromCache: false, hasPendingWrites: false },
+    toJSON: () => adminDoc.toJSON ? adminDoc.toJSON() : {}
+  } as DocumentSnapshot;
+};
 
 // Helper function to convert Firestore document to typed object with proper serialization
 const convertDoc = <T>(doc: DocumentSnapshot | QueryDocumentSnapshot): T | null => {
@@ -86,10 +100,10 @@ export const getWeaveTypes = async (): Promise<WeaveType[]> => {
  */
 export const getWeaveTypeById = async (id: string): Promise<WeaveType | null> => {
   try {
-    const docRef = doc(db, 'weaveTypes', id);
-    const docSnap = await getDoc(docRef);
+    const adminDb = getAdminFirestore();
+    const docSnap = await adminDb.collection('weaveTypes').doc(id).get();
     
-    return convertDoc<WeaveType>(docSnap);
+    return convertDoc<WeaveType>(convertAdminDocToClientDoc(docSnap));
   } catch (error) {
     console.error('Error fetching weave type by ID:', error);
     throw new Error('Failed to fetch weave type');
@@ -103,13 +117,14 @@ export const createWeaveType = async (
   weaveTypeData: Omit<WeaveType, 'id' | 'createdAt' | 'updatedAt'>
 ): Promise<string> => {
   try {
+    const adminDb = getAdminFirestore();
     const docData = {
       ...weaveTypeData,
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
+      createdAt: AdminTimestamp.now(),
+      updatedAt: AdminTimestamp.now(),
     };
     
-    const docRef = await addDoc(collection(db, 'weaveTypes'), docData);
+    const docRef = await adminDb.collection('weaveTypes').add(docData);
     
     return docRef.id;
   } catch (error) {
@@ -126,13 +141,30 @@ export const updateWeaveType = async (
   updates: Partial<Omit<WeaveType, 'id' | 'createdAt'>>
 ): Promise<void> => {
   try {
-    const docRef = doc(db, 'weaveTypes', id);
+    const adminDb = getAdminFirestore();
+    
+    // Clean the updates object to remove any client-side timestamps
+    const cleanUpdates = { ...updates };
+    
+    // Remove any timestamp fields that might be from client-side SDK
+    // Note: We never update createdAt - it's immutable
+    delete cleanUpdates.updatedAt;
+    
+    // Convert any remaining timestamp-like fields to admin timestamps
+    Object.keys(cleanUpdates).forEach(key => {
+      const value = (cleanUpdates as any)[key];
+      if (value && typeof value === 'object' && value.toDate) {
+        // This is a Firestore timestamp, convert to admin timestamp
+        (cleanUpdates as any)[key] = AdminTimestamp.fromDate(value.toDate());
+      }
+    });
+    
     const updateData = {
-      ...updates,
-      updatedAt: Timestamp.now(),
+      ...cleanUpdates,
+      updatedAt: AdminTimestamp.now(),
     };
     
-    await updateDoc(docRef, updateData);
+    await adminDb.collection('weaveTypes').doc(id).update(updateData);
     
   } catch (error) {
     console.error('Error updating weave type:', error);
@@ -145,8 +177,8 @@ export const updateWeaveType = async (
  */
 export const deleteWeaveType = async (id: string): Promise<void> => {
   try {
-    const docRef = doc(db, 'weaveTypes', id);
-    await deleteDoc(docRef);
+    const adminDb = getAdminFirestore();
+    await adminDb.collection('weaveTypes').doc(id).delete();
     
   } catch (error) {
     console.error('Error deleting weave type:', error);
@@ -159,11 +191,10 @@ export const deleteWeaveType = async (id: string): Promise<void> => {
  */
 export const isWeaveTypeSlugAvailable = async (slug: string, excludeId?: string): Promise<boolean> => {
   try {
-    const q = query(
-      collection(db, 'weaveTypes'),
-      where('slug', '==', slug)
-    );
-    const snapshot = await getDocs(q);
+    const adminDb = getAdminFirestore();
+    const snapshot = await adminDb.collection('weaveTypes')
+      .where('slug', '==', slug)
+      .get();
     
     if (snapshot.empty) return true;
     

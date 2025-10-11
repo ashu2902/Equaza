@@ -26,6 +26,8 @@ import {
 
 import type { Collection, CollectionFilters } from '@/types';
 import { db } from './config';
+import { getAdminFirestore } from './server-app';
+import { Timestamp as AdminTimestamp } from 'firebase-admin/firestore';
 
 // Helper function to convert Firestore document to typed object with proper serialization
 const convertDoc = <T>(doc: DocumentSnapshot | QueryDocumentSnapshot): T | null => {
@@ -117,6 +119,33 @@ export const getCollectionById = async (id: string): Promise<Collection | null> 
     return convertDoc<Collection>(docSnap);
   } catch (error) {
     console.error('Error fetching collection by ID:', error);
+    throw new Error('Failed to fetch collection');
+  }
+};
+
+/**
+ * Get collection by ID (admin-side)
+ */
+export const getCollectionByIdAdmin = async (id: string): Promise<Collection | null> => {
+  try {
+    const adminDb = getAdminFirestore();
+    const docSnap = await adminDb.collection('collections').doc(id).get();
+    
+    if (!docSnap.exists) return null;
+    
+    const data = docSnap.data();
+    const convertedData = { ...data };
+    
+    // Convert Firestore Timestamps to ISO strings for client components
+    Object.keys(convertedData).forEach(key => {
+      if (convertedData[key] && typeof convertedData[key] === 'object' && convertedData[key].toDate) {
+        convertedData[key] = convertedData[key].toDate().toISOString();
+      }
+    });
+    
+    return { id: docSnap.id, ...convertedData } as Collection;
+  } catch (error) {
+    console.error('Error fetching collection by ID (admin):', error);
     throw new Error('Failed to fetch collection');
   }
 };
@@ -226,14 +255,14 @@ export const createCollection = async (
   try {
     validateCollectionData(collectionData);
     
+    const adminDb = getAdminFirestore();
     const docData = {
       ...collectionData,
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
+      createdAt: AdminTimestamp.now(),
+      updatedAt: AdminTimestamp.now(),
     };
     
-    const docRef = await addDoc(collection(db, 'collections'), docData);
-    
+    const docRef = await adminDb.collection('collections').add(docData);
     
     return docRef.id;
   } catch (error) {
@@ -252,13 +281,30 @@ export const updateCollection = async (
   try {
     validateCollectionData(updates);
     
-    const docRef = doc(db, 'collections', id);
+    const adminDb = getAdminFirestore();
+    
+    // Clean the updates object to remove any client-side timestamps
+    const cleanUpdates = { ...updates };
+    
+    // Remove any timestamp fields that might be from client-side SDK
+    // Note: We never update createdAt - it's immutable
+    delete cleanUpdates.updatedAt;
+    
+    // Convert any remaining timestamp-like fields to admin timestamps
+    Object.keys(cleanUpdates).forEach(key => {
+      const value = (cleanUpdates as any)[key];
+      if (value && typeof value === 'object' && value.toDate) {
+        // This is a Firestore timestamp, convert to admin timestamp
+        (cleanUpdates as any)[key] = AdminTimestamp.fromDate(value.toDate());
+      }
+    });
+    
     const updateData = {
-      ...updates,
-      updatedAt: Timestamp.now(),
+      ...cleanUpdates,
+      updatedAt: AdminTimestamp.now(),
     };
     
-    await updateDoc(docRef, updateData);
+    await adminDb.collection('collections').doc(id).update(updateData);
     
   } catch (error) {
     console.error('Error updating collection:', error);
@@ -274,10 +320,10 @@ export const addProductIdToCollection = async (
   productId: string
 ): Promise<void> => {
   try {
-    const docRef = doc(db, 'collections', collectionId);
-    await updateDoc(docRef, {
+    const adminDb = getAdminFirestore();
+    await adminDb.collection('collections').doc(collectionId).update({
       productIds: arrayUnion(productId),
-      updatedAt: Timestamp.now(),
+      updatedAt: AdminTimestamp.now(),
     });
   } catch (error) {
     console.error('Error adding product to collection:', error);
@@ -293,10 +339,10 @@ export const removeProductIdFromCollection = async (
   productId: string
 ): Promise<void> => {
   try {
-    const docRef = doc(db, 'collections', collectionId);
-    await updateDoc(docRef, {
+    const adminDb = getAdminFirestore();
+    await adminDb.collection('collections').doc(collectionId).update({
       productIds: arrayRemove(productId),
-      updatedAt: Timestamp.now(),
+      updatedAt: AdminTimestamp.now(),
     });
   } catch (error) {
     console.error('Error removing product from collection:', error);
@@ -309,8 +355,8 @@ export const removeProductIdFromCollection = async (
  */
 export const deleteCollection = async (id: string): Promise<void> => {
   try {
-    const docRef = doc(db, 'collections', id);
-    await deleteDoc(docRef);
+    const adminDb = getAdminFirestore();
+    await adminDb.collection('collections').doc(id).delete();
     
   } catch (error) {
     console.error('Error deleting collection:', error);
@@ -319,7 +365,7 @@ export const deleteCollection = async (id: string): Promise<void> => {
 };
 
 /**
- * Check if collection slug is available
+ * Check if collection slug is available (client-side)
  */
 export const isCollectionSlugAvailable = async (slug: string, excludeId?: string): Promise<boolean> => {
   try {
@@ -339,6 +385,29 @@ export const isCollectionSlugAvailable = async (slug: string, excludeId?: string
     return false;
   } catch (error) {
     console.error('Error checking collection slug availability:', error);
+    throw new Error('Failed to check slug availability');
+  }
+};
+
+/**
+ * Check if collection slug is available (admin-side)
+ */
+export const isCollectionSlugAvailableAdmin = async (slug: string, excludeId?: string): Promise<boolean> => {
+  try {
+    const adminDb = getAdminFirestore();
+    const q = adminDb.collection('collections').where('slug', '==', slug);
+    const snapshot = await q.get();
+    
+    if (snapshot.empty) return true;
+    
+    // If excluding an ID (for updates), check if the found doc is the same
+    if (excludeId) {
+      return snapshot.docs.every(doc => doc.id === excludeId);
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('Error checking collection slug availability (admin):', error);
     throw new Error('Failed to check slug availability');
   }
 };

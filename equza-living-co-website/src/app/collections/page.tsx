@@ -9,8 +9,6 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { getSafeStyleCollections, getSafeSpaceCollections, getSafeProductsByWeaveType } from '@/lib/firebase/safe-firestore';
-import { isDataResult } from '@/types/safe';
 
 // Components
 import { Container } from '@/components/ui/Container';
@@ -44,38 +42,31 @@ export default function CollectionsPage() {
       try {
         if (weaveType) {
           // Fetch products by weave type
-          const weaveResult = await getSafeProductsByWeaveType(weaveType);
+          const response = await fetch(`/api/collections/weave/${encodeURIComponent(weaveType)}`);
+          const result = await response.json();
           
-          if (isDataResult(weaveResult) && weaveResult.data) {
-            setWeaveProducts(weaveResult.data);
-            setWeaveError(weaveResult.error);
+          if (result.success) {
+            setWeaveProducts(result.data);
+            setWeaveError(result.error);
           } else {
             setWeaveProducts([]);
-            setWeaveError(weaveResult?.error || `No ${weaveType} products found`);
+            setWeaveError(result.error || `No ${weaveType} products found`);
           }
         } else {
           // Fetch collections as usual
-          const [styleResult, spaceResult] = await Promise.all([
-            getSafeStyleCollections(),
-            getSafeSpaceCollections(),
-          ]);
+          const response = await fetch('/api/collections');
+          const result = await response.json();
 
-          // Use actual Firebase data for style collections
-          if (isDataResult(styleResult) && styleResult.data) {
-            setStyleCollections(styleResult.data);
-            setStyleError(styleResult.error);
+          if (result.success) {
+            setStyleCollections(result.data.style || []);
+            setSpaceCollections(result.data.space || []);
+            setStyleError(result.error?.style);
+            setSpaceError(result.error?.space);
           } else {
             setStyleCollections([]);
-            setStyleError(styleResult?.error || 'No style collections found');
-          }
-
-          // Use actual Firebase data for space collections
-          if (isDataResult(spaceResult) && spaceResult.data) {
-            setSpaceCollections(spaceResult.data);
-            setSpaceError(spaceResult.error);
-          } else {
             setSpaceCollections([]);
-            setSpaceError(spaceResult?.error || 'No space collections found');
+            setStyleError('Failed to load style collections');
+            setSpaceError('Failed to load space collections');
           }
         }
       } catch (error) {

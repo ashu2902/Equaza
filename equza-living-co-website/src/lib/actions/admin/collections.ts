@@ -12,7 +12,9 @@ import {
   updateCollection,
   deleteCollection,
   getCollectionById,
-  isCollectionSlugAvailable 
+  getCollectionByIdAdmin,
+  isCollectionSlugAvailable,
+  isCollectionSlugAvailableAdmin 
 } from '@/lib/firebase/collections';
 // import { checkAdminStatus } from '@/lib/firebase/auth'; // Not needed in server actions
 import { cookies } from 'next/headers';
@@ -137,7 +139,7 @@ export async function createAdminCollection(
     }
 
     // Check slug availability
-    const isSlugAvailable = await isCollectionSlugAvailable(collectionData.slug);
+    const isSlugAvailable = await isCollectionSlugAvailableAdmin(collectionData.slug);
     if (!isSlugAvailable) {
       return {
         success: false,
@@ -200,7 +202,7 @@ export async function updateAdminCollection(
 
     // Check slug availability if slug is being updated
     if (updates.slug) {
-      const isSlugAvailable = await isCollectionSlugAvailable(updates.slug, collectionId);
+      const isSlugAvailable = await isCollectionSlugAvailableAdmin(updates.slug, collectionId);
       if (!isSlugAvailable) {
         return {
           success: false,
@@ -211,7 +213,7 @@ export async function updateAdminCollection(
     }
 
     // Get original collection for comparison
-    const originalCollection = await getCollectionById(collectionId);
+    const originalCollection = await getCollectionByIdAdmin(collectionId);
     if (!originalCollection) {
       return {
         success: false,
@@ -260,7 +262,7 @@ export async function deleteAdminCollection(
     }
 
     // Get collection for logging
-    const collection = await getCollectionById(collectionId);
+    const collection = await getCollectionByIdAdmin(collectionId);
     if (!collection) {
       return {
         success: false,
@@ -404,7 +406,7 @@ export async function duplicateCollection(
     }
 
     // Get original collection
-    const originalCollection = await getCollectionById(collectionId);
+    const originalCollection = await getCollectionByIdAdmin(collectionId);
     if (!originalCollection) {
       return {
         success: false,
@@ -413,7 +415,7 @@ export async function duplicateCollection(
     }
 
     // Check slug availability
-    const isSlugAvailable = await isCollectionSlugAvailable(newSlug);
+    const isSlugAvailable = await isCollectionSlugAvailableAdmin(newSlug);
     if (!isSlugAvailable) {
       return {
         success: false,

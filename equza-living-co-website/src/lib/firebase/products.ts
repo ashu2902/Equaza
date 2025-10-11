@@ -24,6 +24,8 @@ import {
 
 import type { Product, ProductFilters } from '@/types';
 import { db } from './config';
+import { getAdminFirestore } from './server-app';
+import { Timestamp as AdminTimestamp } from 'firebase-admin/firestore';
 
 // Helper function to convert Firestore document to typed object with proper serialization
 const convertDoc = <T>(doc: DocumentSnapshot | QueryDocumentSnapshot): T | null => {
@@ -129,6 +131,33 @@ export const getProductById = async (id: string): Promise<Product | null> => {
     return convertDoc<Product>(docSnap);
   } catch (error) {
     console.error('Error fetching product by ID:', error);
+    throw new Error('Failed to fetch product');
+  }
+};
+
+/**
+ * Get product by ID (admin-side)
+ */
+export const getProductByIdAdmin = async (id: string): Promise<Product | null> => {
+  try {
+    const adminDb = getAdminFirestore();
+    const docSnap = await adminDb.collection('products').doc(id).get();
+    
+    if (!docSnap.exists) return null;
+    
+    const data = docSnap.data();
+    const convertedData = { ...data };
+    
+    // Convert Firestore Timestamps to ISO strings for client components
+    Object.keys(convertedData).forEach(key => {
+      if (convertedData[key] && typeof convertedData[key] === 'object' && convertedData[key].toDate) {
+        convertedData[key] = convertedData[key].toDate().toISOString();
+      }
+    });
+    
+    return { id: docSnap.id, ...convertedData } as Product;
+  } catch (error) {
+    console.error('Error fetching product by ID (admin):', error);
     throw new Error('Failed to fetch product');
   }
 };
@@ -369,14 +398,14 @@ export const createProduct = async (
   try {
     validateProductData(productData);
     
+    const adminDb = getAdminFirestore();
     const docData = {
       ...productData,
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
+      createdAt: AdminTimestamp.now(),
+      updatedAt: AdminTimestamp.now(),
     };
     
-    const docRef = await addDoc(collection(db, 'products'), docData);
-    
+    const docRef = await adminDb.collection('products').add(docData);
     
     return docRef.id;
   } catch (error) {
@@ -395,13 +424,30 @@ export const updateProduct = async (
   try {
     validateProductData(updates);
     
-    const docRef = doc(db, 'products', id);
+    const adminDb = getAdminFirestore();
+    
+    // Clean the updates object to remove any client-side timestamps
+    const cleanUpdates = { ...updates };
+    
+    // Remove any timestamp fields that might be from client-side SDK
+    // Note: We never update createdAt - it's immutable
+    delete cleanUpdates.updatedAt;
+    
+    // Convert any remaining timestamp-like fields to admin timestamps
+    Object.keys(cleanUpdates).forEach(key => {
+      const value = (cleanUpdates as any)[key];
+      if (value && typeof value === 'object' && value.toDate) {
+        // This is a Firestore timestamp, convert to admin timestamp
+        (cleanUpdates as any)[key] = AdminTimestamp.fromDate(value.toDate());
+      }
+    });
+    
     const updateData = {
-      ...updates,
-      updatedAt: Timestamp.now(),
+      ...cleanUpdates,
+      updatedAt: AdminTimestamp.now(),
     };
     
-    await updateDoc(docRef, updateData);
+    await adminDb.collection('products').doc(id).update(updateData);
     
   } catch (error) {
     console.error('Error updating product:', error);
@@ -414,8 +460,8 @@ export const updateProduct = async (
  */
 export const deleteProduct = async (id: string): Promise<void> => {
   try {
-    const docRef = doc(db, 'products', id);
-    await deleteDoc(docRef);
+    const adminDb = getAdminFirestore();
+    await adminDb.collection('products').doc(id).delete();
     
   } catch (error) {
     console.error('Error deleting product:', error);
@@ -424,7 +470,7 @@ export const deleteProduct = async (id: string): Promise<void> => {
 };
 
 /**
- * Check if product slug is available
+ * Check if product slug is available (client-side)
  */
 export const isProductSlugAvailable = async (slug: string, excludeId?: string): Promise<boolean> => {
   try {
@@ -444,6 +490,29 @@ export const isProductSlugAvailable = async (slug: string, excludeId?: string): 
     return false;
   } catch (error) {
     console.error('Error checking product slug availability:', error);
+    throw new Error('Failed to check slug availability');
+  }
+};
+
+/**
+ * Check if product slug is available (admin-side)
+ */
+export const isProductSlugAvailableAdmin = async (slug: string, excludeId?: string): Promise<boolean> => {
+  try {
+    const adminDb = getAdminFirestore();
+    const q = adminDb.collection('products').where('slug', '==', slug);
+    const snapshot = await q.get();
+    
+    if (snapshot.empty) return true;
+    
+    // If excluding an ID (for updates), check if the found doc is the same
+    if (excludeId) {
+      return snapshot.docs.every(doc => doc.id === excludeId);
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('Error checking product slug availability (admin):', error);
     throw new Error('Failed to check slug availability');
   }
 };

@@ -278,7 +278,7 @@ export async function deleteFileAction(
       // It's a full URL - extract the file path from Firebase Storage URL
       const url = new URL(fileUrl);
       const pathMatch = url.pathname.match(/\/o\/(.+?)\?/);
-      filePath = pathMatch ? decodeURIComponent(pathMatch[1]) : null;
+      filePath = pathMatch && pathMatch[1] ? decodeURIComponent(pathMatch[1]) : '';
       
       if (!filePath) {
         throw new Error('Could not extract file path from URL');

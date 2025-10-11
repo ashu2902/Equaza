@@ -32,12 +32,11 @@ export function Header() {
     }
   };
 
-  // Don't render header for admin routes
-  if (isAdminRoute) {
-    return null;
-  }
-
   useEffect(() => {
+    // Don't process header logic for admin routes
+    if (isAdminRoute) {
+      return;
+    }
     // Prefer hero visibility via IntersectionObserver; fallback to scroll threshold
     const findHero = () => {
       return (
@@ -92,6 +91,11 @@ export function Header() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, [isAdminRoute, isHomePage]);
+
+  // Don't render header for admin routes
+  if (isAdminRoute) {
+    return null;
+  }
 
   return (
     <>

@@ -35,9 +35,7 @@ import { Grid } from '@/components/ui/Grid';
 import { FadeIn, SlideUp } from '@/components/ui/MotionWrapper';
 import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
 
-// Firebase
-import { getSafeAdminCollections } from '@/lib/firebase/safe-firestore';
-import { isDataResult } from '@/types/safe';
+// Firebase - using API routes instead of direct imports
 
 // Actions
 import { deleteAdminCollection } from '@/lib/actions/admin/collections';
@@ -49,14 +47,22 @@ import { deleteAdminCollection } from '@/lib/actions/admin/collections';
  */
 async function getCollectionsData() {
   try {
-    const styleCollections = await getSafeAdminCollections('style');
-    const spaceCollections = await getSafeAdminCollections('space');
+    const response = await fetch('/api/admin/collections');
+    const result = await response.json();
     
-    return {
-      styleCollections: isDataResult(styleCollections) ? styleCollections.data : [],
-      spaceCollections: isDataResult(spaceCollections) ? spaceCollections.data : [],
-      error: styleCollections.error || spaceCollections.error
-    };
+    if (result.success) {
+      return {
+        styleCollections: result.data.style || [],
+        spaceCollections: result.data.space || [],
+        error: null
+      };
+    } else {
+      return {
+        styleCollections: [],
+        spaceCollections: [],
+        error: 'Failed to fetch collections'
+      };
+    }
   } catch (error) {
     console.error('Collections data fetch error:', error);
     return {
