@@ -1,53 +1,22 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // DEVELOPMENT MODE - TEMPORARY PERMISSIVE RULES
+    // Simplified rules: Read access for all, full access for admins
     match /{document=**} {
-      allow read, write: if true; // Allow all operations for development
+      allow read: if true; // Public read access for all documents
+      allow write, update, delete, create: if isAdmin(); // Full access for admins
     }
     
-    // PRODUCTION RULES (commented out for development)
-    // match /collections/{document} {
-    //   allow read: if resource.data.isActive == true;
-    //   allow write: if isAdmin();
-    // }
-    
-    // match /products/{document} {
-    //   allow read: if resource.data.isActive == true;
-    //   allow write: if isAdmin();
-    // }
-    
-    // match /pages/{document} {
-    //   allow read: if resource.data.isActive == true;
-    //   allow write: if isAdmin();
-    // }
-    
-    // match /settings/global {
-    //   allow read: if true; // Public settings like contact email, social links
-    //   allow write: if isAdmin();
-    // }
-    
-    // match /lookbook/current {
-    //   allow read: if true; // Public access to download lookbook
-    //   allow write: if isAdmin();
-    // }
-    
-    // Lead submissions - ANONYMOUS USERS CAN CREATE LEADS
+    // Special case: Allow anonymous users to create leads
     match /leads/{document} {
       allow create: if true; // Allow anonymous lead creation from forms
-      allow read, update, delete: if isAdmin();
-    }
-    
-    // Admin-only collections
-    match /adminUsers/{document} {
-      allow read, write: if isAdmin() && resource.data.id == request.auth.uid;
+      allow read: if true; // Public read access
+      allow write, update, delete: if isAdmin(); // Admin full access
     }
     
     // Helper function to check admin permissions
     function isAdmin() {
-      return request.auth != null && 
-             exists(/databases/$(database)/documents/adminUsers/$(request.auth.uid)) &&
-             get(/databases/$(database)/documents/adminUsers/$(request.auth.uid)).data.isActive == true;
+      return request.auth != null && request.auth.token.admin == true;
     }
   }
-} 
+}

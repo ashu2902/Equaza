@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Container } from '@/components/ui/Container';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
@@ -51,7 +51,7 @@ export default function AdminHeroImagesPage() {
   });
 
   // Initialize forms when hero images load
-  useState(() => {
+  useEffect(() => {
     if (heroImages) {
       const newForms = {} as Record<PageType, HeroImageForm>;
       Object.keys(heroImages).forEach(pageType => {
@@ -66,7 +66,7 @@ export default function AdminHeroImagesPage() {
       });
       setForms(newForms);
     }
-  });
+  }, [heroImages]);
 
   const updateForm = useCallback((pageType: PageType, field: keyof HeroImageForm, value: any) => {
     setForms(prev => ({

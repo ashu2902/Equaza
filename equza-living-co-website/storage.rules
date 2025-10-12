@@ -1,35 +1,21 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // Public read access for images and lookbook - NO AUTH REQUIRED
-    match /images/{allPaths=**} {
-      allow read: if true; // Public access to product images
-      allow write: if isAdmin();
+    // Simplified rules: Read access for all, full access for admins
+    match /{allPaths=**} {
+      allow read: if true; // Public read access for all files
+      allow write, update, delete, create: if isAdmin(); // Full access for admins
     }
     
-    match /lookbook/{allPaths=**} {
-      allow read: if true; // Public access to download lookbook PDF
-      allow write: if isAdmin();
-    }
-    
-    // Anonymous uploads for customization forms (temp storage)
+    // Special case: Allow anonymous uploads for customization forms (temp storage)
     match /uploads/temp/{sessionId}/{allPaths=**} {
       allow create: if true; // Allow anonymous uploads for customize form
-      allow read: if true; // Allow reading uploaded files
+      allow read, write, update, delete: if true; // Allow reading uploaded files
     }
     
-    // Admin uploads
-    match /uploads/admin/{allPaths=**} {
-      allow read, write: if isAdmin();
-    }
-    
-    // General uploads
-    match /uploads/general/{allPaths=**} {
-      allow read, write: if isAdmin();
-    }
-    
+    // Helper function to check admin permissions
     function isAdmin() {
-      return request.auth != null; // Simplified for storage rules
+      return request.auth != null && request.auth.token.admin == true;
     }
   }
 } 
