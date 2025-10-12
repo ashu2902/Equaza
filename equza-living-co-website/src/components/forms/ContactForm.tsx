@@ -312,17 +312,17 @@ export const ContactForm: FC<ContactFormProps> = ({
               </Typography>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm">
                 <a
-                  href="mailto:hello@equzaliving.com"
+                  href="mailto:parth@equzaliving.com"
                   className="text-stone-900 hover:text-stone-700 font-medium transition-colors"
                 >
-                  hello@equzaliving.com
+                  parth@equzaliving.com
                 </a>
                 <span className="hidden sm:block text-stone-400">•</span>
                 <a
-                  href="tel:+919876543210"
+                  href="tel:+919172652528"
                   className="text-stone-900 hover:text-stone-700 font-medium transition-colors"
                 >
-                  +91 98765 43210
+                  +91 9172652528
                 </a>
               </div>
             </div>

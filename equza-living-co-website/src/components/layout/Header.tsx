@@ -240,24 +240,6 @@ export function Header() {
                   Book a Call
                 </Link>
               </div>
-
-              {/* Contact info in mobile menu */}
-              <div className="pt-4 border-t border-warm-200">
-                <div className="space-y-2">
-                  <a
-                    href="mailto:info@equzalivingco.com"
-                    className="block text-sm text-warm-600 hover:text-primary-600 transition-colors"
-                  >
-                    info@equzalivingco.com
-                  </a>
-                  <a
-                    href="tel:+15551234567"
-                    className="block text-sm text-warm-600 hover:text-primary-600 transition-colors"
-                  >
-                    +1 (555) 123-4567
-                  </a>
-                </div>
-              </div>
             </div>
           </motion.div>
         )}

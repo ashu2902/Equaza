@@ -31,7 +31,7 @@ export function SafeCollectionTileCompact({ collection, priority = false }: Safe
         </div>
       </div>
       <div className="mt-3 text-center">
-        <Typography variant="h4" className="font-serif text-xl text-neutral-900">
+        <Typography variant="h4" className="font-serif text-xl text-neutral-900 text-center">
           {collection.name}
         </Typography>
       </div>

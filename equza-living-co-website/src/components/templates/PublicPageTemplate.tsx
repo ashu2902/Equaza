@@ -1,4 +1,4 @@
-import { UtilityBanner, Header, LeftNavigation, MinimalFooter } from '@/components/layout';
+import { UtilityBanner, Header, MinimalFooter } from '@/components/layout';
 
 interface PublicPageTemplateProps {
   children: React.ReactNode;
@@ -19,8 +19,6 @@ export function PublicPageTemplate({
       {/* Header */}
       <Header />
       
-      {/* Left Navigation */}
-      <LeftNavigation />
       
       {/* Main Content */}
       <main className={`flex-1 ${containerClassName}`}>
