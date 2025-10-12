@@ -36,6 +36,19 @@ import type {
 import { db } from './config';
 import { getAdminFirestore } from './server-app';
 import { Timestamp as AdminTimestamp } from 'firebase-admin/firestore';
+import { 
+  LeadCreationInput,
+  LeadUpdateInput,
+  LeadFilters as SchemaLeadFilters,
+  createLeadData,
+  validateLeadData,
+  validateLeadCreationInput,
+  validateLeadUpdateInput,
+  validateLeadFilters,
+  sanitizeInput,
+  convertFirestoreDocToLead,
+  getDefaultLeadData
+} from '@/lib/schemas/lead-schema';
 
 // Helper function to convert Firestore document to typed object with proper serialization
 const convertDoc = <T>(doc: DocumentSnapshot | QueryDocumentSnapshot): T | null => {
@@ -54,33 +67,7 @@ const convertDoc = <T>(doc: DocumentSnapshot | QueryDocumentSnapshot): T | null 
   return { id: doc.id, ...convertedData } as T;
 };
 
-// Validation function
-const validateLeadData = (data: Partial<Lead>): void => {
-  if (data.name && (data.name.length < 1 || data.name.length > 100)) {
-    throw new Error('Lead name must be between 1 and 100 characters');
-  }
-  
-  if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-    throw new Error('Invalid email address');
-  }
-  
-  if (data.phone && data.phone.length > 20) {
-    throw new Error('Phone number is too long');
-  }
-  
-  if (data.type && !['contact', 'trade', 'customize', 'product-enquiry'].includes(data.type)) {
-    throw new Error('Invalid lead type');
-  }
-  
-  if (data.status && !['new', 'contacted', 'qualified', 'converted', 'closed'].includes(data.status)) {
-    throw new Error('Invalid lead status');
-  }
-};
-
-// Helper to sanitize user input
-const sanitizeInput = (input: string): string => {
-  return input.trim().replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-};
+// Note: Validation and sanitization functions are now imported from the unified schema
 
 /**
  * Get leads with filters
@@ -251,7 +238,8 @@ export const createContactLead = async (
   source: string = 'contact-form'
 ): Promise<string> => {
   try {
-    const leadData: Omit<Lead, 'id' | 'createdAt' | 'updatedAt'> = {
+    // Create lead data using unified schema
+    const leadData = createLeadData({
       type: 'contact',
       name: sanitizeInput(formData.name),
       email: sanitizeInput(formData.email),
@@ -260,12 +248,14 @@ export const createContactLead = async (
       source: sanitizeInput(source),
       status: 'new',
       notes: [],
-    };
+    });
     
-    validateLeadData(leadData);
+    // Validate the complete lead data
+    const validatedData = validateLeadCreationInput(leadData);
     
+    // Add timestamps
     const docData = {
-      ...leadData,
+      ...validatedData,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
     };
@@ -287,7 +277,8 @@ export const createCustomizeLead = async (
   source: string = 'customize-form'
 ): Promise<string> => {
   try {
-    const leadData: Omit<Lead, 'id' | 'createdAt' | 'updatedAt'> = {
+    // Create lead data using unified schema
+    const leadData = createLeadData({
       type: 'customize',
       name: sanitizeInput(formData.name),
       email: sanitizeInput(formData.email),
@@ -305,12 +296,14 @@ export const createCustomizeLead = async (
           storageRef: '', // Will be populated after upload
         })) || [],
       },
-    };
+    });
     
-    validateLeadData(leadData);
+    // Validate the complete lead data
+    const validatedData = validateLeadCreationInput(leadData);
     
+    // Add timestamps
     const docData = {
-      ...leadData,
+      ...validatedData,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
     };
@@ -332,7 +325,8 @@ export const createEnquiryLead = async (
   source: string = 'product-enquiry'
 ): Promise<string> => {
   try {
-    const leadData: Omit<Lead, 'id' | 'createdAt' | 'updatedAt'> = {
+    // Create lead data using unified schema
+    const leadData = createLeadData({
       type: 'product-enquiry',
       name: sanitizeInput(formData.name),
       email: sanitizeInput(formData.email),
@@ -341,12 +335,14 @@ export const createEnquiryLead = async (
       productId: sanitizeInput(formData.productId),
       status: 'new',
       notes: [],
-    };
+    });
     
-    validateLeadData(leadData);
+    // Validate the complete lead data
+    const validatedData = validateLeadCreationInput(leadData);
     
+    // Add timestamps
     const docData = {
-      ...leadData,
+      ...validatedData,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
     };
@@ -368,7 +364,8 @@ export const createTradeLead = async (
   source: string = 'trade-form'
 ): Promise<string> => {
   try {
-    const leadData: Omit<Lead, 'id' | 'createdAt' | 'updatedAt'> = {
+    // Create lead data using unified schema
+    const leadData = createLeadData({
       type: 'trade',
       name: sanitizeInput(formData.name),
       email: sanitizeInput(formData.email),
@@ -377,12 +374,14 @@ export const createTradeLead = async (
       source: sanitizeInput(source),
       status: 'new',
       notes: [],
-    };
+    });
     
-    validateLeadData(leadData);
+    // Validate the complete lead data
+    const validatedData = validateLeadCreationInput(leadData);
     
+    // Add timestamps
     const docData = {
-      ...leadData,
+      ...validatedData,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
     };

@@ -689,12 +689,48 @@ export async function getSafeLeads(): Promise<SafeResult<any[]>> {
       .limit(50)
       .get();
     
-    const leads = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || null,
-      updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString() || null
-    }));
+    const leads = snapshot.docs.map(doc => {
+      const data = doc.data();
+      
+      // Handle both old nested structure and new flat structure
+      const normalizedLead = {
+        id: doc.id,
+        // Core fields
+        name: data.name || '',
+        email: data.email || '',
+        phone: data.phone || data.notes?.phone || null,
+        message: data.message || '',
+        company: data.company || '',
+        
+        // Lead classification - handle both structures
+        type: data.type || data.notes?.type || 'contact',
+        status: data.status || data.notes?.status || 'new',
+        source: data.source || data.notes?.source || 'unknown',
+        
+        // Product references
+        productId: data.productId || '',
+        productRef: data.productRef || '',
+        collectionId: data.collectionId || '',
+        
+        // Customization details
+        customizationDetails: data.customizationDetails || undefined,
+        
+        // Management fields
+        assignedTo: data.assignedTo || '',
+        priority: data.priority || false,
+        notes: data.notes || [],
+        
+        // Timestamps
+        createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
+        updatedAt: data.updatedAt?.toDate?.()?.toISOString() || null,
+        
+        // Response tracking
+        responseTime: data.responseTime || 'No response yet',
+        lastContactedAt: data.lastContactedAt?.toDate?.()?.toISOString() || null,
+      };
+      
+      return normalizedLead;
+    });
 
     return { data: leads, error: null, loading: false };
   } catch (error) {
