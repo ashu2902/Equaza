@@ -20,16 +20,16 @@ export function ProductEnquirySection({ product }: ProductEnquirySectionProps) {
 
   return (
     <>
-      <div className="pt-2 pb-4 md:pb-6">
+      <div className='pt-2 pb-4 md:pb-6'>
         <Button
-          variant="outline"
-          size="lg"
+          variant='outline'
+          size='lg'
           onClick={() => setIsEnquiryModalOpen(true)}
-          className="w-full text-lg py-0"
+          className='w-full text-lg py-0'
           style={{
             borderColor: '#98342d',
             color: '#98342d',
-            fontFamily: 'Poppins'
+            fontFamily: 'Poppins',
           }}
         >
           Enquire About This Rug

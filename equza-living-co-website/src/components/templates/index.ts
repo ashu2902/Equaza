@@ -5,4 +5,4 @@
 
 export { PublicPageTemplate } from './PublicPageTemplate';
 export { AdminPageTemplate } from './AdminPageTemplate';
-export { FormPageTemplate } from './FormPageTemplate'; 
+export { FormPageTemplate } from './FormPageTemplate';

@@ -6,7 +6,16 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { Timestamp, addDoc, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
+import {
+  Timestamp,
+  addDoc,
+  collection,
+  query,
+  where,
+  orderBy,
+  limit,
+  getDocs,
+} from 'firebase/firestore';
 import { db, auth } from '@/lib/firebase/config';
 import { checkAdminStatus } from '@/lib/firebase/auth';
 
@@ -44,7 +53,11 @@ export interface AuditLogQuery {
 /**
  * Verify admin authentication
  */
-async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string; email?: string }> {
+async function verifyAdminAuth(): Promise<{
+  isAdmin: boolean;
+  userId?: string;
+  email?: string;
+}> {
   try {
     const isAdmin = await checkAdminStatus();
     const user = auth?.currentUser;
@@ -104,10 +117,9 @@ export async function logAdminAction(
       message: 'Action logged successfully',
       logId: docRef.id,
     };
-
   } catch (error) {
     console.error('Error logging admin action:', error);
-    
+
     return {
       success: false,
       message: 'Failed to log action',
@@ -118,9 +130,7 @@ export async function logAdminAction(
 /**
  * Get audit logs with filtering (admin only)
  */
-export async function getAuditLogs(
-  filters: AuditLogQuery = {}
-): Promise<{
+export async function getAuditLogs(filters: AuditLogQuery = {}): Promise<{
   success: boolean;
   logs?: AuditLogEntry[];
   total?: number;
@@ -153,11 +163,15 @@ export async function getAuditLogs(
     }
 
     if (filters.dateFrom) {
-      constraints.push(where('timestamp', '>=', Timestamp.fromDate(filters.dateFrom)));
+      constraints.push(
+        where('timestamp', '>=', Timestamp.fromDate(filters.dateFrom))
+      );
     }
 
     if (filters.dateTo) {
-      constraints.push(where('timestamp', '<=', Timestamp.fromDate(filters.dateTo)));
+      constraints.push(
+        where('timestamp', '<=', Timestamp.fromDate(filters.dateTo))
+      );
     }
 
     // Add ordering and limit
@@ -168,7 +182,7 @@ export async function getAuditLogs(
     const q = query(collection(db, 'admin-audit-logs'), ...constraints);
     const snapshot = await getDocs(q);
 
-    const logs = snapshot.docs.map(doc => ({
+    const logs = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     })) as AuditLogEntry[];
@@ -178,10 +192,9 @@ export async function getAuditLogs(
       logs,
       total: logs.length,
     };
-
   } catch (error) {
     console.error('Error getting audit logs:', error);
-    
+
     return {
       success: false,
       message: 'Failed to fetch audit logs',
@@ -213,10 +226,9 @@ export async function getEntityAuditLogs(
       entityId,
       limit: limitCount,
     });
-
   } catch (error) {
     console.error('Error getting entity audit logs:', error);
-    
+
     return {
       success: false,
       message: 'Failed to fetch entity audit logs',
@@ -246,10 +258,9 @@ export async function getAdminUserLogs(
       adminId,
       limit: limitCount,
     });
-
   } catch (error) {
     console.error('Error getting admin user logs:', error);
-    
+
     return {
       success: false,
       message: 'Failed to fetch admin user logs',
@@ -305,7 +316,7 @@ export async function generateAuditReport(
     const actionsByAdmin: Record<string, number> = {};
     const actionsByEntity: Record<string, number> = {};
 
-    logs.forEach(log => {
+    logs.forEach((log) => {
       // Count by action type
       actionsByType[log.action] = (actionsByType[log.action] || 0) + 1;
 
@@ -319,12 +330,14 @@ export async function generateAuditReport(
     });
 
     // Find most active admin
-    const mostActiveAdmin = Object.entries(actionsByAdmin)
-      .sort(([, a], [, b]) => b - a)[0]?.[0] || 'None';
+    const mostActiveAdmin =
+      Object.entries(actionsByAdmin).sort(([, a], [, b]) => b - a)[0]?.[0] ||
+      'None';
 
     // Find most modified entity
-    const mostModifiedEntity = Object.entries(actionsByEntity)
-      .sort(([, a], [, b]) => b - a)[0]?.[0] || 'None';
+    const mostModifiedEntity =
+      Object.entries(actionsByEntity).sort(([, a], [, b]) => b - a)[0]?.[0] ||
+      'None';
 
     const report = {
       totalActions: logs.length,
@@ -351,10 +364,9 @@ export async function generateAuditReport(
       success: true,
       report,
     };
-
   } catch (error) {
     console.error('Error generating audit report:', error);
-    
+
     return {
       success: false,
       message: 'Failed to generate audit report',
@@ -365,9 +377,7 @@ export async function generateAuditReport(
 /**
  * Cleanup old audit logs (admin only)
  */
-export async function cleanupAuditLogs(
-  olderThanDays: number = 365
-): Promise<{
+export async function cleanupAuditLogs(olderThanDays: number = 365): Promise<{
   success: boolean;
   deletedCount?: number;
   message?: string;
@@ -384,7 +394,7 @@ export async function cleanupAuditLogs(
 
     // TODO: Implement batch deletion of old logs
     // This would query logs older than cutoffDate and delete them in batches
-    
+
     // Log cleanup action
     await logAdminAction(
       'cleanup_audit_logs',
@@ -400,10 +410,9 @@ export async function cleanupAuditLogs(
       deletedCount: 0, // Placeholder
       message: `Audit logs older than ${olderThanDays} days have been cleaned up`,
     };
-
   } catch (error) {
     console.error('Error cleaning up audit logs:', error);
-    
+
     return {
       success: false,
       message: 'Failed to cleanup audit logs',

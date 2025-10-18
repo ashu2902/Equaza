@@ -61,7 +61,9 @@ export async function uploadFile(options: FileUploadOptions): Promise<string> {
   try {
     // Check if storage is available
     if (!storage) {
-      throw new Error('Firebase Storage is not initialized. Please check your configuration.');
+      throw new Error(
+        'Firebase Storage is not initialized. Please check your configuration.'
+      );
     }
 
     // Check authentication status
@@ -71,7 +73,7 @@ export async function uploadFile(options: FileUploadOptions): Promise<string> {
       hasAuth: !!auth,
       hasCurrentUser: !!currentUser,
       userEmail: currentUser?.email,
-      userUID: currentUser?.uid
+      userUID: currentUser?.uid,
     });
 
     // Validate file before upload
@@ -80,18 +82,31 @@ export async function uploadFile(options: FileUploadOptions): Promise<string> {
       throw new Error('Invalid file format or size');
     }
 
-    console.log('📤 Firebase Storage: Uploading file', { path, fileName: file.name, fileSize: file.size });
-    console.log('📤 Firebase Storage: Storage object:', { storage, isNull: storage === null });
-    
+    console.log('📤 Firebase Storage: Uploading file', {
+      path,
+      fileName: file.name,
+      fileSize: file.size,
+    });
+    console.log('📤 Firebase Storage: Storage object:', {
+      storage,
+      isNull: storage === null,
+    });
+
     // Test storage bucket access first
     try {
       const storageRef = ref(storage, path);
-      console.log('📤 Firebase Storage: Storage ref created successfully:', { bucket: storageRef.bucket, fullPath: storageRef.fullPath });
+      console.log('📤 Firebase Storage: Storage ref created successfully:', {
+        bucket: storageRef.bucket,
+        fullPath: storageRef.fullPath,
+      });
     } catch (refError) {
-      console.error('❌ Firebase Storage: Failed to create storage reference:', refError);
+      console.error(
+        '❌ Firebase Storage: Failed to create storage reference:',
+        refError
+      );
       throw refError;
     }
-    
+
     const storageRef = ref(storage, path);
 
     if (onProgress) {
@@ -105,7 +120,8 @@ export async function uploadFile(options: FileUploadOptions): Promise<string> {
             const progress: UploadProgress = {
               bytesTransferred: snapshot.bytesTransferred,
               totalBytes: snapshot.totalBytes,
-              percentage: (snapshot.bytesTransferred / snapshot.totalBytes) * 100,
+              percentage:
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100,
               state: snapshot.state as UploadProgress['state'],
             };
             onProgress(progress);
@@ -115,7 +131,7 @@ export async function uploadFile(options: FileUploadOptions): Promise<string> {
               code: error.code,
               message: error.message,
               serverResponse: error.serverResponse,
-              fullPath: storageRef.fullPath
+              fullPath: storageRef.fullPath,
             });
             const errorMessage = getStorageErrorMessage(error.code);
             const uploadError = new Error(`${errorMessage} (${error.code})`);
@@ -137,9 +153,13 @@ export async function uploadFile(options: FileUploadOptions): Promise<string> {
       });
     } else {
       // Simple upload without progress tracking
-      console.log('📤 Firebase Storage: Starting simple upload (no progress tracking)');
+      console.log(
+        '📤 Firebase Storage: Starting simple upload (no progress tracking)'
+      );
       const result = await uploadBytes(storageRef, file, metadata);
-      console.log('📤 Firebase Storage: Upload successful, getting download URL');
+      console.log(
+        '📤 Firebase Storage: Upload successful, getting download URL'
+      );
       const downloadURL = await getDownloadURL(result.ref);
       console.log('📤 Firebase Storage: Download URL obtained:', downloadURL);
       onComplete?.(downloadURL);
@@ -152,9 +172,10 @@ export async function uploadFile(options: FileUploadOptions): Promise<string> {
       errorMessage: (error as any)?.message,
       serverResponse: (error as any)?.serverResponse,
       path,
-      fileName: file.name
+      fileName: file.name,
     });
-    const uploadError = error instanceof Error ? error : new Error('Upload failed');
+    const uploadError =
+      error instanceof Error ? error : new Error('Upload failed');
     onError?.(uploadError);
     throw uploadError;
   }
@@ -209,7 +230,7 @@ export async function deleteFile(path: string): Promise<void> {
  * Delete multiple files
  */
 export async function deleteMultipleFiles(paths: string[]): Promise<void> {
-  const deletePromises = paths.map(path => deleteFile(path));
+  const deletePromises = paths.map((path) => deleteFile(path));
   await Promise.all(deletePromises);
 }
 
@@ -312,8 +333,8 @@ export function generateFilePath(
   const extension = filename.split('.').pop();
   const nameWithoutExtension = filename.replace(/\.[^/.]+$/, '');
   const sanitizedName = nameWithoutExtension.replace(/[^a-zA-Z0-9-_]/g, '_');
-  
-  const finalName = addTimestamp 
+
+  const finalName = addTimestamp
     ? `${sanitizedName}_${timestamp}.${extension}`
     : `${sanitizedName}.${extension}`;
 
@@ -324,23 +345,28 @@ export function generateFilePath(
  * Generate paths for different file types
  */
 export const generatePaths = {
-  productImage: (filename: string, productId?: string) => 
+  productImage: (filename: string, productId?: string) =>
     generateFilePath(`images/products/${productId || 'general'}`, filename),
-  
-  collectionImage: (filename: string, collectionId?: string) => 
-    generateFilePath(`images/collections/${collectionId || 'general'}`, filename),
-  
-  weaveTypeImage: (filename: string, weaveTypeId?: string) => 
-    generateFilePath(`images/weave-types/${weaveTypeId || 'general'}`, filename),
-  
-  tempUpload: (filename: string, sessionId: string) => 
+
+  collectionImage: (filename: string, collectionId?: string) =>
+    generateFilePath(
+      `images/collections/${collectionId || 'general'}`,
+      filename
+    ),
+
+  weaveTypeImage: (filename: string, weaveTypeId?: string) =>
+    generateFilePath(
+      `images/weave-types/${weaveTypeId || 'general'}`,
+      filename
+    ),
+
+  tempUpload: (filename: string, sessionId: string) =>
     generateFilePath(`uploads/temp/${sessionId}`, filename),
-  
-  adminUpload: (filename: string, folder = 'general') => 
+
+  adminUpload: (filename: string, folder = 'general') =>
     generateFilePath(`uploads/admin/${folder}`, filename),
-  
-  lookbook: (filename: string) => 
-    generateFilePath('lookbook', filename, false),
+
+  lookbook: (filename: string) => generateFilePath('lookbook', filename, false),
 };
 
 /**
@@ -374,9 +400,4 @@ function getStorageErrorMessage(errorCode: string): string {
 }
 
 // Export types
-export type {
-  UploadTask,
-  StorageReference,
-  UploadResult,
-  FullMetadata,
-}; 
+export type { UploadTask, StorageReference, UploadResult, FullMetadata };

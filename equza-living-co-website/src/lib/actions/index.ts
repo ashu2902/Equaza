@@ -71,4 +71,4 @@ export {
 } from './email';
 
 // Admin CRUD operations and management
-export * from './admin'; 
+export * from './admin';

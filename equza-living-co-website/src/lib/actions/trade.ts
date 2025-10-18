@@ -36,14 +36,14 @@ export async function submitTradeForm(
   try {
     // Validate form data
     const validationResult = tradeFormSchema.safeParse(formData);
-    
+
     if (!validationResult.success) {
       const errors: Record<string, string> = {};
       validationResult.error.issues.forEach((error) => {
         const field = error.path[0] as string;
         errors[field] = error.message;
       });
-      
+
       return {
         success: false,
         message: 'Please check the form for errors',
@@ -62,26 +62,26 @@ export async function submitTradeForm(
     // TODO: Update lead with application ID
     // await updateLead(leadId, { applicationId });
 
-
     // TODO: Send email notifications (Phase 6.2 email integration)
     // await sendTradeNotificationEmail(validatedData, leadId, applicationId);
     // await sendTradeAutoReplyEmail(validatedData.email, validatedData.name, applicationId);
 
     return {
       success: true,
-      message: 'Thank you for your interest in partnering with us! Our trade team will review your application and get back to you within 3 business days.',
+      message:
+        'Thank you for your interest in partnering with us! Our trade team will review your application and get back to you within 3 business days.',
       leadId,
       applicationId,
     };
-
   } catch (error) {
     console.error('Error submitting trade form:', error);
-    
+
     return {
       success: false,
-      message: error instanceof Error 
-        ? error.message 
-        : 'Something went wrong. Please try again.',
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Something went wrong. Please try again.',
     };
   }
 }
@@ -117,7 +117,9 @@ export async function submitQuickTradeEnquiry(
     email,
     name,
     company,
-    message: message || 'I\'m interested in learning more about trade partnership opportunities.',
+    message:
+      message ||
+      "I'm interested in learning more about trade partnership opportunities.",
   };
 
   return submitTradeForm(formData, 'quick-trade-enquiry');
@@ -139,7 +141,7 @@ export async function checkApplicationStatus(
   try {
     // TODO: Implement application status checking
     // This would allow partners to check their application status
-    
+
     return {
       success: true,
       status: 'reviewing',
@@ -148,15 +150,16 @@ export async function checkApplicationStatus(
       nextSteps: [
         'Our team is reviewing your application details',
         'We may contact you for additional information',
-        'You\'ll receive an email update within 3 business days'
+        "You'll receive an email update within 3 business days",
       ],
     };
   } catch (error) {
     console.error('Error checking application status:', error);
-    
+
     return {
       success: false,
-      message: 'Unable to check application status. Please contact us directly.',
+      message:
+        'Unable to check application status. Please contact us directly.',
     };
   }
 }
@@ -189,17 +192,20 @@ export async function getTradeRequirements(): Promise<{
       {
         step: 1,
         title: 'Application Submission',
-        description: 'Complete the trade partnership application form with your business details.',
+        description:
+          'Complete the trade partnership application form with your business details.',
       },
       {
         step: 2,
         title: 'Initial Review',
-        description: 'Our team reviews your application and business credentials.',
+        description:
+          'Our team reviews your application and business credentials.',
       },
       {
         step: 3,
         title: 'Discovery Call',
-        description: 'Schedule a call to discuss partnership details and answer questions.',
+        description:
+          'Schedule a call to discuss partnership details and answer questions.',
       },
       {
         step: 4,
@@ -209,7 +215,8 @@ export async function getTradeRequirements(): Promise<{
       {
         step: 5,
         title: 'Partnership Agreement',
-        description: 'Review and sign the partnership agreement with terms and pricing.',
+        description:
+          'Review and sign the partnership agreement with terms and pricing.',
       },
       {
         step: 6,
@@ -230,14 +237,14 @@ export async function subscribeToTradeUpdates(
   try {
     // TODO: Implement trade newsletter subscription
     // This could notify existing partners of new products, updates, etc.
-    
+
     return {
       success: true,
       message: 'Successfully subscribed to trade updates!',
     };
   } catch (error) {
     console.error('Error subscribing to trade updates:', error);
-    
+
     return {
       success: false,
       message: 'Failed to subscribe to updates. Please try again.',

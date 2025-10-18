@@ -21,12 +21,10 @@ export default async function AdminHomeEditorPage() {
   const data = await getHomePageData();
   const slides = Array.isArray(data?.hero) ? (data!.hero as any) : [];
   return (
-    <AdminPageTemplate title="Homepage Editor">
-      <div className="space-y-6">
+    <AdminPageTemplate title='Homepage Editor'>
+      <div className='space-y-6'>
         <HeroEditor initialSlides={slides as any} />
       </div>
     </AdminPageTemplate>
   );
 }
-
-

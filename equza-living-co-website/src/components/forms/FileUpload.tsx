@@ -39,7 +39,7 @@ export const FileUpload: FC<FileUploadProps> = ({
   error,
   hint = 'Upload files by clicking or dragging them here',
   showPreview = true,
-  multiple = true
+  multiple = true,
 }) => {
   const [files, setFiles] = useState<UploadedFileInfo[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -47,96 +47,126 @@ export const FileUpload: FC<FileUploadProps> = ({
 
   const generateFileId = () => Math.random().toString(36).substring(2, 15);
 
-  const validateFile = useCallback((file: File): string | null => {
-    if (file.size > maxSize) {
-      return `File size must be less than ${Math.round(maxSize / 1024 / 1024)}MB`;
-    }
-    
-    if (!acceptedTypes.includes(file.type)) {
-      return `File type not supported. Allowed types: ${acceptedTypes.join(', ')}`;
-    }
-    
-    return null;
-  }, [maxSize, acceptedTypes]);
-
-  const createFilePreview = useCallback((file: File): Promise<string | undefined> => {
-    return new Promise((resolve) => {
-      if (!file.type.startsWith('image/')) {
-        resolve(undefined);
-        return;
+  const validateFile = useCallback(
+    (file: File): string | null => {
+      if (file.size > maxSize) {
+        return `File size must be less than ${Math.round(maxSize / 1024 / 1024)}MB`;
       }
-      
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target?.result as string);
-      reader.onerror = () => resolve(undefined);
-      reader.readAsDataURL(file);
-    });
-  }, []);
 
-  const addFiles = useCallback(async (newFiles: FileList | File[]) => {
-    const fileArray = Array.from(newFiles);
-    const remainingSlots = maxFiles - files.length;
-    const filesToAdd = multiple ? fileArray.slice(0, remainingSlots) : fileArray.slice(0, 1);
-    
-    if (!multiple) {
-      setFiles([]);
-    }
+      if (!acceptedTypes.includes(file.type)) {
+        return `File type not supported. Allowed types: ${acceptedTypes.join(', ')}`;
+      }
 
-    const processedFiles: UploadedFileInfo[] = [];
+      return null;
+    },
+    [maxSize, acceptedTypes]
+  );
 
-    for (const file of filesToAdd) {
-      const validationError = validateFile(file);
-      const preview = showPreview ? await createFilePreview(file) : undefined;
-      
-      processedFiles.push({
-        file,
-        id: generateFileId(),
-        preview,
-        error: validationError || undefined,
-        uploaded: !validationError
+  const createFilePreview = useCallback(
+    (file: File): Promise<string | undefined> => {
+      return new Promise((resolve) => {
+        if (!file.type.startsWith('image/')) {
+          resolve(undefined);
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.onerror = () => resolve(undefined);
+        reader.readAsDataURL(file);
       });
-    }
+    },
+    []
+  );
 
-    const updatedFiles = multiple ? [...files, ...processedFiles] : processedFiles;
-    setFiles(updatedFiles);
-    
-    // Only include valid files in the callback
-    const validFiles = updatedFiles
-      .filter(f => !f.error)
-      .map(f => f.file);
-    
-    onFilesChange(validFiles);
-  }, [files, maxFiles, multiple, validateFile, createFilePreview, showPreview, onFilesChange]);
+  const addFiles = useCallback(
+    async (newFiles: FileList | File[]) => {
+      const fileArray = Array.from(newFiles);
+      const remainingSlots = maxFiles - files.length;
+      const filesToAdd = multiple
+        ? fileArray.slice(0, remainingSlots)
+        : fileArray.slice(0, 1);
 
-  const removeFile = useCallback((fileId: string) => {
-    const updatedFiles = files.filter(f => f.id !== fileId);
-    setFiles(updatedFiles);
-    
-    const validFiles = updatedFiles
-      .filter(f => !f.error)
-      .map(f => f.file);
-    
-    onFilesChange(validFiles);
-  }, [files, onFilesChange]);
+      if (!multiple) {
+        setFiles([]);
+      }
 
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = e.target.files;
-    if (selectedFiles && selectedFiles.length > 0) {
-      addFiles(selectedFiles);
-    }
-    // Reset input value to allow selecting the same file again
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  }, [addFiles]);
+      const processedFiles: UploadedFileInfo[] = [];
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!disabled) {
-      setIsDragOver(true);
-    }
-  }, [disabled]);
+      for (const file of filesToAdd) {
+        const validationError = validateFile(file);
+        const preview = showPreview ? await createFilePreview(file) : undefined;
+
+        processedFiles.push({
+          file,
+          id: generateFileId(),
+          preview,
+          error: validationError || undefined,
+          uploaded: !validationError,
+        });
+      }
+
+      const updatedFiles = multiple
+        ? [...files, ...processedFiles]
+        : processedFiles;
+      setFiles(updatedFiles);
+
+      // Only include valid files in the callback
+      const validFiles = updatedFiles
+        .filter((f) => !f.error)
+        .map((f) => f.file);
+
+      onFilesChange(validFiles);
+    },
+    [
+      files,
+      maxFiles,
+      multiple,
+      validateFile,
+      createFilePreview,
+      showPreview,
+      onFilesChange,
+    ]
+  );
+
+  const removeFile = useCallback(
+    (fileId: string) => {
+      const updatedFiles = files.filter((f) => f.id !== fileId);
+      setFiles(updatedFiles);
+
+      const validFiles = updatedFiles
+        .filter((f) => !f.error)
+        .map((f) => f.file);
+
+      onFilesChange(validFiles);
+    },
+    [files, onFilesChange]
+  );
+
+  const handleFileSelect = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const selectedFiles = e.target.files;
+      if (selectedFiles && selectedFiles.length > 0) {
+        addFiles(selectedFiles);
+      }
+      // Reset input value to allow selecting the same file again
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    },
+    [addFiles]
+  );
+
+  const handleDragOver = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!disabled) {
+        setIsDragOver(true);
+      }
+    },
+    [disabled]
+  );
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -144,18 +174,21 @@ export const FileUpload: FC<FileUploadProps> = ({
     setIsDragOver(false);
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragOver(false);
-    
-    if (disabled) return;
-    
-    const droppedFiles = e.dataTransfer.files;
-    if (droppedFiles.length > 0) {
-      addFiles(droppedFiles);
-    }
-  }, [disabled, addFiles]);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragOver(false);
+
+      if (disabled) return;
+
+      const droppedFiles = e.dataTransfer.files;
+      if (droppedFiles.length > 0) {
+        addFiles(droppedFiles);
+      }
+    },
+    [disabled, addFiles]
+  );
 
   const openFileDialog = useCallback(() => {
     if (!disabled && fileInputRef.current) {
@@ -165,9 +198,9 @@ export const FileUpload: FC<FileUploadProps> = ({
 
   const getFileIcon = (file: File) => {
     if (file.type.startsWith('image/')) {
-      return <Image className="w-4 h-4" />;
+      return <Image className='w-4 h-4' />;
     }
-    return <File className="w-4 h-4" />;
+    return <File className='w-4 h-4' />;
   };
 
   const formatFileSize = (bytes: number) => {
@@ -179,7 +212,7 @@ export const FileUpload: FC<FileUploadProps> = ({
   };
 
   const canAddMoreFiles = files.length < maxFiles;
-  const hasError = Boolean(error) || files.some(f => f.error);
+  const hasError = Boolean(error) || files.some((f) => f.error);
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -191,11 +224,12 @@ export const FileUpload: FC<FileUploadProps> = ({
         onClick={openFileDialog}
         className={`
           relative border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all
-          ${isDragOver && !disabled
-            ? 'border-stone-900 bg-stone-50'
-            : hasError
-            ? 'border-red-300 bg-red-50'
-            : 'border-stone-300 hover:border-stone-400 hover:bg-stone-50'
+          ${
+            isDragOver && !disabled
+              ? 'border-stone-900 bg-stone-50'
+              : hasError
+                ? 'border-red-300 bg-red-50'
+                : 'border-stone-300 hover:border-stone-400 hover:bg-stone-50'
           }
           ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
           ${!canAddMoreFiles ? 'opacity-60' : ''}
@@ -203,41 +237,44 @@ export const FileUpload: FC<FileUploadProps> = ({
       >
         <input
           ref={fileInputRef}
-          type="file"
+          type='file'
           onChange={handleFileSelect}
           accept={acceptedTypes.join(',')}
           multiple={multiple}
           disabled={disabled || !canAddMoreFiles}
-          className="hidden"
+          className='hidden'
         />
 
         <motion.div
           animate={isDragOver ? { scale: 1.05 } : { scale: 1 }}
-          className="space-y-3"
+          className='space-y-3'
         >
-          <div className={`
+          <div
+            className={`
             w-12 h-12 mx-auto rounded-full flex items-center justify-center
             ${hasError ? 'bg-red-100' : 'bg-stone-100'}
-          `}>
-            <Upload className={`w-6 h-6 ${hasError ? 'text-red-500' : 'text-stone-600'}`} />
+          `}
+          >
+            <Upload
+              className={`w-6 h-6 ${hasError ? 'text-red-500' : 'text-stone-600'}`}
+            />
           </div>
 
           <div>
             <Typography
-              variant="body1"
+              variant='body1'
               className={`font-medium ${hasError ? 'text-red-700' : 'text-stone-900'}`}
             >
               {isDragOver
                 ? 'Drop files here'
                 : canAddMoreFiles
-                ? 'Upload Files'
-                : `Maximum ${maxFiles} files allowed`
-              }
+                  ? 'Upload Files'
+                  : `Maximum ${maxFiles} files allowed`}
             </Typography>
-            
+
             {hint && canAddMoreFiles && (
               <Typography
-                variant="body2"
+                variant='body2'
                 className={hasError ? 'text-red-600' : 'text-stone-600'}
               >
                 {hint}
@@ -245,12 +282,11 @@ export const FileUpload: FC<FileUploadProps> = ({
             )}
           </div>
 
-          <div className="text-xs text-stone-500 space-y-1">
+          <div className='text-xs text-stone-500 space-y-1'>
+            <div>Max file size: {Math.round(maxSize / 1024 / 1024)}MB</div>
             <div>
-              Max file size: {Math.round(maxSize / 1024 / 1024)}MB
-            </div>
-            <div>
-              Supported formats: {acceptedTypes.map(type => type.split('/')[1]).join(', ')}
+              Supported formats:{' '}
+              {acceptedTypes.map((type) => type.split('/')[1]).join(', ')}
             </div>
           </div>
         </motion.div>
@@ -261,10 +297,10 @@ export const FileUpload: FC<FileUploadProps> = ({
         <motion.div
           initial={{ opacity: 0, y: -5 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg"
+          className='flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg'
         >
-          <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-          <Typography variant="body2" className="text-red-700">
+          <AlertCircle className='w-4 h-4 text-red-500 flex-shrink-0 mt-0.5' />
+          <Typography variant='body2' className='text-red-700'>
             {error}
           </Typography>
         </motion.div>
@@ -277,16 +313,13 @@ export const FileUpload: FC<FileUploadProps> = ({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="space-y-2"
+            className='space-y-2'
           >
-            <Typography
-              variant="body2"
-              className="font-medium text-stone-900"
-            >
+            <Typography variant='body2' className='font-medium text-stone-900'>
               Uploaded Files ({files.length}/{maxFiles})
             </Typography>
-            
-            <div className="space-y-2">
+
+            <div className='space-y-2'>
               {files.map((fileInfo) => (
                 <motion.div
                   key={fileInfo.id}
@@ -295,50 +328,55 @@ export const FileUpload: FC<FileUploadProps> = ({
                   exit={{ opacity: 0, x: 20 }}
                   className={`
                     flex items-center gap-3 p-3 rounded-lg border
-                    ${fileInfo.error
-                      ? 'border-red-200 bg-red-50'
-                      : 'border-stone-200 bg-stone-50'
+                    ${
+                      fileInfo.error
+                        ? 'border-red-200 bg-red-50'
+                        : 'border-stone-200 bg-stone-50'
                     }
                   `}
                 >
                   {/* File Preview or Icon */}
-                  <div className="flex-shrink-0">
+                  <div className='flex-shrink-0'>
                     {fileInfo.preview ? (
                       <img
                         src={fileInfo.preview}
                         alt={fileInfo.file.name}
-                        className="w-10 h-10 object-cover rounded"
+                        className='w-10 h-10 object-cover rounded'
                       />
                     ) : (
-                      <div className="w-10 h-10 bg-stone-200 rounded flex items-center justify-center">
+                      <div className='w-10 h-10 bg-stone-200 rounded flex items-center justify-center'>
                         {getFileIcon(fileInfo.file)}
                       </div>
                     )}
                   </div>
 
                   {/* File Info */}
-                  <div className="flex-1 min-w-0">
+                  <div className='flex-1 min-w-0'>
                     <Typography
-                      variant="body2"
+                      variant='body2'
                       className={`font-medium truncate ${
                         fileInfo.error ? 'text-red-700' : 'text-stone-900'
                       }`}
                     >
                       {fileInfo.file.name}
                     </Typography>
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className={fileInfo.error ? 'text-red-600' : 'text-stone-500'}>
+                    <div className='flex items-center gap-2 text-xs'>
+                      <span
+                        className={
+                          fileInfo.error ? 'text-red-600' : 'text-stone-500'
+                        }
+                      >
                         {formatFileSize(fileInfo.file.size)}
                       </span>
                       {fileInfo.uploaded && !fileInfo.error && (
-                        <div className="flex items-center gap-1 text-green-600">
-                          <CheckCircle className="w-3 h-3" />
+                        <div className='flex items-center gap-1 text-green-600'>
+                          <CheckCircle className='w-3 h-3' />
                           <span>Uploaded</span>
                         </div>
                       )}
                       {fileInfo.error && (
-                        <div className="flex items-center gap-1 text-red-600">
-                          <AlertCircle className="w-3 h-3" />
+                        <div className='flex items-center gap-1 text-red-600'>
+                          <AlertCircle className='w-3 h-3' />
                           <span>{fileInfo.error}</span>
                         </div>
                       )}
@@ -347,16 +385,16 @@ export const FileUpload: FC<FileUploadProps> = ({
 
                   {/* Remove Button */}
                   <Button
-                    variant="ghost"
-                    size="sm"
+                    variant='ghost'
+                    size='sm'
                     onClick={(e) => {
                       e.stopPropagation();
                       removeFile(fileInfo.id);
                     }}
-                    className="h-8 w-8 p-0 flex-shrink-0"
+                    className='h-8 w-8 p-0 flex-shrink-0'
                     aria-label={`Remove ${fileInfo.file.name}`}
                   >
-                    <X className="w-4 h-4" />
+                    <X className='w-4 h-4' />
                   </Button>
                 </motion.div>
               ))}

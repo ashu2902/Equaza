@@ -22,20 +22,20 @@ export function OurStorySimple({
   ctaHref = '/our-story',
 }: OurStorySimpleProps) {
   return (
-    <section className="py-16" style={{ backgroundColor: '#f1eee9' }}>
-      <Container size="xl">
+    <section className='py-16' style={{ backgroundColor: '#f1eee9' }}>
+      <Container size='xl'>
         <FadeIn>
-          <div className="text-center max-w-3xl mx-auto space-y-6">
+          <div className='text-center max-w-3xl mx-auto space-y-6'>
             <Typography
-              variant="h2"
-              className="text-3xl md:text-4xl font-normal font-libre-baskerville"
+              variant='h2'
+              className='text-3xl md:text-4xl font-normal font-libre-baskerville'
               style={{ color: '#98342d' }}
             >
               {title}
             </Typography>
             <Typography
-              variant="subtitle1"
-              className="text-lg md:text-xl font-poppins"
+              variant='subtitle1'
+              className='text-lg md:text-xl font-poppins'
               style={{ color: '#4b5563' }}
             >
               {body}
@@ -44,7 +44,7 @@ export function OurStorySimple({
               <div>
                 <Link
                   href={ctaHref}
-                  className="inline-block rounded-full bg-[#98342d] text-white px-5 py-2 text-sm hover:brightness-95"
+                  className='inline-block rounded-full bg-[#98342d] text-white px-5 py-2 text-sm hover:brightness-95'
                 >
                   Read Our Full Story
                 </Link>
@@ -58,5 +58,3 @@ export function OurStorySimple({
 }
 
 export default OurStorySimple;
-
-

@@ -22,11 +22,11 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     const textareaId = id || `textarea-${generatedId}`;
 
     return (
-      <div className="w-full">
+      <div className='w-full'>
         {label && (
           <label
             htmlFor={textareaId}
-            className="mb-2 block text-sm font-semibold text-neutral-700"
+            className='mb-2 block text-sm font-semibold text-neutral-700'
           >
             {label}
           </label>
@@ -60,4 +60,4 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
 
 Textarea.displayName = 'Textarea';
 
-export { Textarea }; 
+export { Textarea };

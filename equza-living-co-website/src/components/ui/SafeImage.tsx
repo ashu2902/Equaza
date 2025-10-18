@@ -46,7 +46,9 @@ export function SafeImage({
     if (imgSrc !== fallbackSrc && !hasError) {
       setImgSrc(fallbackSrc);
       setHasError(true);
-      console.warn(`Image failed to load: ${src}, using fallback: ${fallbackSrc}`);
+      console.warn(
+        `Image failed to load: ${src}, using fallback: ${fallbackSrc}`
+      );
     }
     onError?.();
   }, [imgSrc, fallbackSrc, hasError, src, onError]);
@@ -64,23 +66,12 @@ export function SafeImage({
     quality,
     priority,
     sizes,
-    ...props
+    ...props,
   };
 
   if (fill) {
-    return (
-      <Image
-        {...imageProps}
-        fill
-      />
-    );
+    return <Image {...imageProps} fill />;
   }
 
-  return (
-    <Image
-      {...imageProps}
-      width={width}
-      height={height}
-    />
-  );
+  return <Image {...imageProps} width={width} height={height} />;
 }

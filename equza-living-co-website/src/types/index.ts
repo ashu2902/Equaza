@@ -104,7 +104,12 @@ export interface LeadNote {
 }
 
 export type LeadType = 'contact' | 'trade' | 'customize' | 'product-enquiry';
-export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'converted' | 'closed';
+export type LeadStatus =
+  | 'new'
+  | 'contacted'
+  | 'qualified'
+  | 'converted'
+  | 'closed';
 
 export interface Lead {
   id: string;
@@ -274,4 +279,4 @@ export interface LeadFilters {
   dateTo?: Date;
   limit?: number;
   offset?: number;
-} 
+}

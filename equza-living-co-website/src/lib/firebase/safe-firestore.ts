@@ -1,28 +1,39 @@
 /**
  * Safe Firebase Firestore Access Layer
- * 
+ *
  * All functions return SafeResult<T> which guarantees:
  * - Valid data or explicit error state
  * - No null/undefined crashes in components
  * - Consistent error handling patterns
  */
 
-import { 
-  collection, 
-  getDocs, 
-  getDoc, 
-  doc, 
-  query, 
-  where, 
-  orderBy, 
+import {
+  collection,
+  getDocs,
+  getDoc,
+  doc,
+  query,
+  where,
+  orderBy,
   limit as firestoreLimit,
-  QueryConstraint
+  QueryConstraint,
 } from 'firebase/firestore';
 import { db } from './config';
 import { getAdminFirestore } from './server-app';
-import { transformProducts, transformCollections, transformProduct, transformCollection, transformWeaveTypes } from './transformers';
+import {
+  transformProducts,
+  transformCollections,
+  transformProduct,
+  transformCollection,
+  transformWeaveTypes,
+} from './transformers';
 import { DocumentSnapshot } from 'firebase/firestore';
-import { SafeProduct, SafeCollection, SafeWeaveType, SafeResult } from '@/types/safe';
+import {
+  SafeProduct,
+  SafeCollection,
+  SafeWeaveType,
+  SafeResult,
+} from '@/types/safe';
 
 /**
  * Convert Admin Firestore QueryDocumentSnapshot to DocumentSnapshot format
@@ -34,8 +45,11 @@ function convertAdminDocToClientDoc(adminDoc: any): DocumentSnapshot {
     exists: () => adminDoc.exists,
     data: () => adminDoc.data(),
     ref: adminDoc.ref,
-    metadata: adminDoc.metadata || { fromCache: false, hasPendingWrites: false },
-    toJSON: () => adminDoc.toJSON ? adminDoc.toJSON() : {}
+    metadata: adminDoc.metadata || {
+      fromCache: false,
+      hasPendingWrites: false,
+    },
+    toJSON: () => (adminDoc.toJSON ? adminDoc.toJSON() : {}),
   } as DocumentSnapshot;
 }
 
@@ -67,11 +81,11 @@ function handleFirebaseError(error: any, operation: string): string {
   if (error.code === 'unavailable') {
     return 'Service temporarily unavailable. Please try again.';
   }
-  
+
   if (error.code === 'deadline-exceeded') {
     return 'Request timed out. Please try again.';
   }
-  
+
   return `Failed to ${operation}. Please try again.`;
 }
 
@@ -88,137 +102,166 @@ export interface ProductFilters {
   limit?: number;
 }
 
-export async function getSafeProducts(filters: ProductFilters = {}): Promise<SafeResult<SafeProduct[]>> {
+export async function getSafeProducts(
+  filters: ProductFilters = {}
+): Promise<SafeResult<SafeProduct[]>> {
   try {
     const constraints: QueryConstraint[] = [];
-    
+
     // Always filter for active products unless explicitly specified
     if (filters.isActive !== false) {
       constraints.push(where('isActive', '==', true));
     }
-    
+
     if (filters.collectionId) {
-      constraints.push(where('collections', 'array-contains', filters.collectionId));
+      constraints.push(
+        where('collections', 'array-contains', filters.collectionId)
+      );
     }
-    
+
     if (filters.weaveType) {
-      constraints.push(where('specifications.weaveType', '==', filters.weaveType));
+      constraints.push(
+        where('specifications.weaveType', '==', filters.weaveType)
+      );
     }
-    
+
     // roomTypes removed
-    
+
     if (filters.isFeatured !== undefined) {
       constraints.push(where('isFeatured', '==', filters.isFeatured));
     }
-    
+
     // Simplified ordering (indexes still building)
     constraints.push(orderBy('sortOrder', 'asc'));
-    
+
     if (filters.limit && filters.limit > 0) {
       constraints.push(firestoreLimit(filters.limit));
     }
-    
+
     const q = query(collection(db, 'products'), ...constraints);
     const snapshot = await getDocs(q);
-    
+
     const products = transformProducts(snapshot.docs);
-    
+
     return { data: products, error: null, loading: false };
   } catch (error) {
-    return { 
-      data: null, 
-      error: handleFirebaseError(error, 'fetch products'), 
-      loading: false 
+    return {
+      data: null,
+      error: handleFirebaseError(error, 'fetch products'),
+      loading: false,
     };
   }
 }
 
-export async function getSafeProduct(slug: string): Promise<SafeResult<SafeProduct>> {
+export async function getSafeProduct(
+  slug: string
+): Promise<SafeResult<SafeProduct>> {
   try {
     if (!slug || typeof slug !== 'string' || slug.trim().length === 0) {
-      return { data: null, error: 'Invalid product identifier', loading: false };
+      return {
+        data: null,
+        error: 'Invalid product identifier',
+        loading: false,
+      };
     }
-    
+
     const q = query(
       collection(db, 'products'),
       where('slug', '==', slug.trim()),
       where('isActive', '==', true)
     );
-    
+
     const snapshot = await getDocs(q);
-    
+
     if (snapshot.empty) {
       return { data: null, error: 'Product not found', loading: false };
     }
-    
+
     const firstDoc = snapshot.docs[0];
     if (!firstDoc) {
       return { data: null, error: 'Product not found', loading: false };
     }
-    
+
     const product = transformProduct(firstDoc);
     if (!product) {
-      return { data: null, error: 'Failed to transform product data', loading: false };
+      return {
+        data: null,
+        error: 'Failed to transform product data',
+        loading: false,
+      };
     }
-    
+
     return { data: product, error: null, loading: false };
   } catch (error) {
-    return { 
-      data: null, 
-      error: handleFirebaseError(error, 'fetch product'), 
-      loading: false 
+    return {
+      data: null,
+      error: handleFirebaseError(error, 'fetch product'),
+      loading: false,
     };
   }
 }
 
-export async function getSafeFeaturedProducts(limit: number = 6): Promise<SafeResult<SafeProduct[]>> {
+export async function getSafeFeaturedProducts(
+  limit: number = 6
+): Promise<SafeResult<SafeProduct[]>> {
   return getSafeProducts({ isFeatured: true, limit });
 }
 
-export async function getSafeProductsByCollection(collectionSlug: string, limit?: number): Promise<SafeResult<SafeProduct[]>> {
+export async function getSafeProductsByCollection(
+  collectionSlug: string,
+  limit?: number
+): Promise<SafeResult<SafeProduct[]>> {
   try {
     // First get the collection to find its ID
     const collectionResult = await getSafeCollection(collectionSlug);
-    
+
     if (!collectionResult.data) {
       return { data: null, error: 'Collection not found', loading: false };
     }
-    
+
     return getSafeProducts({ collectionId: collectionResult.data.id, limit });
   } catch (error) {
-    return { 
-      data: null, 
-      error: handleFirebaseError(error, 'fetch products by collection'), 
-      loading: false 
+    return {
+      data: null,
+      error: handleFirebaseError(error, 'fetch products by collection'),
+      loading: false,
     };
   }
 }
 
-export async function getSafeProductsByRoom(roomType: string, limit?: number): Promise<SafeResult<SafeProduct[]>> {
+export async function getSafeProductsByRoom(
+  roomType: string,
+  limit?: number
+): Promise<SafeResult<SafeProduct[]>> {
   return getSafeProducts({ roomType, limit });
 }
 
-export async function getSafeProductsByWeaveType(weaveType: string, limit?: number): Promise<SafeResult<SafeProduct[]>> {
+export async function getSafeProductsByWeaveType(
+  weaveType: string,
+  limit?: number
+): Promise<SafeResult<SafeProduct[]>> {
   return getSafeProducts({ weaveType, limit });
 }
 
-export async function getSafeWeaveTypes(): Promise<SafeResult<SafeWeaveType[]>> {
+export async function getSafeWeaveTypes(): Promise<
+  SafeResult<SafeWeaveType[]>
+> {
   try {
     const q = query(
       collection(db, 'weaveTypes'),
       where('isActive', '==', true),
       orderBy('sortOrder', 'asc')
     );
-    
+
     const snapshot = await getDocs(q);
     const weaveTypes = transformWeaveTypes(snapshot.docs);
-    
+
     return { data: weaveTypes, error: null, loading: false };
   } catch (error) {
-    return { 
-      data: null, 
-      error: handleFirebaseError(error, 'fetch weave types'), 
-      loading: false 
+    return {
+      data: null,
+      error: handleFirebaseError(error, 'fetch weave types'),
+      loading: false,
     };
   }
 }
@@ -229,36 +272,40 @@ export interface WeaveTypeWithImage {
   productCount: number;
 }
 
-export async function getSafeAvailableWeaveTypes(): Promise<SafeResult<string[]>> {
+export async function getSafeAvailableWeaveTypes(): Promise<
+  SafeResult<string[]>
+> {
   try {
-    const q = query(
-      collection(db, 'products'),
-      where('isActive', '==', true)
-    );
-    
+    const q = query(collection(db, 'products'), where('isActive', '==', true));
+
     const snapshot = await getDocs(q);
     const weaveTypes = new Set<string>();
-    
-    snapshot.docs.forEach(doc => {
+
+    snapshot.docs.forEach((doc) => {
       const data = doc.data();
-      if (data.specifications?.weaveType && typeof data.specifications.weaveType === 'string') {
+      if (
+        data.specifications?.weaveType &&
+        typeof data.specifications.weaveType === 'string'
+      ) {
         weaveTypes.add(data.specifications.weaveType);
       }
     });
 
     const sortedWeaveTypes = Array.from(weaveTypes).sort();
-    
+
     return { data: sortedWeaveTypes, error: null, loading: false };
   } catch (error) {
-    return { 
-      data: null, 
-      error: handleFirebaseError(error, 'fetch available weave types'), 
-      loading: false 
+    return {
+      data: null,
+      error: handleFirebaseError(error, 'fetch available weave types'),
+      loading: false,
     };
   }
 }
 
-export async function getSafeWeaveTypesWithImages(): Promise<SafeResult<WeaveTypeWithImage[]>> {
+export async function getSafeWeaveTypesWithImages(): Promise<
+  SafeResult<WeaveTypeWithImage[]>
+> {
   try {
     const weaveTypesResult = await getSafeWeaveTypes();
 
@@ -266,18 +313,19 @@ export async function getSafeWeaveTypesWithImages(): Promise<SafeResult<WeaveTyp
       return { data: null, error: weaveTypesResult.error, loading: false };
     }
 
-    const weaveTypesWithImages: WeaveTypeWithImage[] = weaveTypesResult.data?.map(wt => ({
-      weaveType: wt.name,
-      image: { src: wt.image.url, alt: wt.image.alt },
-      productCount: 0, // Product count is no longer calculated here
-    })) || [];
-    
+    const weaveTypesWithImages: WeaveTypeWithImage[] =
+      weaveTypesResult.data?.map((wt) => ({
+        weaveType: wt.name,
+        image: { src: wt.image.url, alt: wt.image.alt },
+        productCount: 0, // Product count is no longer calculated here
+      })) || [];
+
     return { data: weaveTypesWithImages, error: null, loading: false };
   } catch (error) {
-    return { 
-      data: null, 
-      error: handleFirebaseError(error, 'fetch weave types with images'), 
-      loading: false 
+    return {
+      data: null,
+      error: handleFirebaseError(error, 'fetch weave types with images'),
+      loading: false,
     };
   }
 }
@@ -292,85 +340,97 @@ export interface CollectionFilters {
   limit?: number;
 }
 
-export async function getSafeCollections(filters: CollectionFilters = {}): Promise<SafeResult<SafeCollection[]>> {
+export async function getSafeCollections(
+  filters: CollectionFilters = {}
+): Promise<SafeResult<SafeCollection[]>> {
   try {
     const constraints: QueryConstraint[] = [];
-    
+
     // Always filter for active collections unless explicitly specified
     if (filters.isActive !== false) {
       constraints.push(where('isActive', '==', true));
     }
-    
+
     if (filters.type) {
       constraints.push(where('type', '==', filters.type));
     }
-    
+
     // Simplified ordering (indexes still building)
     constraints.push(orderBy('sortOrder', 'asc'));
-    
+
     if (filters.limit && filters.limit > 0) {
       constraints.push(firestoreLimit(filters.limit));
     }
-    
+
     const q = query(collection(db, 'collections'), ...constraints);
     const snapshot = await getDocs(q);
-    
+
     const collections = transformCollections(snapshot.docs);
-    
+
     return { data: collections, error: null, loading: false };
   } catch (error) {
-    return { 
-      data: null, 
-      error: handleFirebaseError(error, 'fetch collections'), 
-      loading: false 
+    return {
+      data: null,
+      error: handleFirebaseError(error, 'fetch collections'),
+      loading: false,
     };
   }
 }
 
-export async function getSafeCollection(slug: string): Promise<SafeResult<SafeCollection>> {
+export async function getSafeCollection(
+  slug: string
+): Promise<SafeResult<SafeCollection>> {
   try {
     if (!slug || typeof slug !== 'string' || slug.trim().length === 0) {
-      return { data: null, error: 'Invalid collection identifier', loading: false };
+      return {
+        data: null,
+        error: 'Invalid collection identifier',
+        loading: false,
+      };
     }
-    
+
     const q = query(
       collection(db, 'collections'),
       where('slug', '==', slug.trim()),
       where('isActive', '==', true)
     );
-    
+
     const snapshot = await getDocs(q);
-    
+
     if (snapshot.empty) {
       return { data: null, error: 'Collection not found', loading: false };
     }
-    
+
     const firstDoc = snapshot.docs[0];
     if (!firstDoc) {
       return { data: null, error: 'Collection not found', loading: false };
     }
-    
+
     const coll = transformCollection(firstDoc);
-    
+
     if (!coll) {
       return { data: null, error: 'Invalid collection data', loading: false };
     }
-    
+
     return { data: coll, error: null, loading: false };
   } catch (error) {
-    return { 
-      data: null, 
-      error: handleFirebaseError(error, 'fetch collection'), 
-      loading: false 
+    return {
+      data: null,
+      error: handleFirebaseError(error, 'fetch collection'),
+      loading: false,
     };
   }
 }
 
-export async function getSafeStyleCollections(limit?: number): Promise<SafeResult<SafeCollection[]>> {
+export async function getSafeStyleCollections(
+  limit?: number
+): Promise<SafeResult<SafeCollection[]>> {
   return getSafeCollections({ type: 'style', limit });
 }
 
-export async function getSafeSpaceCollections(limit?: number): Promise<SafeResult<SafeCollection[]>> {
+export async function getSafeSpaceCollections(
+  limit?: number
+): Promise<SafeResult<SafeCollection[]>> {
   return getSafeCollections({ type: 'space', limit });
 }
 
@@ -392,45 +452,45 @@ export async function getSafeHomepageData(): Promise<SafeResult<HomepageData>> {
       collectionsResult,
       featuredProductsResult,
       styleCollectionsResult,
-      spaceCollectionsResult
+      spaceCollectionsResult,
     ] = await Promise.all([
       getSafeCollections({ limit: 12 }),
       getSafeFeaturedProducts(6),
       getSafeStyleCollections(6),
-      getSafeSpaceCollections(3)
+      getSafeSpaceCollections(3),
     ]);
-    
+
     // Even if some requests fail, return partial data
     const homepageData: HomepageData = {
       collections: collectionsResult.data || [],
       featuredProducts: featuredProductsResult.data || [],
       styleCollections: styleCollectionsResult.data || [],
-      spaceCollections: spaceCollectionsResult.data || []
+      spaceCollections: spaceCollectionsResult.data || [],
     };
-    
+
     // Check if any critical data failed
     const hasErrors = [
       collectionsResult.error,
       featuredProductsResult.error,
       styleCollectionsResult.error,
-      spaceCollectionsResult.error
-    ].some(error => error !== null);
-    
+      spaceCollectionsResult.error,
+    ].some((error) => error !== null);
+
     if (hasErrors) {
       console.warn('Some homepage data failed to load:', {
         collections: collectionsResult.error,
         featuredProducts: featuredProductsResult.error,
         styleCollections: styleCollectionsResult.error,
-        spaceCollections: spaceCollectionsResult.error
+        spaceCollections: spaceCollectionsResult.error,
       });
     }
-    
+
     return { data: homepageData, error: null, loading: false };
   } catch (error) {
-    return { 
-      data: null, 
-      error: handleFirebaseError(error, 'fetch homepage data'), 
-      loading: false 
+    return {
+      data: null,
+      error: handleFirebaseError(error, 'fetch homepage data'),
+      loading: false,
     };
   }
 }
@@ -439,41 +499,45 @@ export async function getSafeHomepageData(): Promise<SafeResult<HomepageData>> {
  * Search Functions
  */
 
-export async function searchSafeProducts(searchTerm: string, limit: number = 20): Promise<SafeResult<SafeProduct[]>> {
+export async function searchSafeProducts(
+  searchTerm: string,
+  limit: number = 20
+): Promise<SafeResult<SafeProduct[]>> {
   try {
     if (!searchTerm || searchTerm.trim().length === 0) {
       return { data: [], error: null, loading: false };
     }
-    
+
     // Note: Firestore doesn't support full-text search natively
     // This is a simple implementation that could be enhanced with Algolia/ElasticSearch
     const term = searchTerm.toLowerCase().trim();
-    
+
     const q = query(
       collection(db, 'products'),
       where('isActive', '==', true),
       orderBy('name'),
       firestoreLimit(limit)
     );
-    
+
     const snapshot = await getDocs(q);
     const allProducts = transformProducts(snapshot.docs);
-    
+
     // Client-side filtering (could be moved to a search service)
-    const filteredProducts = allProducts.filter(product =>
-      product.name.toLowerCase().includes(term) ||
-      product.description.toLowerCase().includes(term) ||
-      product.specifications.materials.some(material => 
-        material.toLowerCase().includes(term)
-      )
+    const filteredProducts = allProducts.filter(
+      (product) =>
+        product.name.toLowerCase().includes(term) ||
+        product.description.toLowerCase().includes(term) ||
+        product.specifications.materials.some((material) =>
+          material.toLowerCase().includes(term)
+        )
     );
-    
+
     return { data: filteredProducts, error: null, loading: false };
   } catch (error) {
-    return { 
-      data: null, 
-      error: handleFirebaseError(error, 'search products'), 
-      loading: false 
+    return {
+      data: null,
+      error: handleFirebaseError(error, 'search products'),
+      loading: false,
     };
   }
 }
@@ -482,75 +546,90 @@ export async function searchSafeProducts(searchTerm: string, limit: number = 20)
  * Individual Product/Collection Access Functions
  */
 
-export async function getSafeProductBySlug(slug: string): Promise<SafeResult<SafeProduct>> {
+export async function getSafeProductBySlug(
+  slug: string
+): Promise<SafeResult<SafeProduct>> {
   try {
     const q = query(
       collection(db, 'products'),
       where('slug', '==', slug),
       where('isActive', '==', true)
     );
-    
+
     const snapshot = await getDocs(q);
-    
+
     if (snapshot.empty) {
       return { data: null, error: 'Product not found', loading: false };
     }
-    
+
     const firstDoc = snapshot.docs[0];
     if (!firstDoc) {
       return { data: null, error: 'Product not found', loading: false };
     }
-    
+
     const product = transformProduct(firstDoc);
     if (!product) {
-      return { data: null, error: 'Failed to transform product data', loading: false };
+      return {
+        data: null,
+        error: 'Failed to transform product data',
+        loading: false,
+      };
     }
-    
+
     return { data: product, error: null, loading: false };
   } catch (error) {
-    return { 
-      data: null, 
-      error: handleFirebaseError(error, 'fetch product'), 
-      loading: false 
+    return {
+      data: null,
+      error: handleFirebaseError(error, 'fetch product'),
+      loading: false,
     };
   }
 }
 
-export async function getSafeCollectionBySlug(slug: string): Promise<SafeResult<SafeCollection>> {
+export async function getSafeCollectionBySlug(
+  slug: string
+): Promise<SafeResult<SafeCollection>> {
   try {
     const q = query(
       collection(db, 'collections'),
       where('slug', '==', slug),
       where('isActive', '==', true)
     );
-    
+
     const snapshot = await getDocs(q);
-    
+
     if (snapshot.empty) {
       return { data: null, error: 'Collection not found', loading: false };
     }
-    
+
     const firstDoc = snapshot.docs[0];
     if (!firstDoc) {
       return { data: null, error: 'Collection not found', loading: false };
     }
-    
+
     const collection_data = transformCollection(firstDoc);
     if (!collection_data) {
-      return { data: null, error: 'Failed to transform collection data', loading: false };
+      return {
+        data: null,
+        error: 'Failed to transform collection data',
+        loading: false,
+      };
     }
-    
+
     return { data: collection_data, error: null, loading: false };
   } catch (error) {
-    return { 
-      data: null, 
-      error: handleFirebaseError(error, 'fetch collection'), 
-      loading: false 
+    return {
+      data: null,
+      error: handleFirebaseError(error, 'fetch collection'),
+      loading: false,
     };
   }
 }
 
-export async function getSafeRelatedProducts(productSlug: string, limitCount: number = 4): Promise<SafeResult<SafeProduct[]>> {
+export async function getSafeRelatedProducts(
+  productSlug: string,
+  limitCount: number = 4
+): Promise<SafeResult<SafeProduct[]>> {
   try {
     // Validate input
     if (!productSlug || typeof productSlug !== 'string') {
@@ -569,15 +648,24 @@ export async function getSafeRelatedProducts(productSlug: string, limitCount: nu
     const currentProduct = currentProductResult.data;
 
     // Check if product has collections
-    if (!currentProduct.collections || currentProduct.collections.length === 0) {
-      console.log(`Product ${productSlug} has no collections for related products`);
+    if (
+      !currentProduct.collections ||
+      currentProduct.collections.length === 0
+    ) {
+      console.log(
+        `Product ${productSlug} has no collections for related products`
+      );
       return { data: [], error: null, loading: false };
     }
 
     // Filter out empty or invalid collection IDs
-    const validCollections = currentProduct.collections.filter(id => id && typeof id === 'string' && id.trim().length > 0);
+    const validCollections = currentProduct.collections.filter(
+      (id) => id && typeof id === 'string' && id.trim().length > 0
+    );
     if (validCollections.length === 0) {
-      console.log(`Product ${productSlug} has no valid collections for related products`);
+      console.log(
+        `Product ${productSlug} has no valid collections for related products`
+      );
       return { data: [], error: null, loading: false };
     }
 
@@ -595,19 +683,26 @@ export async function getSafeRelatedProducts(productSlug: string, limitCount: nu
       let relatedProducts = transformProducts(snapshot.docs);
 
       // Filter out the current product
-      relatedProducts = relatedProducts.filter(product => product.slug !== productSlug);
+      relatedProducts = relatedProducts.filter(
+        (product) => product.slug !== productSlug
+      );
 
       // Limit to desired count
       relatedProducts = relatedProducts.slice(0, limitCount);
 
-      console.log(`Found ${relatedProducts.length} related products for ${productSlug}`);
+      console.log(
+        `Found ${relatedProducts.length} related products for ${productSlug}`
+      );
       return { data: relatedProducts, error: null, loading: false };
     } catch (queryError) {
-      console.error('Firebase query error in getSafeRelatedProducts:', queryError);
+      console.error(
+        'Firebase query error in getSafeRelatedProducts:',
+        queryError
+      );
       return {
         data: null,
         error: handleFirebaseError(queryError, 'fetch related products'),
-        loading: false
+        loading: false,
       };
     }
   } catch (error) {
@@ -615,7 +710,7 @@ export async function getSafeRelatedProducts(productSlug: string, limitCount: nu
     return {
       data: null,
       error: handleFirebaseError(error, 'fetch related products'),
-      loading: false
+      loading: false,
     };
   }
 }
@@ -638,7 +733,7 @@ export interface AdminStats {
 export async function getSafeAdminStats(): Promise<SafeResult<AdminStats>> {
   try {
     const adminDb = getAdminFirestore();
-    
+
     // Get products count
     const productsSnapshot = await adminDb.collection('products').get();
     const totalProducts = productsSnapshot.size;
@@ -648,7 +743,8 @@ export async function getSafeAdminStats(): Promise<SafeResult<AdminStats>> {
     const totalCollections = collectionsSnapshot.size;
 
     // Get pending leads count
-    const leadsSnapshot = await adminDb.collection('leads')
+    const leadsSnapshot = await adminDb
+      .collection('leads')
       .where('status', 'in', ['new', 'pending'])
       .get();
     const pendingLeads = leadsSnapshot.size;
@@ -664,16 +760,16 @@ export async function getSafeAdminStats(): Promise<SafeResult<AdminStats>> {
       totalCollections,
       pendingLeads,
       totalUsers,
-      recentActivity
+      recentActivity,
     };
 
     return { data: stats, error: null, loading: false };
   } catch (error) {
     console.error('Error in getSafeAdminStats:', error);
-    return { 
-      data: null, 
-      error: handleFirebaseError(error, 'fetch admin stats'), 
-      loading: false 
+    return {
+      data: null,
+      error: handleFirebaseError(error, 'fetch admin stats'),
+      loading: false,
     };
   }
 }
@@ -684,14 +780,15 @@ export async function getSafeAdminStats(): Promise<SafeResult<AdminStats>> {
 export async function getSafeLeads(): Promise<SafeResult<any[]>> {
   try {
     const adminDb = getAdminFirestore();
-    const snapshot = await adminDb.collection('leads')
+    const snapshot = await adminDb
+      .collection('leads')
       .orderBy('createdAt', 'desc')
       .limit(50)
       .get();
-    
-    const leads = snapshot.docs.map(doc => {
+
+    const leads = snapshot.docs.map((doc) => {
       const data = doc.data();
-      
+
       // Handle both old nested structure and new flat structure
       const normalizedLead = {
         id: doc.id,
@@ -701,43 +798,44 @@ export async function getSafeLeads(): Promise<SafeResult<any[]>> {
         phone: data.phone || data.notes?.phone || null,
         message: data.message || '',
         company: data.company || '',
-        
+
         // Lead classification - handle both structures
         type: data.type || data.notes?.type || 'contact',
         status: data.status || data.notes?.status || 'new',
         source: data.source || data.notes?.source || 'unknown',
-        
+
         // Product references
         productId: data.productId || '',
         productRef: data.productRef || '',
         collectionId: data.collectionId || '',
-        
+
         // Customization details
         customizationDetails: data.customizationDetails || undefined,
-        
+
         // Management fields
         assignedTo: data.assignedTo || '',
         priority: data.priority || false,
         notes: data.notes || [],
-        
+
         // Timestamps
         createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
         updatedAt: data.updatedAt?.toDate?.()?.toISOString() || null,
-        
+
         // Response tracking
         responseTime: data.responseTime || 'No response yet',
-        lastContactedAt: data.lastContactedAt?.toDate?.()?.toISOString() || null,
+        lastContactedAt:
+          data.lastContactedAt?.toDate?.()?.toISOString() || null,
       };
-      
+
       return normalizedLead;
     });
 
     return { data: leads, error: null, loading: false };
   } catch (error) {
-    return { 
-      data: null, 
-      error: handleFirebaseError(error, 'fetch leads'), 
-      loading: false 
+    return {
+      data: null,
+      error: handleFirebaseError(error, 'fetch leads'),
+      loading: false,
     };
   }
 }
@@ -745,30 +843,36 @@ export async function getSafeLeads(): Promise<SafeResult<any[]>> {
 /**
  * Get collections for admin management (both types)
  */
-export async function getSafeAdminCollections(type?: 'style' | 'space'): Promise<SafeResult<SafeCollection[]>> {
+export async function getSafeAdminCollections(
+  type?: 'style' | 'space'
+): Promise<SafeResult<SafeCollection[]>> {
   try {
     const adminDb = getAdminFirestore();
     let snapshot;
-    
+
     if (type) {
-      snapshot = await adminDb.collection('collections')
+      snapshot = await adminDb
+        .collection('collections')
         .where('type', '==', type)
         .orderBy('name', 'asc')
         .get();
     } else {
-      snapshot = await adminDb.collection('collections')
+      snapshot = await adminDb
+        .collection('collections')
         .orderBy('name', 'asc')
         .get();
     }
-    
-    const collections = transformCollections(convertAdminDocsToClientDocs(snapshot.docs));
+
+    const collections = transformCollections(
+      convertAdminDocsToClientDocs(snapshot.docs)
+    );
 
     return { data: collections, error: null, loading: false };
   } catch (error) {
-    return { 
-      data: null, 
-      error: handleFirebaseError(error, 'fetch collections'), 
-      loading: false 
+    return {
+      data: null,
+      error: handleFirebaseError(error, 'fetch collections'),
+      loading: false,
     };
   }
 }
@@ -776,22 +880,27 @@ export async function getSafeAdminCollections(type?: 'style' | 'space'): Promise
 /**
  * Get all products for admin management
  */
-export async function getSafeAdminProducts(): Promise<SafeResult<SafeProduct[]>> {
+export async function getSafeAdminProducts(): Promise<
+  SafeResult<SafeProduct[]>
+> {
   try {
     const adminDb = getAdminFirestore();
-    const snapshot = await adminDb.collection('products')
+    const snapshot = await adminDb
+      .collection('products')
       .orderBy('updatedAt', 'desc')
       .limit(100)
       .get();
-    
-    const products = transformProducts(convertAdminDocsToClientDocs(snapshot.docs));
+
+    const products = transformProducts(
+      convertAdminDocsToClientDocs(snapshot.docs)
+    );
 
     return { data: products, error: null, loading: false };
   } catch (error) {
-    return { 
-      data: null, 
-      error: handleFirebaseError(error, 'fetch products'), 
-      loading: false 
+    return {
+      data: null,
+      error: handleFirebaseError(error, 'fetch products'),
+      loading: false,
     };
   }
 }

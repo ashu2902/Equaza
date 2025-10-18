@@ -69,32 +69,37 @@ interface BreadcrumbSchema {
 interface StructuredDataProps {
   type: 'organization' | 'product' | 'website' | 'breadcrumb';
   data?: Product | Collection | any;
-  breadcrumbs?: Array<{ name: string; url: string; }>;
+  breadcrumbs?: Array<{ name: string; url: string }>;
 }
 
-export function StructuredData({ type, data, breadcrumbs }: StructuredDataProps) {
+export function StructuredData({
+  type,
+  data,
+  breadcrumbs,
+}: StructuredDataProps) {
   const generateOrganizationSchema = (): OrganizationSchema => ({
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'Equza Living Co.',
-    description: 'Premium handcrafted rugs for modern spaces. Heritage weaving traditions reimagined for contemporary living.',
+    description:
+      'Premium handcrafted rugs for modern spaces. Heritage weaving traditions reimagined for contemporary living.',
     url: 'https://equzalivingco.com',
     logo: 'https://equzalivingco.com/logo.png',
     contactPoint: {
       '@type': 'ContactPoint',
       telephone: '+1-555-123-4567',
       contactType: 'customer service',
-      email: 'info@equzalivingco.com'
+      email: 'info@equzalivingco.com',
     },
     address: {
       '@type': 'PostalAddress',
-      addressCountry: 'US'
+      addressCountry: 'US',
     },
     sameAs: [
       'https://instagram.com/equzalivingco',
       'https://pinterest.com/equzalivingco',
-      'https://facebook.com/equzalivingco'
-    ]
+      'https://facebook.com/equzalivingco',
+    ],
   });
 
   const generateProductSchema = (product: Product): ProductSchema => ({
@@ -102,21 +107,22 @@ export function StructuredData({ type, data, breadcrumbs }: StructuredDataProps)
     '@type': 'Product',
     name: product.name,
     description: product.description,
-    image: product.images.map(img => img.url),
+    image: product.images.map((img) => img.url),
     brand: {
       '@type': 'Brand',
-      name: 'Equza Living Co.'
+      name: 'Equza Living Co.',
     },
     category: product.collections.join(', '),
     material: product.specifications.materials.join(', '),
-    ...(product.price.isVisible && product.price.startingFrom && {
-      offers: {
-        '@type': 'Offer',
-        availability: 'https://schema.org/InStock',
-        priceCurrency: product.price.currency,
-        price: product.price.startingFrom
-      }
-    })
+    ...(product.price.isVisible &&
+      product.price.startingFrom && {
+        offers: {
+          '@type': 'Offer',
+          availability: 'https://schema.org/InStock',
+          priceCurrency: product.price.currency,
+          price: product.price.startingFrom,
+        },
+      }),
   });
 
   const generateWebsiteSchema = (): WebsiteSchema => ({
@@ -128,19 +134,21 @@ export function StructuredData({ type, data, breadcrumbs }: StructuredDataProps)
     potentialAction: {
       '@type': 'SearchAction',
       target: 'https://equzalivingco.com/search?q={search_term_string}',
-      'query-input': 'required name=search_term_string'
-    }
+      'query-input': 'required name=search_term_string',
+    },
   });
 
-  const generateBreadcrumbSchema = (items: Array<{ name: string; url: string; }>): BreadcrumbSchema => ({
+  const generateBreadcrumbSchema = (
+    items: Array<{ name: string; url: string }>
+  ): BreadcrumbSchema => ({
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: items.map((item, index) => ({
       '@type': 'ListItem',
       position: index + 1,
       name: item.name,
-      item: item.url
-    }))
+      item: item.url,
+    })),
   });
 
   let schema: any = null;
@@ -171,11 +179,11 @@ export function StructuredData({ type, data, breadcrumbs }: StructuredDataProps)
   return (
     <Head>
       <script
-        type="application/ld+json"
+        type='application/ld+json'
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(schema)
+          __html: JSON.stringify(schema),
         }}
       />
     </Head>
   );
-} 
+}

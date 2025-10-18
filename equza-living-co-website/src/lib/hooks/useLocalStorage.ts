@@ -34,11 +34,12 @@ export function useLocalStorage<T>(
     (value: SetValue<T>) => {
       try {
         // Allow value to be a function so we have the same API as useState
-        const valueToStore = value instanceof Function ? value(storedValue) : value;
-        
+        const valueToStore =
+          value instanceof Function ? value(storedValue) : value;
+
         // Save state
         setStoredValue(valueToStore);
-        
+
         // Save to localStorage
         if (typeof window !== 'undefined') {
           window.localStorage.setItem(key, JSON.stringify(valueToStore));
@@ -54,7 +55,7 @@ export function useLocalStorage<T>(
   const removeValue = useCallback(() => {
     try {
       setStoredValue(initialValue);
-      
+
       if (typeof window !== 'undefined') {
         window.localStorage.removeItem(key);
       }
@@ -74,17 +75,20 @@ export function useLocalStorage<T>(
         try {
           setStoredValue(JSON.parse(e.newValue));
         } catch (error) {
-          console.error(`Error parsing localStorage change for key "${key}":`, error);
+          console.error(
+            `Error parsing localStorage change for key "${key}":`,
+            error
+          );
         }
       }
     };
 
     window.addEventListener('storage', handleStorageChange);
-    
+
     return () => {
       window.removeEventListener('storage', handleStorageChange);
     };
   }, [key]);
 
   return [storedValue, setValue, removeValue];
-} 
+}

@@ -6,27 +6,24 @@ interface PublicPageTemplateProps {
   containerClassName?: string;
 }
 
-export function PublicPageTemplate({ 
-  children, 
+export function PublicPageTemplate({
+  children,
   className = '',
-  containerClassName = ''
+  containerClassName = '',
 }: PublicPageTemplateProps) {
   return (
     <div className={`min-h-screen bg-background ${className}`}>
       {/* Utility Banner */}
       <UtilityBanner />
-      
+
       {/* Header */}
       <Header />
-      
-      
+
       {/* Main Content */}
-      <main className={`flex-1 ${containerClassName}`}>
-        {children}
-      </main>
-      
+      <main className={`flex-1 ${containerClassName}`}>{children}</main>
+
       {/* Footer */}
       <MinimalFooter />
     </div>
   );
-} 
+}

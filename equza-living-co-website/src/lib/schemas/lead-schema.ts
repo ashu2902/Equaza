@@ -1,6 +1,6 @@
 /**
  * Unified Lead Schema and Validation
- * 
+ *
  * This file defines the canonical lead data structure and validation
  * to ensure consistency across all lead creation and management functions.
  */
@@ -9,11 +9,22 @@ import { z } from 'zod';
 import { Timestamp } from 'firebase/firestore';
 
 // Lead Types
-export const LeadTypeSchema = z.enum(['contact', 'customize', 'product-enquiry', 'trade']);
+export const LeadTypeSchema = z.enum([
+  'contact',
+  'customize',
+  'product-enquiry',
+  'trade',
+]);
 export type LeadType = z.infer<typeof LeadTypeSchema>;
 
 // Lead Status
-export const LeadStatusSchema = z.enum(['new', 'contacted', 'qualified', 'converted', 'closed']);
+export const LeadStatusSchema = z.enum([
+  'new',
+  'contacted',
+  'qualified',
+  'converted',
+  'closed',
+]);
 export type LeadStatus = z.infer<typeof LeadStatusSchema>;
 
 // Lead Note Schema
@@ -29,11 +40,15 @@ export const LeadNoteSchema = z.object({
 export const CustomizationDetailsSchema = z.object({
   preferredSize: z.string().optional(),
   preferredMaterials: z.array(z.string()).default([]),
-  moodboardFiles: z.array(z.object({
-    filename: z.string(),
-    url: z.string(),
-    storageRef: z.string(),
-  })).default([]),
+  moodboardFiles: z
+    .array(
+      z.object({
+        filename: z.string(),
+        url: z.string(),
+        storageRef: z.string(),
+      })
+    )
+    .default([]),
   budget: z.string().optional(),
   timeline: z.string().optional(),
   specialRequirements: z.string().optional(),
@@ -43,38 +58,38 @@ export const CustomizationDetailsSchema = z.object({
 export const BaseLeadSchema = z.object({
   // Core identification
   id: z.string().optional(), // Will be set by Firestore
-  
+
   // Lead classification
   type: LeadTypeSchema,
   status: LeadStatusSchema.default('new'),
   source: z.string().min(1).max(100),
-  
+
   // Contact information
   name: z.string().min(1).max(100),
   email: z.string().email().max(255),
   phone: z.string().max(20).optional().nullable(),
   company: z.string().max(100).optional(),
-  
+
   // Lead content
   message: z.string().max(2000).optional(),
-  
+
   // Product/Collection reference
   productId: z.string().optional(),
   productRef: z.string().optional(),
   collectionId: z.string().optional(),
-  
+
   // Customization details (for customize leads)
   customizationDetails: CustomizationDetailsSchema.optional(),
-  
+
   // Lead management
   assignedTo: z.string().optional(),
   priority: z.boolean().default(false),
   notes: z.array(LeadNoteSchema).default([]),
-  
+
   // Metadata
   createdAt: z.instanceof(Timestamp),
   updatedAt: z.instanceof(Timestamp),
-  
+
   // Response tracking
   responseTime: z.string().optional(),
   lastContactedAt: z.instanceof(Timestamp).optional(),
@@ -133,7 +148,9 @@ export type LeadStats = z.infer<typeof LeadStatsSchema>;
 /**
  * Create a new lead with proper validation and defaults
  */
-export function createLeadData(input: Partial<LeadCreationInput>): LeadCreationInput {
+export function createLeadData(
+  input: Partial<LeadCreationInput>
+): LeadCreationInput {
   const validatedInput = LeadCreationInputSchema.parse({
     type: 'contact',
     status: 'new',
@@ -183,7 +200,7 @@ export function validateLeadFilters(data: unknown): LeadFilters {
  */
 export function sanitizeInput(input: string): string {
   if (typeof input !== 'string') return '';
-  
+
   return input
     .trim()
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
@@ -196,9 +213,9 @@ export function sanitizeInput(input: string): string {
  */
 export function convertFirestoreDocToLead(doc: any): Lead | null {
   if (!doc.exists()) return null;
-  
+
   const data = doc.data();
-  
+
   // Handle both old nested structure and new flat structure
   const leadData = {
     id: doc.id,
@@ -234,7 +251,10 @@ export function convertFirestoreDocToLead(doc: any): Lead | null {
 /**
  * Get default lead creation data
  */
-export function getDefaultLeadData(type: LeadType, source: string): LeadCreationInput {
+export function getDefaultLeadData(
+  type: LeadType,
+  source: string
+): LeadCreationInput {
   return {
     type,
     status: 'new',

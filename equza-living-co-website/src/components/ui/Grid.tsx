@@ -37,12 +37,7 @@ const Grid = React.forwardRef<HTMLDivElement, GridProps>(
     return (
       <div
         ref={ref}
-        className={cn(
-          'grid',
-          colsClasses[cols],
-          gapClasses[gap],
-          className
-        )}
+        className={cn('grid', colsClasses[cols], gapClasses[gap], className)}
         {...props}
       >
         {children}
@@ -54,4 +49,4 @@ const Grid = React.forwardRef<HTMLDivElement, GridProps>(
 Grid.displayName = 'Grid';
 
 export { Grid };
-export type { GridProps }; 
+export type { GridProps };

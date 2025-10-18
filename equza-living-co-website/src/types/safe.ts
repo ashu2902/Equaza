@@ -1,6 +1,6 @@
 /**
  * Safe Type Definitions - Bulletproof Data Contracts
- * 
+ *
  * These types guarantee that components receive valid, non-null data.
  * All nullable/undefined fields are transformed at the data layer.
  */
@@ -84,7 +84,7 @@ export const FALLBACK_PRODUCT_IMAGE: SafeImage = {
   alt: 'Handcrafted rug placeholder',
   storageRef: '',
   isMain: true,
-  sortOrder: 0
+  sortOrder: 0,
 };
 
 export const FALLBACK_COLLECTION_IMAGE: SafeImage = {
@@ -92,7 +92,7 @@ export const FALLBACK_COLLECTION_IMAGE: SafeImage = {
   alt: 'Collection hero image',
   storageRef: '',
   isMain: true,
-  sortOrder: 0
+  sortOrder: 0,
 };
 
 // Data result types for error handling
@@ -117,7 +117,9 @@ export interface LoadingResult {
 export type SafeResult<T> = DataResult<T> | ErrorResult | LoadingResult;
 
 // Helper type guards
-export function isDataResult<T>(result: SafeResult<T>): result is DataResult<T> {
+export function isDataResult<T>(
+  result: SafeResult<T>
+): result is DataResult<T> {
   return result.data !== null && result.error === null && !result.loading;
 }
 
@@ -125,6 +127,8 @@ export function isErrorResult<T>(result: SafeResult<T>): result is ErrorResult {
   return result.data === null && result.error !== null && !result.loading;
 }
 
-export function isLoadingResult<T>(result: SafeResult<T>): result is LoadingResult {
+export function isLoadingResult<T>(
+  result: SafeResult<T>
+): result is LoadingResult {
   return result.data === null && result.error === null && result.loading;
 }

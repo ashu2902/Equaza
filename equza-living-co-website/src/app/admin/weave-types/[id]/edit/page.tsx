@@ -16,9 +16,11 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const weaveType = await getWeaveTypeById(id);
-  
+
   return {
-    title: weaveType ? `Edit ${weaveType.name} | Admin` : 'Edit Weave Type | Admin',
+    title: weaveType
+      ? `Edit ${weaveType.name} | Admin`
+      : 'Edit Weave Type | Admin',
   };
 }
 
@@ -32,11 +34,11 @@ export default async function AdminEditWeaveTypePage({ params }: Props) {
 
   return (
     <AdminPageTemplate title={`Edit Weave Type: ${weaveType.name}`}>
-      <div className="max-w-3xl mx-auto">
-        <Typography variant="h3" className="mb-6">
+      <div className='max-w-3xl mx-auto'>
+        <Typography variant='h3' className='mb-6'>
           Weave Type Details
         </Typography>
-        <WeaveTypeForm mode="edit" initial={weaveType} />
+        <WeaveTypeForm mode='edit' initial={weaveType} />
       </div>
     </AdminPageTemplate>
   );

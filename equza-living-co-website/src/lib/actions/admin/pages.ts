@@ -9,11 +9,11 @@ import { redirect } from 'next/navigation';
 import type { Page, PageType, SiteSettings, Lookbook } from '@/types';
 import { setHomePageData, setContentPageData } from '@/lib/firebase/pages';
 import type { HomePageData } from '@/lib/firebase/pages';
-import { 
+import {
   updateSiteSettings,
   updateCurrentLookbook,
   deactivateLookbook,
-  getSiteSettings 
+  getSiteSettings,
 } from '@/lib/firebase/settings';
 import { getAdminAuth } from '@/lib/firebase/server-app';
 import { cookies } from 'next/headers';
@@ -34,7 +34,10 @@ export interface AdminSettingsResult {
 /**
  * Verify admin authentication
  */
-async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string }> {
+async function verifyAdminAuth(): Promise<{
+  isAdmin: boolean;
+  userId?: string;
+}> {
   try {
     console.log('🔍 Verifying admin authentication...');
     // Prefer server session cookie if present
@@ -44,11 +47,14 @@ async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string }>
       const cookieStore = await cookies();
       const session = cookieStore.get('__session')?.value;
       console.log('🍪 Session cookie present:', !!session);
-      
+
       if (session) {
         const adminAuth = getAdminAuth();
         const decoded = await adminAuth.verifySessionCookie(session, true);
-        console.log('🔐 Session decoded:', { admin: !!decoded?.admin, uid: decoded?.uid });
+        console.log('🔐 Session decoded:', {
+          admin: !!decoded?.admin,
+          uid: decoded?.uid,
+        });
         isAdmin = !!decoded?.admin;
         userId = decoded?.uid;
       }
@@ -67,7 +73,7 @@ async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string }>
       isAdmin = true; // Bypass for now since client-side auth is working
       userId = userId || 'admin-user';
     }
-    
+
     console.log('✅ Final auth result:', { isAdmin, userId });
     return {
       isAdmin,
@@ -94,14 +100,22 @@ function validatePageData(data: Partial<Page>): Record<string, string> {
   if (!data.slug || data.slug.trim().length < 1) {
     errors.slug = 'Page slug is required';
   } else if (!/^[a-z0-9-]+$/.test(data.slug)) {
-    errors.slug = 'Slug can only contain lowercase letters, numbers, and hyphens';
+    errors.slug =
+      'Slug can only contain lowercase letters, numbers, and hyphens';
   }
 
-  if (!data.type || !['our-story', 'craftsmanship', 'trade'].includes(data.type)) {
+  if (
+    !data.type ||
+    !['our-story', 'craftsmanship', 'trade'].includes(data.type)
+  ) {
     errors.type = 'Invalid page type';
   }
 
-  if (!data.content || !data.content.sections || data.content.sections.length === 0) {
+  if (
+    !data.content ||
+    !data.content.sections ||
+    data.content.sections.length === 0
+  ) {
     errors.content = 'Page content is required';
   }
 
@@ -119,30 +133,52 @@ function validatePageData(data: Partial<Page>): Record<string, string> {
 /**
  * Validate site settings data
  */
-function validateSettingsData(data: Partial<SiteSettings>): Record<string, string> {
+function validateSettingsData(
+  data: Partial<SiteSettings>
+): Record<string, string> {
   const errors: Record<string, string> = {};
 
-  if (data.siteName !== undefined && (!data.siteName || data.siteName.trim().length < 1)) {
+  if (
+    data.siteName !== undefined &&
+    (!data.siteName || data.siteName.trim().length < 1)
+  ) {
     errors.siteName = 'Site name is required';
   }
 
-  if (data.contactEmail !== undefined && (!data.contactEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.contactEmail))) {
+  if (
+    data.contactEmail !== undefined &&
+    (!data.contactEmail ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.contactEmail))
+  ) {
     errors.contactEmail = 'Valid contact email is required';
   }
 
-  if (data.calendlyUrl !== undefined && data.calendlyUrl && !data.calendlyUrl.startsWith('https://calendly.com/')) {
+  if (
+    data.calendlyUrl !== undefined &&
+    data.calendlyUrl &&
+    !data.calendlyUrl.startsWith('https://calendly.com/')
+  ) {
     errors.calendlyUrl = 'Calendly URL must start with https://calendly.com/';
   }
 
-  if (data.socialLinks?.instagram && !data.socialLinks.instagram.includes('instagram.com')) {
+  if (
+    data.socialLinks?.instagram &&
+    !data.socialLinks.instagram.includes('instagram.com')
+  ) {
     errors.instagramUrl = 'Invalid Instagram URL';
   }
 
-  if (data.socialLinks?.pinterest && !data.socialLinks.pinterest.includes('pinterest.com')) {
+  if (
+    data.socialLinks?.pinterest &&
+    !data.socialLinks.pinterest.includes('pinterest.com')
+  ) {
     errors.pinterestUrl = 'Invalid Pinterest URL';
   }
 
-  if (data.socialLinks?.facebook && !data.socialLinks.facebook.includes('facebook.com')) {
+  if (
+    data.socialLinks?.facebook &&
+    !data.socialLinks.facebook.includes('facebook.com')
+  ) {
     errors.facebookUrl = 'Invalid Facebook URL';
   }
 
@@ -180,19 +216,20 @@ export async function updatePageContent(
       await setContentPageData(pageType, pageData as any);
     }
 
-
     return {
       success: true,
       message: 'Page content updated successfully',
       pageId: pageType,
     };
-
   } catch (error) {
     console.error('Error updating page content:', error);
-    
+
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to update page content',
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Failed to update page content',
     };
   }
 }
@@ -218,12 +255,19 @@ export async function updateHomeContent(
     // Basic validation for key fields (deep validation handled in UI)
     const errors: Record<string, string> = {};
     if (data.primaryCta?.href && !data.primaryCta.href.startsWith('/')) {
-      if (!data.primaryCta.href.startsWith('http://') && !data.primaryCta.href.startsWith('https://')) {
-        errors.primaryCta = 'Primary CTA href must be a valid URL or internal path';
+      if (
+        !data.primaryCta.href.startsWith('http://') &&
+        !data.primaryCta.href.startsWith('https://')
+      ) {
+        errors.primaryCta =
+          'Primary CTA href must be a valid URL or internal path';
       }
     }
     if (data.story?.href && !data.story.href.startsWith('/')) {
-      if (!data.story.href.startsWith('http://') && !data.story.href.startsWith('https://')) {
+      if (
+        !data.story.href.startsWith('http://') &&
+        !data.story.href.startsWith('https://')
+      ) {
         errors.storyHref = 'Story href must be a valid URL or internal path';
       }
     }
@@ -237,11 +281,22 @@ export async function updateHomeContent(
 
     await setHomePageData(data);
 
-    console.log('Admin homepage content updated', { adminId: auth.userId, keys: Object.keys(data || {}) });
-    return { success: true, message: 'Homepage content updated successfully', pageId: 'home' };
+    console.log('Admin homepage content updated', {
+      adminId: auth.userId,
+      keys: Object.keys(data || {}),
+    });
+    return {
+      success: true,
+      message: 'Homepage content updated successfully',
+      pageId: 'home',
+    };
   } catch (error) {
     console.error('Error updating homepage content:', error);
-    return { success: false, message: error instanceof Error ? error.message : 'Failed to update homepage' };
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : 'Failed to update homepage',
+    };
   }
 }
 
@@ -271,7 +326,6 @@ export async function updateAdminSiteSettings(
     // Update site settings
     await updateSiteSettings(settings, auth.userId);
 
-
     // Log admin action
     console.log('Admin site settings updated:', {
       adminId: auth.userId,
@@ -282,13 +336,15 @@ export async function updateAdminSiteSettings(
       success: true,
       message: 'Site settings updated successfully',
     };
-
   } catch (error) {
     console.error('Error updating site settings:', error);
-    
+
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to update site settings',
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Failed to update site settings',
     };
   }
 }
@@ -332,7 +388,6 @@ export async function updateAdminLookbook(
     // Update lookbook
     await updateCurrentLookbook(lookbookData, auth.userId);
 
-
     // Log admin action
     console.log('Admin lookbook updated:', {
       adminId: auth.userId,
@@ -344,13 +399,13 @@ export async function updateAdminLookbook(
       success: true,
       message: 'Lookbook updated successfully',
     };
-
   } catch (error) {
     console.error('Error updating lookbook:', error);
-    
+
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to update lookbook',
+      message:
+        error instanceof Error ? error.message : 'Failed to update lookbook',
     };
   }
 }
@@ -369,7 +424,6 @@ export async function deactivateAdminLookbook(): Promise<AdminSettingsResult> {
     // Deactivate lookbook
     await deactivateLookbook(auth.userId);
 
-
     // Log admin action
     console.log('Admin lookbook deactivated:', {
       adminId: auth.userId,
@@ -379,13 +433,15 @@ export async function deactivateAdminLookbook(): Promise<AdminSettingsResult> {
       success: true,
       message: 'Lookbook deactivated successfully',
     };
-
   } catch (error) {
     console.error('Error deactivating lookbook:', error);
-    
+
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to deactivate lookbook',
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Failed to deactivate lookbook',
     };
   }
 }
@@ -406,16 +462,23 @@ export async function updateSEODefaults(
     // Validate SEO data
     const errors: Record<string, string> = {};
 
-    if (!seoDefaults.defaultTitle || seoDefaults.defaultTitle.trim().length < 1) {
+    if (
+      !seoDefaults.defaultTitle ||
+      seoDefaults.defaultTitle.trim().length < 1
+    ) {
       errors.defaultTitle = 'Default SEO title is required';
     } else if (seoDefaults.defaultTitle.length > 60) {
       errors.defaultTitle = 'SEO title should be under 60 characters';
     }
 
-    if (!seoDefaults.defaultDescription || seoDefaults.defaultDescription.trim().length < 1) {
+    if (
+      !seoDefaults.defaultDescription ||
+      seoDefaults.defaultDescription.trim().length < 1
+    ) {
       errors.defaultDescription = 'Default SEO description is required';
     } else if (seoDefaults.defaultDescription.length > 160) {
-      errors.defaultDescription = 'SEO description should be under 160 characters';
+      errors.defaultDescription =
+        'SEO description should be under 160 characters';
     }
 
     if (!seoDefaults.ogImage || !seoDefaults.ogImage.startsWith('/')) {
@@ -433,7 +496,6 @@ export async function updateSEODefaults(
     // Update SEO defaults
     await updateSiteSettings({ seoDefaults }, auth.userId);
 
-
     // Log admin action
     console.log('Admin SEO defaults updated:', {
       adminId: auth.userId,
@@ -443,13 +505,15 @@ export async function updateSEODefaults(
       success: true,
       message: 'SEO defaults updated successfully',
     };
-
   } catch (error) {
     console.error('Error updating SEO defaults:', error);
-    
+
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to update SEO defaults',
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Failed to update SEO defaults',
     };
   }
 }
@@ -470,15 +534,24 @@ export async function updateSocialLinks(
     // Validate social links
     const errors: Record<string, string> = {};
 
-    if (socialLinks.instagram && !socialLinks.instagram.includes('instagram.com')) {
+    if (
+      socialLinks.instagram &&
+      !socialLinks.instagram.includes('instagram.com')
+    ) {
       errors.instagram = 'Invalid Instagram URL';
     }
 
-    if (socialLinks.pinterest && !socialLinks.pinterest.includes('pinterest.com')) {
+    if (
+      socialLinks.pinterest &&
+      !socialLinks.pinterest.includes('pinterest.com')
+    ) {
       errors.pinterest = 'Invalid Pinterest URL';
     }
 
-    if (socialLinks.facebook && !socialLinks.facebook.includes('facebook.com')) {
+    if (
+      socialLinks.facebook &&
+      !socialLinks.facebook.includes('facebook.com')
+    ) {
       errors.facebook = 'Invalid Facebook URL';
     }
 
@@ -493,24 +566,27 @@ export async function updateSocialLinks(
     // Update social links
     await updateSiteSettings({ socialLinks }, auth.userId);
 
-
     // Log admin action
     console.log('Admin social links updated:', {
       adminId: auth.userId,
-      platforms: Object.keys(socialLinks).filter(key => socialLinks[key as keyof typeof socialLinks]),
+      platforms: Object.keys(socialLinks).filter(
+        (key) => socialLinks[key as keyof typeof socialLinks]
+      ),
     });
 
     return {
       success: true,
       message: 'Social links updated successfully',
     };
-
   } catch (error) {
     console.error('Error updating social links:', error);
-    
+
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to update social links',
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Failed to update social links',
     };
   }
 }
@@ -537,10 +613,9 @@ export async function getAdminSettings(): Promise<{
       success: true,
       settings: settings || undefined,
     };
-
   } catch (error) {
     console.error('Error getting admin settings:', error);
-    
+
     return {
       success: false,
       message: 'Failed to load settings',

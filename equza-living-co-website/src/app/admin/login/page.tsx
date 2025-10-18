@@ -1,6 +1,6 @@
 /**
  * Admin Login Page
- * 
+ *
  * Firebase Authentication login for admin users
  * Following UI_UX_Development_Guide.md brand guidelines
  */
@@ -31,7 +31,7 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  
+
   const { user, isLoading: authLoading, isAdmin } = useAuth();
   const router = useRouter();
 
@@ -52,7 +52,9 @@ export default function AdminLoginPage() {
 
     if (!auth) {
       console.error('❌ Firebase auth not configured');
-      setError('Firebase authentication not configured. Please check your environment variables.');
+      setError(
+        'Firebase authentication not configured. Please check your environment variables.'
+      );
       setIsLoading(false);
       return;
     }
@@ -61,7 +63,11 @@ export default function AdminLoginPage() {
 
     try {
       console.log('🔄 Attempting Firebase authentication...');
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       console.log('✅ Firebase authentication successful');
       console.log('👤 User details:', {
         uid: userCredential.user.uid,
@@ -69,7 +75,7 @@ export default function AdminLoginPage() {
         emailVerified: userCredential.user.emailVerified,
         displayName: userCredential.user.displayName,
       });
-      
+
       // Get user token to check admin status
       console.log('🔍 Fetching ID token with claims...');
       const token = await userCredential.user.getIdTokenResult();
@@ -79,13 +85,13 @@ export default function AdminLoginPage() {
         expirationTime: token.expirationTime,
         signInProvider: token.signInProvider,
         signInSecondFactor: token.signInSecondFactor,
-        token: token.token.substring(0, 50) + '...' // Show first 50 chars only
+        token: token.token.substring(0, 50) + '...', // Show first 50 chars only
       });
-      
+
       console.log('🎯 Custom claims:', token.claims);
       console.log('👑 Admin claim present:', !!token.claims.admin);
       console.log('🔑 Admin claim value:', token.claims.admin);
-      
+
       if (!token.claims.admin) {
         console.warn('❌ Admin access denied - no admin claim found');
         console.log('📋 Available claims:', Object.keys(token.claims));
@@ -106,7 +112,9 @@ export default function AdminLoginPage() {
           body: JSON.stringify({ idToken }),
         });
       } catch (e) {
-        console.warn('⚠️ Failed to create session cookie. Proceeding without server session.');
+        console.warn(
+          '⚠️ Failed to create session cookie. Proceeding without server session.'
+        );
       }
 
       console.log('🎉 Admin access granted! Redirecting to dashboard...');
@@ -117,9 +125,9 @@ export default function AdminLoginPage() {
         code: err.code,
         message: err.message,
         name: err.name,
-        stack: err.stack?.substring(0, 200) + '...' // First 200 chars of stack
+        stack: err.stack?.substring(0, 200) + '...', // First 200 chars of stack
       });
-      
+
       // Handle specific Firebase auth errors
       switch (err.code) {
         case 'auth/invalid-email':
@@ -159,107 +167,103 @@ export default function AdminLoginPage() {
   // Show loading if still checking auth
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+      <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
+        <div className='text-center'>
+          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4'></div>
+          <p className='text-gray-600'>Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <Container size="sm" className="w-full max-w-md">
+    <div className='min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8'>
+      <Container size='sm' className='w-full max-w-md'>
         <FadeIn>
-          <div className="text-center mb-8">
-            <div className="mx-auto h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-              <Shield className="h-6 w-6 text-primary" />
+          <div className='text-center mb-8'>
+            <div className='mx-auto h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4'>
+              <Shield className='h-6 w-6 text-primary' />
             </div>
-            <Typography variant="h2" className="text-gray-900">
+            <Typography variant='h2' className='text-gray-900'>
               Admin Access
             </Typography>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className='mt-2 text-sm text-gray-600'>
               Sign in to access the admin dashboard
             </p>
           </div>
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-center">Admin Login</CardTitle>
+              <CardTitle className='text-center'>Admin Login</CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className='space-y-6'>
                 {error && (
-                  <div className="bg-red-50 border border-red-200 rounded-md p-3">
-                    <p className="text-sm text-red-600">{error}</p>
+                  <div className='bg-red-50 border border-red-200 rounded-md p-3'>
+                    <p className='text-sm text-red-600'>{error}</p>
                   </div>
                 )}
 
                 <div>
-                  <Label htmlFor="email">Email address</Label>
+                  <Label htmlFor='email'>Email address</Label>
                   <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
+                    id='email'
+                    name='email'
+                    type='email'
+                    autoComplete='email'
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your admin email"
-                    className="mt-1"
+                    placeholder='Enter your admin email'
+                    className='mt-1'
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="password">Password</Label>
-                  <div className="relative mt-1">
+                  <Label htmlFor='password'>Password</Label>
+                  <div className='relative mt-1'>
                     <Input
-                      id="password"
-                      name="password"
+                      id='password'
+                      name='password'
                       type={showPassword ? 'text' : 'password'}
-                      autoComplete="current-password"
+                      autoComplete='current-password'
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter your password"
-                      className="pr-10"
+                      placeholder='Enter your password'
+                      className='pr-10'
                     />
                     <button
-                      type="button"
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      type='button'
+                      className='absolute inset-y-0 right-0 pr-3 flex items-center'
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? (
-                        <EyeOff className="h-4 w-4 text-gray-400" />
+                        <EyeOff className='h-4 w-4 text-gray-400' />
                       ) : (
-                        <Eye className="h-4 w-4 text-gray-400" />
+                        <Eye className='h-4 w-4 text-gray-400' />
                       )}
                     </button>
                   </div>
                 </div>
 
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={isLoading}
-                >
+                <Button type='submit' className='w-full' disabled={isLoading}>
                   {isLoading ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                      <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2' />
                       Signing in...
                     </>
                   ) : (
                     <>
-                      <LogIn className="h-4 w-4 mr-2" />
+                      <LogIn className='h-4 w-4 mr-2' />
                       Sign in
                     </>
                   )}
                 </Button>
               </form>
 
-              <div className="mt-6 text-center">
-                <p className="text-xs text-gray-500">
+              <div className='mt-6 text-center'>
+                <p className='text-xs text-gray-500'>
                   Only authorized admin users can access this area.
                   <br />
                   Contact your system administrator for access.

@@ -13,7 +13,7 @@ export function createChangeLog(
   const changes: Record<string, { old: any; new: any }> = {};
 
   // Check for changes in newData
-  Object.keys(newData).forEach(key => {
+  Object.keys(newData).forEach((key) => {
     if (oldData[key] !== newData[key]) {
       changes[key] = {
         old: oldData[key],
@@ -23,7 +23,7 @@ export function createChangeLog(
   });
 
   // Check for removed fields
-  Object.keys(oldData).forEach(key => {
+  Object.keys(oldData).forEach((key) => {
     if (!(key in newData)) {
       changes[key] = {
         old: oldData[key],

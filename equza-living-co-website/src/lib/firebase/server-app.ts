@@ -48,8 +48,8 @@ export function getAdminApp(): App {
     // Process the private key to convert literal \\n to actual newlines and clean up formatting
     config.privateKey = env.firebase.privateKey
       .replace(/\\n/g, '\n')
-      .replace(/\\$/gm, '')  // Remove trailing backslashes
-      .trim();  // Remove leading/trailing whitespace
+      .replace(/\\$/gm, '') // Remove trailing backslashes
+      .trim(); // Remove leading/trailing whitespace
 
     console.log('--- Debug: Processed config.privateKey ---');
     console.log(config.privateKey);
@@ -114,13 +114,13 @@ export async function verifyAdminCredentials(): Promise<boolean> {
   try {
     const auth = getAdminAuth();
     const db = getAdminFirestore();
-    
+
     // Test auth by trying to list users (admin-only operation)
     await auth.listUsers(1);
-    
+
     // Test Firestore by trying to read admin collection
     await db.collection('adminUsers').limit(1).get();
-    
+
     return true;
   } catch (error) {
     console.error('Admin credentials verification failed:', error);
@@ -132,19 +132,23 @@ export async function verifyAdminCredentials(): Promise<boolean> {
  * Check if Firebase Admin SDK is properly configured
  */
 export function isAdminConfigured(): boolean {
-  return !!(env.firebase.projectId && (
+  return !!(
+    env.firebase.projectId &&
     // Either have service account credentials
-    (env.firebase.clientEmail && env.firebase.privateKey) ||
-    // Or running in an environment with default credentials
-    process.env.GOOGLE_APPLICATION_CREDENTIALS ||
-    process.env.GCLOUD_PROJECT
-  ));
+    ((env.firebase.clientEmail && env.firebase.privateKey) ||
+      // Or running in an environment with default credentials
+      process.env.GOOGLE_APPLICATION_CREDENTIALS ||
+      process.env.GCLOUD_PROJECT)
+  );
 }
 
 /**
  * Create a custom token for a user (admin operation)
  */
-export async function createCustomToken(uid: string, additionalClaims?: object): Promise<string> {
+export async function createCustomToken(
+  uid: string,
+  additionalClaims?: object
+): Promise<string> {
   const auth = getAdminAuth();
   return auth.createCustomToken(uid, additionalClaims);
 }
@@ -175,4 +179,4 @@ export async function setCustomUserClaims(uid: string, customClaims: object) {
 
 // Export the admin app and services
 export { adminApp };
-export default getAdminApp; 
+export default getAdminApp;

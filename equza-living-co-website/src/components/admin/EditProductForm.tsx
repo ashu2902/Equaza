@@ -19,10 +19,16 @@ export function EditProductForm({ initial }: EditProductFormProps) {
   const [isPending, startTransition] = useTransition();
   const [name, setName] = useState<string>(initial?.name || '');
   const [slug, setSlug] = useState<string>(initial?.slug || '');
-  const [description, setDescription] = useState<string>(initial?.description || '');
+  const [description, setDescription] = useState<string>(
+    initial?.description || ''
+  );
   const [story, setStory] = useState<string>(initial?.story || '');
-  const [seoTitle, setSeoTitle] = useState<string>(initial?.seoTitle || initial?.name || '');
-  const [seoDescription, setSeoDescription] = useState<string>(initial?.seoDescription || initial?.description || '');
+  const [seoTitle, setSeoTitle] = useState<string>(
+    initial?.seoTitle || initial?.name || ''
+  );
+  const [seoDescription, setSeoDescription] = useState<string>(
+    initial?.seoDescription || initial?.description || ''
+  );
   const [submitError, setSubmitError] = useState<string>('');
 
   const productId: string | undefined = initial?.id;
@@ -50,48 +56,83 @@ export function EditProductForm({ initial }: EditProductFormProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className='space-y-6'>
       {submitError && (
-        <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded p-3">{submitError}</div>
+        <div className='text-sm text-red-700 bg-red-50 border border-red-200 rounded p-3'>
+          {submitError}
+        </div>
       )}
 
-      <Grid cols={1} gap="md">
-        <div className="space-y-4">
+      <Grid cols={1} gap='md'>
+        <div className='space-y-4'>
           <div>
-            <Label htmlFor="name">Name</Label>
-            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Product name" />
+            <Label htmlFor='name'>Name</Label>
+            <Input
+              id='name'
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder='Product name'
+            />
           </div>
           <div>
-            <Label htmlFor="slug">Slug</Label>
-            <Input id="slug" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="kashmir-wool-classic" />
+            <Label htmlFor='slug'>Slug</Label>
+            <Input
+              id='slug'
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+              placeholder='kashmir-wool-classic'
+            />
           </div>
           <div>
-            <Label htmlFor="description">Description</Label>
-            <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={4} />
+            <Label htmlFor='description'>Description</Label>
+            <Textarea
+              id='description'
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={4}
+            />
           </div>
           <div>
-            <Label htmlFor="story">Story</Label>
-            <Textarea id="story" value={story} onChange={(e) => setStory(e.target.value)} rows={6} />
+            <Label htmlFor='story'>Story</Label>
+            <Textarea
+              id='story'
+              value={story}
+              onChange={(e) => setStory(e.target.value)}
+              rows={6}
+            />
           </div>
           <div>
-            <Label htmlFor="seoTitle">SEO Title</Label>
-            <Input id="seoTitle" value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} />
+            <Label htmlFor='seoTitle'>SEO Title</Label>
+            <Input
+              id='seoTitle'
+              value={seoTitle}
+              onChange={(e) => setSeoTitle(e.target.value)}
+            />
           </div>
           <div>
-            <Label htmlFor="seoDescription">SEO Description</Label>
-            <Textarea id="seoDescription" value={seoDescription} onChange={(e) => setSeoDescription(e.target.value)} rows={3} />
+            <Label htmlFor='seoDescription'>SEO Description</Label>
+            <Textarea
+              id='seoDescription'
+              value={seoDescription}
+              onChange={(e) => setSeoDescription(e.target.value)}
+              rows={3}
+            />
           </div>
         </div>
       </Grid>
 
-      <div className="flex items-center gap-3">
+      <div className='flex items-center gap-3'>
         <Button onClick={handleSave} disabled={isPending}>
           {isPending ? 'Saving…' : 'Save changes'}
         </Button>
-        <Button variant="ghost" onClick={() => router.back()} disabled={isPending}>Cancel</Button>
+        <Button
+          variant='ghost'
+          onClick={() => router.back()}
+          disabled={isPending}
+        >
+          Cancel
+        </Button>
       </div>
     </div>
   );
 }
-
-

@@ -7,7 +7,13 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, Sofa, Bed, MoveHorizontal } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Sofa,
+  Bed,
+  MoveHorizontal,
+} from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { SafeCollection } from '@/types/safe';
 import { Container } from '@/components/ui/Container';
@@ -26,27 +32,27 @@ function RoomCard({ collection }: { collection: SafeCollection }) {
   const Icon = MoveHorizontal;
 
   return (
-    <Link href={`/collections/${collection.slug}`} className="block group">
-      <div className="relative bg-white rounded-2xl overflow-hidden border border-neutral-200">
-        <div className="relative aspect-[2.5/1]">
+    <Link href={`/collections/${collection.slug}`} className='block group'>
+      <div className='relative bg-white rounded-2xl overflow-hidden border border-neutral-200'>
+        <div className='relative aspect-[2.5/1]'>
           <SafeImage
             src={collection.heroImage.url}
             alt={collection.heroImage.alt}
             fill
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            className='object-cover transition-transform duration-700 group-hover:scale-105'
             priority
           />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/25 to-transparent" />
-        <div className="absolute bottom-4 left-4 right-4 flex items-center gap-3 text-white">
-          <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-            <Icon className="w-5 h-5 text-white" />
+        <div className='absolute inset-0 bg-gradient-to-t from-black/60 via-black/25 to-transparent' />
+        <div className='absolute bottom-4 left-4 right-4 flex items-center gap-3 text-white'>
+          <div className='w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center'>
+            <Icon className='w-5 h-5 text-white' />
           </div>
-          <div className="flex-1">
-            <p className="text-lg md:text-xl font-medium leading-tight">
+          <div className='flex-1'>
+            <p className='text-lg md:text-xl font-medium leading-tight'>
               {collection.name}
             </p>
-            <p className="text-xs opacity-90">Explore designs</p>
+            <p className='text-xs opacity-90'>Explore designs</p>
           </div>
         </div>
       </div>
@@ -123,21 +129,27 @@ export function RoomHighlightCarousel({
   const handleMouseLeave = () => setIsHovered(false);
 
   return (
-    <section className="py-12 md:py-16" style={{ backgroundColor: '#f1eee9' }}>
-      <Container size="xl">
+    <section className='py-12 md:py-16' style={{ backgroundColor: '#f1eee9' }}>
+      <Container size='xl'>
         <FadeIn>
-          <div className="text-center space-y-4 mb-8">
-            <h2 className="text-3xl md:text-4xl font-normal font-libre-baskerville" style={{ color: '#98342d' }}>
+          <div className='text-center space-y-4 mb-8'>
+            <h2
+              className='text-3xl md:text-4xl font-normal font-libre-baskerville'
+              style={{ color: '#98342d' }}
+            >
               {title}
             </h2>
-            <p className="text-base md:text-lg font-poppins" style={{ color: '#666666' }}>
+            <p
+              className='text-base md:text-lg font-poppins'
+              style={{ color: '#666666' }}
+            >
               {subtitle}
             </p>
           </div>
         </FadeIn>
 
         <div
-          className="relative"
+          className='relative'
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -145,13 +157,13 @@ export function RoomHighlightCarousel({
           onMouseLeave={handleMouseLeave}
         >
           {/* Track */}
-          <div className="overflow-hidden">
+          <div className='overflow-hidden'>
             <div
-              className="flex transition-transform duration-500"
+              className='flex transition-transform duration-500'
               style={{ transform: `translateX(-${index * 100}%)` }}
             >
               {items.map((c) => (
-                <div key={c.id} className="min-w-full px-1">
+                <div key={c.id} className='min-w-full px-1'>
                   <SlideUp>
                     <RoomCard collection={c} />
                   </SlideUp>
@@ -164,22 +176,22 @@ export function RoomHighlightCarousel({
           {items.length > 1 && (
             <>
               <button
-                type="button"
-                aria-label="Previous room"
+                type='button'
+                aria-label='Previous room'
                 onClick={goPrev}
-                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-black/60"
+                className='absolute left-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-black/60'
               >
-                <ChevronLeft className="w-5 h-5" />
+                <ChevronLeft className='w-5 h-5' />
               </button>
               <button
-                type="button"
-                aria-label="Next room"
+                type='button'
+                aria-label='Next room'
                 onClick={goNext}
-                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-black/60"
+                className='absolute right-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-black/60'
               >
-                <ChevronRight className="w-5 h-5" />
+                <ChevronRight className='w-5 h-5' />
               </button>
-              <div className="mt-4 flex items-center justify-center gap-2">
+              <div className='mt-4 flex items-center justify-center gap-2'>
                 {items.map((_, i) => (
                   <span
                     key={i}
@@ -199,5 +211,3 @@ export function RoomHighlightCarousel({
 }
 
 export default RoomHighlightCarousel;
-
-

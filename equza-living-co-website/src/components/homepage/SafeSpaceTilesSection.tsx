@@ -1,6 +1,6 @@
 /**
  * Safe Space Tiles Section
- * 
+ *
  * Uses SafeCollection data contract for space-based collections.
  * Enhanced with room-specific icons and descriptions.
  */
@@ -9,14 +9,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { 
-  Home, 
-  Bed, 
-  MoveHorizontal,
-  Sofa,
-  DoorOpen,
-  Bath
-} from 'lucide-react';
+import { Home, Bed, MoveHorizontal, Sofa, DoorOpen, Bath } from 'lucide-react';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { SafeCollection } from '@/types/safe';
 import { Typography } from '@/components/ui/Typography';
@@ -90,24 +83,26 @@ export function SafeSpaceTilesSection({
   subtitle,
   spaceCollections,
   loading = false,
-  error = null
+  error = null,
 }: SafeSpaceTilesSectionProps) {
-  
   // Loading State
   if (loading) {
     return (
-      <section className="py-16 lg:py-24 bg-gradient-to-br from-stone-50 to-stone-100">
+      <section className='py-16 lg:py-24 bg-gradient-to-br from-stone-50 to-stone-100'>
         <Container>
-          <div className="text-center space-y-4 mb-12">
-            <Typography variant="h2" className="font-serif">
+          <div className='text-center space-y-4 mb-12'>
+            <Typography variant='h2' className='font-serif'>
               {title}
             </Typography>
-            <Typography variant="body" className="text-gray-600 max-w-2xl mx-auto">
+            <Typography
+              variant='body'
+              className='text-gray-600 max-w-2xl mx-auto'
+            >
               {subtitle}
             </Typography>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
             {Array.from({ length: 3 }).map((_, index) => (
               <SpaceTileSkeleton key={index} />
             ))}
@@ -116,17 +111,20 @@ export function SafeSpaceTilesSection({
       </section>
     );
   }
-  
+
   // Error State
   if (error) {
     return (
-      <section className="py-16 lg:py-24 bg-gradient-to-br from-stone-50 to-stone-100">
+      <section className='py-16 lg:py-24 bg-gradient-to-br from-stone-50 to-stone-100'>
         <Container>
-          <div className="text-center space-y-4">
-            <Typography variant="h2" className="font-serif">
+          <div className='text-center space-y-4'>
+            <Typography variant='h2' className='font-serif'>
               {title}
             </Typography>
-            <Typography variant="body" className="text-gray-600 max-w-md mx-auto">
+            <Typography
+              variant='body'
+              className='text-gray-600 max-w-md mx-auto'
+            >
               Unable to load space collections: {error}
             </Typography>
           </div>
@@ -134,22 +132,41 @@ export function SafeSpaceTilesSection({
       </section>
     );
   }
-  
+
   // Empty State
   if (spaceCollections.length === 0) {
     return (
-      <section className="py-16 lg:py-24" style={{backgroundColor: '#f1eee9'}}>
+      <section
+        className='py-16 lg:py-24'
+        style={{ backgroundColor: '#f1eee9' }}
+      >
         <Container>
-          <div className="text-center space-y-4">
-            <Typography variant="h2" className="text-3xl md:text-4xl font-normal font-libre-baskerville" style={{ color: '#98342d' }}>
+          <div className='text-center space-y-4'>
+            <Typography
+              variant='h2'
+              className='text-3xl md:text-4xl font-normal font-libre-baskerville'
+              style={{ color: '#98342d' }}
+            >
               {title}
             </Typography>
-            <Typography variant="body" className="text-base md:text-lg font-poppins" style={{ color: '#666666' }}>
+            <Typography
+              variant='body'
+              className='text-base md:text-lg font-poppins'
+              style={{ color: '#666666' }}
+            >
               {subtitle}
             </Typography>
-            <div className="mt-8 p-8 bg-white/50 backdrop-blur-sm rounded-2xl max-w-md mx-auto" style={{ boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)' }}>
-              <Typography variant="body" className="font-poppins" style={{ color: '#666666' }}>
-                No space collections available at the moment. Please check back soon.
+            <div
+              className='mt-8 p-8 bg-white/50 backdrop-blur-sm rounded-2xl max-w-md mx-auto'
+              style={{ boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)' }}
+            >
+              <Typography
+                variant='body'
+                className='font-poppins'
+                style={{ color: '#666666' }}
+              >
+                No space collections available at the moment. Please check back
+                soon.
               </Typography>
             </div>
           </div>
@@ -157,23 +174,31 @@ export function SafeSpaceTilesSection({
       </section>
     );
   }
-  
+
   // Success State with Space Collections
   return (
-    <section className="py-16 lg:py-24" style={{backgroundColor: '#f1eee9'}}>
-      <Container size="xl">
+    <section className='py-16 lg:py-24' style={{ backgroundColor: '#f1eee9' }}>
+      <Container size='xl'>
         <FadeIn>
-          <div className="text-center space-y-4 mb-16">
-            <Typography variant="h2" className="text-3xl md:text-4xl font-normal font-libre-baskerville" style={{ color: '#98342d' }}>
+          <div className='text-center space-y-4 mb-16'>
+            <Typography
+              variant='h2'
+              className='text-3xl md:text-4xl font-normal font-libre-baskerville'
+              style={{ color: '#98342d' }}
+            >
               {title}
             </Typography>
-            <Typography variant="body" className="text-base md:text-lg font-poppins" style={{ color: '#666666' }}>
+            <Typography
+              variant='body'
+              className='text-base md:text-lg font-poppins'
+              style={{ color: '#666666' }}
+            >
               {subtitle}
             </Typography>
           </div>
         </FadeIn>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
           {spaceCollections.map((collection, index) => (
             <SafeSpaceTile
               key={collection.id}
@@ -197,85 +222,98 @@ interface SafeSpaceTileProps {
   priority?: boolean;
 }
 
-function SafeSpaceTile({ collection, index, priority = false }: SafeSpaceTileProps) {
+function SafeSpaceTile({
+  collection,
+  index,
+  priority = false,
+}: SafeSpaceTileProps) {
   const [isHovered, setIsHovered] = useState(false);
   const IconComponent = getRoomIcon(collection.slug);
   const roomDescription = getRoomDescription(collection.slug);
 
   return (
     <SlideUp delay={index * 0.2}>
-      <Link 
+      <Link
         href={`/collections/${collection.slug}`}
-        className="group block"
+        className='group block'
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className="relative bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3">
-          
+        <div className='relative bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3'>
           {/* Collection Image - heroImage guaranteed to exist */}
-          <div className="relative h-80 sm:h-96 lg:h-[450px] bg-gray-100 overflow-hidden">
+          <div className='relative h-80 sm:h-96 lg:h-[450px] bg-gray-100 overflow-hidden'>
             <SafeImage
               src={collection.heroImage.url}
               alt={collection.heroImage.alt}
               fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              sizes='(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw'
               className={`object-cover transition-all duration-700 ${
                 isHovered ? 'scale-110' : 'scale-100'
               }`}
               priority={priority}
             />
-            
+
             {/* Gradient Overlay */}
-            <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent transition-opacity duration-500 ${
-              isHovered ? 'opacity-90' : 'opacity-70'
-            }`} />
-            
+            <div
+              className={`absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent transition-opacity duration-500 ${
+                isHovered ? 'opacity-90' : 'opacity-70'
+              }`}
+            />
+
             {/* Room Icon */}
-            <div className="absolute top-6 left-6">
-              <div className={`w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 ${
-                isHovered ? 'bg-white/30 scale-110' : 'bg-white/20'
-              }`}>
-                <IconComponent className="w-6 h-6 text-white" />
+            <div className='absolute top-6 left-6'>
+              <div
+                className={`w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 ${
+                  isHovered ? 'bg-white/30 scale-110' : 'bg-white/20'
+                }`}
+              >
+                <IconComponent className='w-6 h-6 text-white' />
               </div>
             </div>
-            
+
             {/* Product Count Badge */}
             {collection.productIds.length > 0 && (
-              <div className="absolute top-6 right-6">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium text-white bg-black/30 backdrop-blur-sm">
-                  {collection.productIds.length} {collection.productIds.length === 1 ? 'Piece' : 'Pieces'}
+              <div className='absolute top-6 right-6'>
+                <span className='inline-flex items-center px-3 py-1 rounded-full text-sm font-medium text-white bg-black/30 backdrop-blur-sm'>
+                  {collection.productIds.length}{' '}
+                  {collection.productIds.length === 1 ? 'Piece' : 'Pieces'}
                 </span>
               </div>
             )}
-            
+
             {/* Content Overlay */}
-            <div className="absolute inset-0 p-8 flex flex-col justify-end text-white">
-              <div className="space-y-4">
-                <Typography 
-                  variant="h3" 
-                  className="text-white font-normal text-3xl lg:text-4xl drop-shadow-lg font-libre-baskerville"
+            <div className='absolute inset-0 p-8 flex flex-col justify-end text-white'>
+              <div className='space-y-4'>
+                <Typography
+                  variant='h3'
+                  className='text-white font-normal text-3xl lg:text-4xl drop-shadow-lg font-libre-baskerville'
                 >
                   {collection.name}
                 </Typography>
-                
-                <Typography 
-                  variant="body" 
-                  className="text-white/95 text-base lg:text-lg leading-relaxed drop-shadow-md font-poppins"
+
+                <Typography
+                  variant='body'
+                  className='text-white/95 text-base lg:text-lg leading-relaxed drop-shadow-md font-poppins'
                 >
                   {collection.description || roomDescription}
                 </Typography>
-                
-                <div className="inline-flex items-center text-white font-medium text-base pt-2 drop-shadow-md font-poppins">
+
+                <div className='inline-flex items-center text-white font-medium text-base pt-2 drop-shadow-md font-poppins'>
                   <span>Explore {collection.name}</span>
-                  <svg 
+                  <svg
                     className={`w-5 h-5 ml-2 transition-transform duration-300 ${
                       isHovered ? 'translate-x-1' : ''
-                    }`} 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
+                    }`}
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M9 5l7 7-7 7'
+                    />
                   </svg>
                 </div>
               </div>
@@ -292,14 +330,14 @@ function SafeSpaceTile({ collection, index, priority = false }: SafeSpaceTilePro
  */
 function SpaceTileSkeleton() {
   return (
-    <div className="relative bg-white rounded-2xl overflow-hidden shadow-xl">
-      <div className="relative h-80 sm:h-96 lg:h-[450px] bg-gray-200 animate-pulse" />
-      <div className="absolute inset-0 p-8 flex flex-col justify-end">
-        <div className="space-y-4">
-          <div className="h-10 bg-gray-300 rounded w-3/4 animate-pulse" />
-          <div className="h-6 bg-gray-300 rounded w-full animate-pulse" />
-          <div className="h-6 bg-gray-300 rounded w-2/3 animate-pulse" />
-          <div className="h-5 bg-gray-300 rounded w-1/3 animate-pulse" />
+    <div className='relative bg-white rounded-2xl overflow-hidden shadow-xl'>
+      <div className='relative h-80 sm:h-96 lg:h-[450px] bg-gray-200 animate-pulse' />
+      <div className='absolute inset-0 p-8 flex flex-col justify-end'>
+        <div className='space-y-4'>
+          <div className='h-10 bg-gray-300 rounded w-3/4 animate-pulse' />
+          <div className='h-6 bg-gray-300 rounded w-full animate-pulse' />
+          <div className='h-6 bg-gray-300 rounded w-2/3 animate-pulse' />
+          <div className='h-5 bg-gray-300 rounded w-1/3 animate-pulse' />
         </div>
       </div>
     </div>

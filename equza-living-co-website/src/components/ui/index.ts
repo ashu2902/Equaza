@@ -64,4 +64,4 @@ export type { MotionWrapperProps } from './MotionWrapper';
 // export { HoverCard } from './HoverCard';
 
 // Utility exports
-export { cn } from '@/lib/utils/cn'; 
+export { cn } from '@/lib/utils/cn';

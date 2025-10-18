@@ -28,14 +28,14 @@ export async function submitEnquiryForm(
   try {
     // Validate form data
     const validationResult = enquiryFormSchema.safeParse(formData);
-    
+
     if (!validationResult.success) {
       const errors: Record<string, string> = {};
       validationResult.error.issues.forEach((error) => {
         const field = error.path[0] as string;
         errors[field] = error.message;
       });
-      
+
       return {
         success: false,
         message: 'Please check the form for errors',
@@ -58,7 +58,6 @@ export async function submitEnquiryForm(
     // Create lead in Firestore
     const leadId = await createEnquiryLead(validatedData, source);
 
-
     // TODO: Send email notifications (Phase 6.2 email integration)
     // await sendEnquiryNotificationEmail(validatedData, leadId, product);
     // await sendEnquiryAutoReplyEmail(validatedData.email, validatedData.name, product.name);
@@ -69,15 +68,15 @@ export async function submitEnquiryForm(
       leadId,
       productName: product.name,
     };
-
   } catch (error) {
     console.error('Error submitting enquiry form:', error);
-    
+
     return {
       success: false,
-      message: error instanceof Error 
-        ? error.message 
-        : 'Something went wrong. Please try again.',
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Something went wrong. Please try again.',
     };
   }
 }
@@ -145,7 +144,7 @@ export async function getProductForEnquiry(productId: string): Promise<{
 }> {
   try {
     const product = await getProductById(productId);
-    
+
     if (!product) {
       return {
         success: false,

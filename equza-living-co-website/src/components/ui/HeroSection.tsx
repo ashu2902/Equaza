@@ -42,31 +42,32 @@ export function HeroSection({
 
   // Determine text colors based on alignment and overlay
   const textColorClass = overlayOpacity > 0.3 ? 'text-white' : 'text-gray-900';
-  const subtitleColorClass = overlayOpacity > 0.3 ? 'text-white/90' : 'text-gray-600';
-  const backLinkColorClass = overlayOpacity > 0.3 
-    ? 'text-white/80 hover:text-white' 
-    : 'text-gray-600 hover:text-gray-900';
+  const subtitleColorClass =
+    overlayOpacity > 0.3 ? 'text-white/90' : 'text-gray-600';
+  const backLinkColorClass =
+    overlayOpacity > 0.3
+      ? 'text-white/80 hover:text-white'
+      : 'text-gray-600 hover:text-gray-900';
 
-  const alignmentClass = textAlignment === 'center' 
-    ? 'text-center max-w-4xl mx-auto' 
-    : 'max-w-4xl';
+  const alignmentClass =
+    textAlignment === 'center' ? 'text-center max-w-4xl mx-auto' : 'max-w-4xl';
 
   return (
     <section className={`relative py-16 md:py-24 ${className}`}>
       {/* Background Image */}
-      <div className="absolute inset-0 z-0">
+      <div className='absolute inset-0 z-0'>
         {overlayOpacity > 0 && (
-          <div 
-            className="absolute inset-0 bg-black z-10"
+          <div
+            className='absolute inset-0 bg-black z-10'
             style={{ opacity: overlayOpacity }}
           />
         )}
-        
+
         {!isLoading && heroImage?.imageUrl && (
-          <img 
+          <img
             src={heroImage.imageUrl}
             alt={heroImage.altText || 'Hero background'}
-            className="w-full h-full object-cover"
+            className='w-full h-full object-cover'
             style={{ objectPosition: 'center 40%' }}
             onError={(e) => {
               console.error('Error loading hero image:', heroImage.imageUrl);
@@ -75,38 +76,38 @@ export function HeroSection({
             }}
           />
         )}
-        
+
         {/* Loading state - show static fallback */}
         {(isLoading || error) && (
-          <img 
+          <img
             src={getStaticFallbackImage(pageType)}
             alt={getStaticFallbackAltText(pageType)}
-            className="w-full h-full object-cover"
+            className='w-full h-full object-cover'
             style={{ objectPosition: 'center 40%' }}
           />
         )}
       </div>
-      
+
       {/* Content */}
-      <Container size="lg" className="relative z-20">
+      <Container size='lg' className='relative z-20'>
         <div className={`space-y-8 ${alignmentClass}`}>
           <FadeIn>
             {/* Title */}
             <Typography
-              variant="h1"
+              variant='h1'
               className={`text-5xl md:text-6xl lg:text-7xl font-bold mb-6 ${textColorClass}`}
-              style={{ 
+              style={{
                 fontFamily: 'Libre Baskerville',
-                color: overlayOpacity <= 0.3 ? '#98342d' : undefined
+                color: overlayOpacity <= 0.3 ? '#98342d' : undefined,
               }}
             >
               {title}
             </Typography>
-            
+
             {/* Subtitle */}
             {subtitle && (
               <Typography
-                variant="body"
+                variant='body'
                 className={`text-xl md:text-2xl leading-relaxed max-w-3xl ${subtitleColorClass}`}
                 style={{ fontFamily: 'Poppins' }}
               >
@@ -118,11 +119,11 @@ export function HeroSection({
           {/* Back Link */}
           {showBackLink && (
             <SlideUp delay={0.3}>
-              <Link 
+              <Link
                 href={backLinkHref}
                 className={`inline-flex items-center transition-colors group ${backLinkColorClass}`}
               >
-                <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+                <ArrowLeft className='w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform' />
                 <span style={{ fontFamily: 'Poppins' }}>{backLinkText}</span>
               </Link>
             </SlideUp>
@@ -142,11 +143,11 @@ export function HeroSection({
 function getStaticFallbackImage(pageType: PageType): string {
   const fallbackImages = {
     'our-story': '/images/our-story-hero.jpg',
-    'craftsmanship': '/images/craftsmanship-hero.jpg',
-    'trade': '/images/trade-hero.jpg',
-    'customize': '/images/craftsmanship-hero.jpg',
+    craftsmanship: '/images/craftsmanship-hero.jpg',
+    trade: '/images/trade-hero.jpg',
+    customize: '/images/craftsmanship-hero.jpg',
   };
-  
+
   return fallbackImages[pageType];
 }
 
@@ -156,10 +157,10 @@ function getStaticFallbackImage(pageType: PageType): string {
 function getStaticFallbackAltText(pageType: PageType): string {
   const fallbackAltTexts = {
     'our-story': 'Our story - heritage craftsmanship',
-    'craftsmanship': 'Master artisan weaving traditional rug',
-    'trade': 'Business partnership handshake with rugs in background',
-    'customize': 'Traditional rug weaving background',
+    craftsmanship: 'Master artisan weaving traditional rug',
+    trade: 'Business partnership handshake with rugs in background',
+    customize: 'Traditional rug weaving background',
   };
-  
+
   return fallbackAltTexts[pageType];
 }

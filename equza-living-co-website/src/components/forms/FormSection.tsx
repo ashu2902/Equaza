@@ -21,7 +21,7 @@ export const FormSection: FC<FormSectionProps> = ({
   className = '',
   required = false,
   step,
-  totalSteps
+  totalSteps,
 }) => {
   return (
     <motion.div
@@ -32,17 +32,14 @@ export const FormSection: FC<FormSectionProps> = ({
     >
       {/* Section Header */}
       {(title || description || step) && (
-        <div className="space-y-2">
+        <div className='space-y-2'>
           {/* Step Indicator */}
           {step && totalSteps && (
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center justify-center w-6 h-6 text-xs font-medium text-white bg-stone-900 rounded-full">
+            <div className='flex items-center gap-2'>
+              <span className='inline-flex items-center justify-center w-6 h-6 text-xs font-medium text-white bg-stone-900 rounded-full'>
                 {step}
               </span>
-              <Typography
-                variant="caption"
-                className="text-stone-500"
-              >
+              <Typography variant='caption' className='text-stone-500'>
                 Step {step} of {totalSteps}
               </Typography>
             </div>
@@ -50,23 +47,15 @@ export const FormSection: FC<FormSectionProps> = ({
 
           {/* Title */}
           {title && (
-            <Typography
-              variant="h4"
-              className="font-serif text-stone-900"
-            >
+            <Typography variant='h4' className='font-serif text-stone-900'>
               {title}
-              {required && (
-                <span className="text-red-500 ml-1">*</span>
-              )}
+              {required && <span className='text-red-500 ml-1'>*</span>}
             </Typography>
           )}
 
           {/* Description */}
           {description && (
-            <Typography
-              variant="body2"
-              className="text-stone-600"
-            >
+            <Typography variant='body2' className='text-stone-600'>
               {description}
             </Typography>
           )}
@@ -74,9 +63,7 @@ export const FormSection: FC<FormSectionProps> = ({
       )}
 
       {/* Section Content */}
-      <div className="space-y-4">
-        {children}
-      </div>
+      <div className='space-y-4'>{children}</div>
     </motion.div>
   );
 };

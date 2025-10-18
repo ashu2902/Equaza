@@ -2,7 +2,7 @@
 
 /**
  * Collections Page - Main Collections Landing
- * 
+ *
  * Displays collections organized by tabs: "Rugs by Style" and "Rugs by Space"
  * Following UI_UX_Development_Guide.md brand guidelines
  */
@@ -16,7 +16,10 @@ import { Typography } from '@/components/ui/Typography';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { SafeCollectionTilesSection } from '@/components/homepage/SafeCollectionTilesSection';
 import { CollectionProductsClient } from '@/components/collections/CollectionProductsClient';
-import { ErrorBoundary, SectionErrorBoundary } from '@/components/ui/ErrorBoundary';
+import {
+  ErrorBoundary,
+  SectionErrorBoundary,
+} from '@/components/ui/ErrorBoundary';
 import { FadeIn, SlideUp } from '@/components/ui/MotionWrapper';
 
 // Loading components
@@ -28,7 +31,7 @@ import { LoadingSkeleton } from '@/components/homepage/LoadingSkeleton';
 export default function CollectionsPage() {
   const searchParams = useSearchParams();
   const weaveType = searchParams.get('weave');
-  
+
   const [styleCollections, setStyleCollections] = useState<any[]>([]);
   const [spaceCollections, setSpaceCollections] = useState<any[]>([]);
   const [weaveProducts, setWeaveProducts] = useState<any[]>([]);
@@ -42,9 +45,11 @@ export default function CollectionsPage() {
       try {
         if (weaveType) {
           // Fetch products by weave type
-          const response = await fetch(`/api/collections/weave/${encodeURIComponent(weaveType)}`);
+          const response = await fetch(
+            `/api/collections/weave/${encodeURIComponent(weaveType)}`
+          );
           const result = await response.json();
-          
+
           if (result.success) {
             setWeaveProducts(result.data);
             setWeaveError(result.error);
@@ -92,44 +97,42 @@ export default function CollectionsPage() {
   if (weaveType) {
     return (
       <ErrorBoundary>
-        <div className="min-h-screen" style={{ backgroundColor: '#f1eee9' }}>
+        <div className='min-h-screen' style={{ backgroundColor: '#f1eee9' }}>
           {/* Breadcrumb Navigation */}
-          <SectionErrorBoundary sectionName="breadcrumb">
-            <section className="py-6 border-b border-gray-200">
-              <Container size="lg">
+          <SectionErrorBoundary sectionName='breadcrumb'>
+            <section className='py-6 border-b border-gray-200'>
+              <Container size='lg'>
                 <FadeIn>
-                  <Breadcrumbs items={[
-                    { label: 'Home', href: '/' },
-                    { label: weaveType }
-                  ]} />
+                  <Breadcrumbs
+                    items={[{ label: 'Home', href: '/' }, { label: weaveType }]}
+                  />
                 </FadeIn>
               </Container>
             </section>
           </SectionErrorBoundary>
 
           {/* Hero Section */}
-          <SectionErrorBoundary sectionName="weave type hero">
-            <section className="py-16 md:py-24">
-              <Container size="lg">
+          <SectionErrorBoundary sectionName='weave type hero'>
+            <section className='py-16 md:py-24'>
+              <Container size='lg'>
                 <FadeIn>
-                  <div className="max-w-3xl mx-auto text-center">
+                  <div className='max-w-3xl mx-auto text-center'>
                     <Typography
-                      variant="h1"
-                      className="text-5xl md:text-6xl lg:text-6xl font-normal mb-4 font-libre-baskerville"
-                      align="center"
+                      variant='h1'
+                      className='text-5xl md:text-6xl lg:text-6xl font-normal mb-4 font-libre-baskerville'
+                      align='center'
                       style={{ color: '#98342d' }}
                     >
                       {weaveType}
                     </Typography>
                     <Typography
-                      variant="body"
-                      className="text-lg md:text-xl text-gray-600 leading-relaxed mx-auto"
-                      align="center"
+                      variant='body'
+                      className='text-lg md:text-xl text-gray-600 leading-relaxed mx-auto'
+                      align='center'
                     >
-                      {weaveProducts.length > 0 
+                      {weaveProducts.length > 0
                         ? `${weaveProducts.length} handcrafted rugs featuring ${weaveType.toLowerCase()} technique`
-                        : `Explore our ${weaveType.toLowerCase()} collection`
-                      }
+                        : `Explore our ${weaveType.toLowerCase()} collection`}
                     </Typography>
                   </div>
                 </FadeIn>
@@ -138,21 +141,21 @@ export default function CollectionsPage() {
           </SectionErrorBoundary>
 
           {/* Products Section */}
-          <SectionErrorBoundary sectionName="weave products">
-            <section className="pb-10 md:pb-14 lg:pb-18">
-              <Container size="lg">
+          <SectionErrorBoundary sectionName='weave products'>
+            <section className='pb-10 md:pb-14 lg:pb-18'>
+              <Container size='lg'>
                 {loading ? (
                   <div style={{ padding: '45px 48px' }}>
-                    <LoadingSkeleton variant="tiles" />
+                    <LoadingSkeleton variant='tiles' />
                   </div>
                 ) : weaveError ? (
-                  <div className="text-center py-8">
-                    <Typography variant="body" className="text-red-600">
+                  <div className='text-center py-8'>
+                    <Typography variant='body' className='text-red-600'>
                       {weaveError}
                     </Typography>
                   </div>
                 ) : (
-                  <CollectionProductsClient 
+                  <CollectionProductsClient
                     products={weaveProducts}
                     productsError={weaveError}
                   />
@@ -168,33 +171,37 @@ export default function CollectionsPage() {
   // Show normal collections page
   return (
     <ErrorBoundary>
-      <div className="min-h-screen" style={{ backgroundColor: '#f1eee9' }}>
+      <div className='min-h-screen' style={{ backgroundColor: '#f1eee9' }}>
         {/* Hero Section */}
-        <SectionErrorBoundary sectionName="collections hero">
-          <section className="py-16 md:py-24">
-            <Container size="lg">
-              <div className="mb-6">
-                <Breadcrumbs items={[
-                  { label: 'Home', href: '/' },
-                  { label: 'Collections' }
-                ]} />
+        <SectionErrorBoundary sectionName='collections hero'>
+          <section className='py-16 md:py-24'>
+            <Container size='lg'>
+              <div className='mb-6'>
+                <Breadcrumbs
+                  items={[
+                    { label: 'Home', href: '/' },
+                    { label: 'Collections' },
+                  ]}
+                />
               </div>
               <FadeIn>
-                <div className="max-w-3xl mx-auto text-center">
+                <div className='max-w-3xl mx-auto text-center'>
                   <Typography
-                    variant="h1"
-                    className="text-5xl md:text-6xl lg:text-6xl font-normal mb-4 font-libre-baskerville"
-                    align="center"
+                    variant='h1'
+                    className='text-5xl md:text-6xl lg:text-6xl font-normal mb-4 font-libre-baskerville'
+                    align='center'
                     style={{ color: '#98342d' }}
                   >
                     Collections
                   </Typography>
                   <Typography
-                    variant="body"
-                    className="text-lg md:text-xl text-gray-600 leading-relaxed mx-auto"
-                    align="center"
+                    variant='body'
+                    className='text-lg md:text-xl text-gray-600 leading-relaxed mx-auto'
+                    align='center'
                   >
-                    Discover our curated collections of handcrafted rugs, each telling its own story through traditional artistry and contemporary design.
+                    Discover our curated collections of handcrafted rugs, each
+                    telling its own story through traditional artistry and
+                    contemporary design.
                   </Typography>
                 </div>
               </FadeIn>
@@ -203,14 +210,14 @@ export default function CollectionsPage() {
         </SectionErrorBoundary>
 
         {/* Collections Content */}
-        <SectionErrorBoundary sectionName="collections content">
-          <section className="pb-10 md:pb-14 lg:pb-18">
+        <SectionErrorBoundary sectionName='collections content'>
+          <section className='pb-10 md:pb-14 lg:pb-18'>
             {loading ? (
               <div style={{ padding: '45px 48px' }}>
-                <LoadingSkeleton variant="tiles" />
+                <LoadingSkeleton variant='tiles' />
               </div>
             ) : (
-              <CollectionsTabsSection 
+              <CollectionsTabsSection
                 styleCollections={styleCollections}
                 spaceCollections={spaceCollections}
                 styleError={styleError}
@@ -234,11 +241,11 @@ interface CollectionsTabsSectionProps {
   spaceError: string | null;
 }
 
-function CollectionsTabsSection({ 
-  styleCollections, 
-  spaceCollections, 
-  styleError, 
-  spaceError 
+function CollectionsTabsSection({
+  styleCollections,
+  spaceCollections,
+  styleError,
+  spaceError,
 }: CollectionsTabsSectionProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -257,17 +264,18 @@ function CollectionsTabsSection({
   const handleTabChange = (tab: 'style' | 'space') => {
     setActiveTab(tab);
     // Update URL hash
-    const newUrl = tab === 'space' ? '/collections#space' : '/collections#style';
+    const newUrl =
+      tab === 'space' ? '/collections#space' : '/collections#style';
     router.replace(newUrl, { scroll: false });
   };
 
   return (
     <SlideUp delay={0.2}>
-      <Container size="xl" className="space-y-12">
+      <Container size='xl' className='space-y-12'>
         {/* Tab Navigation - Responsive Toggle Switch */}
-        <div className="flex justify-center px-4">
+        <div className='flex justify-center px-4'>
           <div
-            className="relative inline-flex w-full max-w-sm sm:max-w-md"
+            className='relative inline-flex w-full max-w-sm sm:max-w-md'
             style={{
               height: '60px',
               background: '#E3D0BF',
@@ -275,143 +283,139 @@ function CollectionsTabsSection({
               borderRadius: '100px',
               padding: '2px',
               position: 'relative',
-              overflow: 'hidden'
+              overflow: 'hidden',
             }}
           >
             {/* Moving White Background - Full Coverage */}
             <div
-              className="absolute transition-all duration-300 ease-in-out z-0"
+              className='absolute transition-all duration-300 ease-in-out z-0'
               style={{
-                width: 'calc(50% - 2px)',     // Exactly half minus padding
-                height: '56px',     // 60-4 = 56 for 2px padding on all sides
+                width: 'calc(50% - 2px)', // Exactly half minus padding
+                height: '56px', // 60-4 = 56 for 2px padding on all sides
                 background: '#FFFFFF',
                 borderRadius: '100px',
-                top: '2px',         // 2px from top
+                top: '2px', // 2px from top
                 left: activeTab === 'style' ? '2px' : 'calc(50% + 2px)', // 2px from left, or half width + 2px
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
               }}
             />
 
             {/* Tab Buttons Container */}
-            <div className="relative flex w-full h-full z-10">
+            <div className='relative flex w-full h-full z-10'>
               {/* Style Tab */}
               <button
                 onClick={() => handleTabChange('style')}
-                className="flex-1 flex items-center justify-center text-center transition-all duration-300 font-medium px-2"
+                className='flex-1 flex items-center justify-center text-center transition-all duration-300 font-medium px-2'
                 style={{
                   fontFamily: 'Poppins',
                   fontSize: '14px', // Smaller font for mobile
                   color: activeTab === 'style' ? '#98342d' : '#666666',
-                  fontWeight: activeTab === 'style' ? '600' : '500'
+                  fontWeight: activeTab === 'style' ? '600' : '500',
                 }}
               >
-                <span className="truncate">Rugs by Style</span>
+                <span className='truncate'>Rugs by Style</span>
               </button>
 
               {/* Space Tab */}
               <button
                 onClick={() => handleTabChange('space')}
-                className="flex-1 flex items-center justify-center text-center transition-all duration-300 font-medium px-2"
+                className='flex-1 flex items-center justify-center text-center transition-all duration-300 font-medium px-2'
                 style={{
                   fontFamily: 'Poppins',
                   fontSize: '14px', // Smaller font for mobile
                   color: activeTab === 'space' ? '#98342d' : '#666666',
-                  fontWeight: activeTab === 'space' ? '600' : '500'
+                  fontWeight: activeTab === 'space' ? '600' : '500',
                 }}
               >
-                <span className="truncate">Rugs by Space</span>
+                <span className='truncate'>Rugs by Space</span>
               </button>
             </div>
           </div>
         </div>
 
         {/* Tab Content */}
-        <div className="space-y-8">
+        <div className='space-y-8'>
           {/* Tab Description */}
-          <div className="space-y-4 text-center">
+          <div className='space-y-4 text-center'>
             <Typography
-              variant="h2"
-              className="text-3xl md:text-4xl font-normal font-libre-baskerville"
-              align="center"
+              variant='h2'
+              className='text-3xl md:text-4xl font-normal font-libre-baskerville'
+              align='center'
               style={{ color: '#98342d' }}
             >
               {activeTab === 'style' ? 'Rugs by Style' : 'Rugs by Space'}
             </Typography>
-            <Typography 
-              variant="body" 
-              className="text-gray-600 max-w-2xl mx-auto"
-              align="center"
+            <Typography
+              variant='body'
+              className='text-gray-600 max-w-2xl mx-auto'
+              align='center'
             >
-              {activeTab === 'style' 
+              {activeTab === 'style'
                 ? 'Explore our diverse style collections, each with its own personality and aesthetic. From bold contemporary designs to timeless traditional patterns.'
-                : 'Find the perfect rug for every room in your home. Our space-curated collections help you discover pieces that complement your lifestyle and interior design.'
-              }
+                : 'Find the perfect rug for every room in your home. Our space-curated collections help you discover pieces that complement your lifestyle and interior design.'}
             </Typography>
           </div>
 
           {/* Conditional Content Based on Active Tab */}
           {activeTab === 'style' ? (
             styleError ? (
-              <div className="text-center py-8">
-                <Typography variant="body" className="text-red-600">
+              <div className='text-center py-8'>
+                <Typography variant='body' className='text-red-600'>
                   {styleError}
                 </Typography>
               </div>
             ) : (
-              <div className="space-y-6 w-full text-center">
-                <Typography 
-                  variant="body" 
-                  className="text-gray-600"
+              <div className='space-y-6 w-full text-center'>
+                <Typography
+                  variant='body'
+                  className='text-gray-600'
                   style={{ fontFamily: 'Poppins' }}
-                  align="center"
+                  align='center'
                 >
                   Showing {styleCollections.length} collections
                 </Typography>
-                <Suspense fallback={<LoadingSkeleton variant="tiles" />}>
+                <Suspense fallback={<LoadingSkeleton variant='tiles' />}>
                   <SafeCollectionTilesSection
-                    title="Our Style Collections"
-                    subtitle="Discover rugs organized by aesthetic and design philosophy"
+                    title='Our Style Collections'
+                    subtitle='Discover rugs organized by aesthetic and design philosophy'
                     collections={styleCollections}
                     loading={false}
                     error={null}
-                    type="style"
+                    type='style'
                   />
                 </Suspense>
               </div>
             )
+          ) : spaceError ? (
+            <div className='text-center py-8'>
+              <Typography variant='body' className='text-red-600'>
+                {spaceError}
+              </Typography>
+            </div>
           ) : (
-            spaceError ? (
-              <div className="text-center py-8">
-                <Typography variant="body" className="text-red-600">
-                  {spaceError}
-                </Typography>
-              </div>
-            ) : (
-              <div className="space-y-6 w-full text-center">
-                <Typography 
-                  variant="body" 
-                  className="text-gray-600"
-                  style={{ fontFamily: 'Poppins' }}
-                  align="center"
-                >
-                  Showing {spaceCollections.length} collections
-                </Typography>
-                <Suspense fallback={<LoadingSkeleton variant="tiles" />}>
-                  <SafeCollectionTilesSection
-                    title="Our Space Collections"
-                    subtitle="Find the perfect rug for every room in your home"
-                    collections={spaceCollections}
-                    loading={false}
-                    error={null}
-                    type="space"
-                  />
-                </Suspense>
-              </div>
-            )
+            <div className='space-y-6 w-full text-center'>
+              <Typography
+                variant='body'
+                className='text-gray-600'
+                style={{ fontFamily: 'Poppins' }}
+                align='center'
+              >
+                Showing {spaceCollections.length} collections
+              </Typography>
+              <Suspense fallback={<LoadingSkeleton variant='tiles' />}>
+                <SafeCollectionTilesSection
+                  title='Our Space Collections'
+                  subtitle='Find the perfect rug for every room in your home'
+                  collections={spaceCollections}
+                  loading={false}
+                  error={null}
+                  type='space'
+                />
+              </Suspense>
+            </div>
           )}
         </div>
       </Container>
     </SlideUp>
   );
 }
-

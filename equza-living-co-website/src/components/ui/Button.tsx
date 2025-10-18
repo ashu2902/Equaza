@@ -18,10 +18,8 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          'bg-[#98342d] text-white shadow hover:bg-[#98342d]/90',
-        destructive:
-          'bg-red-500 text-white shadow-sm hover:bg-red-500/90',
+        default: 'bg-[#98342d] text-white shadow hover:bg-[#98342d]/90',
+        destructive: 'bg-red-500 text-white shadow-sm hover:bg-red-500/90',
         outline:
           'border border-[#98342d]/30 bg-white text-[#98342d] shadow-sm hover:bg-[#98342d]/10 hover:text-[#98342d]',
         secondary:
@@ -80,7 +78,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={isDisabled}
         {...props}
       >
-        {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+        {loading && <Loader2 className='h-4 w-4 animate-spin' />}
         {!loading && leftIcon && leftIcon}
         {children}
         {!loading && rightIcon && rightIcon}
@@ -92,4 +90,4 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button';
 
 export { Button, buttonVariants };
-export type { ButtonProps }; 
+export type { ButtonProps };

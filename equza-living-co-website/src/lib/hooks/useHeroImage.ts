@@ -6,7 +6,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getPageHeroImage, type HeroImageData } from '@/lib/firebase/hero-images';
+import {
+  getPageHeroImage,
+  type HeroImageData,
+} from '@/lib/firebase/hero-images';
 
 export interface UseHeroImageResult {
   heroImage: HeroImageData | null;
@@ -29,9 +32,9 @@ export function useHeroImage(pageType: PageType): UseHeroImageResult {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const imageData = await getPageHeroImage(pageType);
-      
+
       if (imageData) {
         setHeroImage(imageData);
       } else {
@@ -45,10 +48,11 @@ export function useHeroImage(pageType: PageType): UseHeroImageResult {
         });
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch hero image';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to fetch hero image';
       setError(errorMessage);
       console.error(`Error fetching hero image for ${pageType}:`, err);
-      
+
       // Set fallback image on error
       setHeroImage({
         imageUrl: getStaticFallbackImage(pageType),
@@ -84,11 +88,11 @@ export function useHeroImage(pageType: PageType): UseHeroImageResult {
 function getStaticFallbackImage(pageType: PageType): string {
   const fallbackImages = {
     'our-story': '/images/our-story-hero.jpg',
-    'craftsmanship': '/images/craftsmanship-hero.jpg',
-    'trade': '/images/trade-hero.jpg',
-    'customize': '/images/craftsmanship-hero.jpg',
+    craftsmanship: '/images/craftsmanship-hero.jpg',
+    trade: '/images/trade-hero.jpg',
+    customize: '/images/craftsmanship-hero.jpg',
   };
-  
+
   return fallbackImages[pageType];
 }
 
@@ -98,11 +102,11 @@ function getStaticFallbackImage(pageType: PageType): string {
 function getStaticFallbackAltText(pageType: PageType): string {
   const fallbackAltTexts = {
     'our-story': 'Our story - heritage craftsmanship',
-    'craftsmanship': 'Master artisan weaving traditional rug',
-    'trade': 'Business partnership handshake with rugs in background',
-    'customize': 'Traditional rug weaving background',
+    craftsmanship: 'Master artisan weaving traditional rug',
+    trade: 'Business partnership handshake with rugs in background',
+    customize: 'Traditional rug weaving background',
   };
-  
+
   return fallbackAltTexts[pageType];
 }
 
@@ -110,11 +114,13 @@ function getStaticFallbackAltText(pageType: PageType): string {
  * Hook for multiple hero images (useful for admin interfaces)
  */
 export function useAllHeroImages() {
-  const [heroImages, setHeroImages] = useState<Record<PageType, HeroImageData | null>>({
+  const [heroImages, setHeroImages] = useState<
+    Record<PageType, HeroImageData | null>
+  >({
     'our-story': null,
-    'craftsmanship': null,
-    'trade': null,
-    'customize': null,
+    craftsmanship: null,
+    trade: null,
+    customize: null,
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -123,23 +129,29 @@ export function useAllHeroImages() {
     try {
       setIsLoading(true);
       setError(null);
-      
-      const pageTypes: PageType[] = ['our-story', 'craftsmanship', 'trade', 'customize'];
+
+      const pageTypes: PageType[] = [
+        'our-story',
+        'craftsmanship',
+        'trade',
+        'customize',
+      ];
       const promises = pageTypes.map(async (pageType) => {
         const imageData = await getPageHeroImage(pageType);
         return { pageType, imageData };
       });
-      
+
       const results = await Promise.all(promises);
-      
+
       const newHeroImages = {} as Record<PageType, HeroImageData | null>;
       results.forEach(({ pageType, imageData }) => {
         newHeroImages[pageType] = imageData;
       });
-      
+
       setHeroImages(newHeroImages);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch hero images';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to fetch hero images';
       setError(errorMessage);
       console.error('Error fetching all hero images:', err);
     } finally {

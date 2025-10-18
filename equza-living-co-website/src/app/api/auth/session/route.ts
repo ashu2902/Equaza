@@ -16,14 +16,19 @@ export async function POST(request: Request) {
 
     const auth = getAdminAuth();
     const decoded = await auth.verifyIdToken(idToken);
-    console.log('🔐 Token decoded:', { admin: !!decoded?.admin, uid: decoded?.uid });
+    console.log('🔐 Token decoded:', {
+      admin: !!decoded?.admin,
+      uid: decoded?.uid,
+    });
     if (!decoded || !decoded.admin) {
       console.log('❌ Not an admin user');
       return NextResponse.json({ error: 'Not an admin' }, { status: 403 });
     }
 
     console.log('🍪 Creating session cookie for admin user:', decoded.uid);
-    const sessionCookie = await auth.createSessionCookie(idToken, { expiresIn: SESSION_EXPIRES_IN });
+    const sessionCookie = await auth.createSessionCookie(idToken, {
+      expiresIn: SESSION_EXPIRES_IN,
+    });
     const res = NextResponse.json({ success: true });
     res.headers.set('Cache-Control', 'no-store');
     const cookieStore = await cookies();
@@ -40,7 +45,10 @@ export async function POST(request: Request) {
     return res;
   } catch (error) {
     console.error('❌ Create session error:', error);
-    return NextResponse.json({ error: 'Failed to create session' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to create session' },
+      { status: 500 }
+    );
   }
 }
 
@@ -50,14 +58,20 @@ export async function DELETE() {
     const existing = cookieStore.get(SESSION_COOKIE_NAME);
     if (existing) {
       const isDev = process.env.NODE_ENV !== 'production';
-      cookieStore.set(SESSION_COOKIE_NAME, '', { httpOnly: true, secure: !isDev, sameSite: 'lax', path: '/', maxAge: 0 });
+      cookieStore.set(SESSION_COOKIE_NAME, '', {
+        httpOnly: true,
+        secure: !isDev,
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 0,
+      });
     }
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Delete session error:', error);
-    return NextResponse.json({ error: 'Failed to delete session' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to delete session' },
+      { status: 500 }
+    );
   }
 }
-
-
-

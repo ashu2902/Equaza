@@ -13,12 +13,12 @@ export const metadata: Metadata = {
 
 export default function AdminNewWeaveTypePage() {
   return (
-    <AdminPageTemplate title="Create New Weave Type">
-      <div className="max-w-3xl mx-auto">
-        <Typography variant="h3" className="mb-6">
+    <AdminPageTemplate title='Create New Weave Type'>
+      <div className='max-w-3xl mx-auto'>
+        <Typography variant='h3' className='mb-6'>
           Weave Type Details
         </Typography>
-        <WeaveTypeForm mode="create" />
+        <WeaveTypeForm mode='create' />
       </div>
     </AdminPageTemplate>
   );

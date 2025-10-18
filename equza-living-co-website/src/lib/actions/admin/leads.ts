@@ -7,7 +7,7 @@
 
 import { redirect } from 'next/navigation';
 import type { Lead, LeadStatus, LeadNote } from '@/types';
-import { 
+import {
   updateLead,
   updateLeadAdmin,
   deleteLead,
@@ -17,7 +17,7 @@ import {
   addLeadNote,
   addLeadNoteAdmin,
   getLeadById,
-  getLeadByIdAdmin 
+  getLeadByIdAdmin,
 } from '@/lib/firebase/leads';
 import { checkAdminStatus } from '@/lib/firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -40,7 +40,10 @@ export interface BulkLeadResult {
 /**
  * Verify admin authentication
  */
-async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string }> {
+async function verifyAdminAuth(): Promise<{
+  isAdmin: boolean;
+  userId?: string;
+}> {
   try {
     const isAdmin = await checkAdminStatus();
     const userId = auth?.currentUser?.uid;
@@ -81,7 +84,6 @@ export async function updateAdminLeadStatus(
     // Update lead status
     await updateLeadStatusAdmin(leadId, status, assignedTo);
 
-
     // Log admin action
     console.log('Admin lead status updated:', {
       leadId,
@@ -96,13 +98,13 @@ export async function updateAdminLeadStatus(
       message: `Lead status updated to ${status}`,
       leadId,
     };
-
   } catch (error) {
     console.error('Error updating lead status:', error);
-    
+
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to update lead status',
+      message:
+        error instanceof Error ? error.message : 'Failed to update lead status',
     };
   }
 }
@@ -132,7 +134,6 @@ export async function addAdminLeadNote(
     // Add note to lead
     await addLeadNoteAdmin(leadId, noteContent.trim(), auth.userId);
 
-
     // Log admin action
     console.log('Admin lead note added:', {
       leadId,
@@ -145,10 +146,9 @@ export async function addAdminLeadNote(
       message: 'Note added successfully',
       leadId,
     };
-
   } catch (error) {
     console.error('Error adding lead note:', error);
-    
+
     return {
       success: false,
       message: error instanceof Error ? error.message : 'Failed to add note',
@@ -173,11 +173,17 @@ export async function updateAdminLead(
     // Validate updates
     const errors: Record<string, string> = {};
 
-    if (updates.name !== undefined && (!updates.name || updates.name.trim().length < 1)) {
+    if (
+      updates.name !== undefined &&
+      (!updates.name || updates.name.trim().length < 1)
+    ) {
       errors.name = 'Name is required';
     }
 
-    if (updates.email !== undefined && (!updates.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(updates.email))) {
+    if (
+      updates.email !== undefined &&
+      (!updates.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(updates.email))
+    ) {
       errors.email = 'Valid email is required';
     }
 
@@ -201,7 +207,6 @@ export async function updateAdminLead(
     // Update lead
     await updateLeadAdmin(leadId, updates);
 
-
     // Log admin action
     console.log('Admin lead updated:', {
       leadId,
@@ -214,10 +219,9 @@ export async function updateAdminLead(
       message: 'Lead updated successfully',
       leadId,
     };
-
   } catch (error) {
     console.error('Error updating lead:', error);
-    
+
     return {
       success: false,
       message: error instanceof Error ? error.message : 'Failed to update lead',
@@ -250,7 +254,6 @@ export async function deleteAdminLead(
     // Delete lead
     await deleteLeadAdmin(leadId);
 
-
     // Log admin action
     console.log('Admin lead deleted:', {
       leadId,
@@ -264,10 +267,9 @@ export async function deleteAdminLead(
       message: 'Lead deleted successfully',
       leadId,
     };
-
   } catch (error) {
     console.error('Error deleting lead:', error);
-    
+
     return {
       success: false,
       message: error instanceof Error ? error.message : 'Failed to delete lead',
@@ -292,7 +294,6 @@ export async function assignLead(
     // Update lead assignment
     await updateLead(leadId, { assignedTo: assignToUserId });
 
-
     // Log admin action
     console.log('Admin lead assigned:', {
       leadId,
@@ -305,10 +306,9 @@ export async function assignLead(
       message: 'Lead assigned successfully',
       leadId,
     };
-
   } catch (error) {
     console.error('Error assigning lead:', error);
-    
+
     return {
       success: false,
       message: error instanceof Error ? error.message : 'Failed to assign lead',
@@ -354,7 +354,6 @@ export async function bulkUpdateLeadStatus(
           name: lead.name,
         });
         processed++;
-
       } catch (error) {
         console.error(`Error updating lead ${leadId}:`, error);
         results.push({
@@ -364,7 +363,6 @@ export async function bulkUpdateLeadStatus(
         errors++;
       }
     }
-
 
     // Log admin action
     console.log('Admin bulk lead status update:', {
@@ -382,10 +380,9 @@ export async function bulkUpdateLeadStatus(
       errors,
       results,
     };
-
   } catch (error) {
     console.error('Error bulk updating lead status:', error);
-    
+
     return {
       success: false,
       message: 'Failed to process bulk update',
@@ -432,7 +429,6 @@ export async function bulkDeleteLeads(
           name: lead.name,
         });
         processed++;
-
       } catch (error) {
         console.error(`Error deleting lead ${leadId}:`, error);
         results.push({
@@ -442,7 +438,6 @@ export async function bulkDeleteLeads(
         errors++;
       }
     }
-
 
     // Log admin action
     console.log('Admin bulk lead delete:', {
@@ -458,10 +453,9 @@ export async function bulkDeleteLeads(
       errors,
       results,
     };
-
   } catch (error) {
     console.error('Error bulk deleting leads:', error);
-    
+
     return {
       success: false,
       message: 'Failed to process bulk delete',
@@ -475,14 +469,12 @@ export async function bulkDeleteLeads(
 /**
  * Export leads data (admin only)
  */
-export async function exportLeads(
-  filters?: {
-    type?: string;
-    status?: string;
-    dateFrom?: Date;
-    dateTo?: Date;
-  }
-): Promise<{
+export async function exportLeads(filters?: {
+  type?: string;
+  status?: string;
+  dateFrom?: Date;
+  dateTo?: Date;
+}): Promise<{
   success: boolean;
   message: string;
   data?: Array<{
@@ -524,7 +516,10 @@ export async function exportLeads(
       message: l.message || '',
       status: l.status || '',
       assignedTo: l.assignedTo || '',
-      createdAt: typeof l.createdAt === 'string' ? l.createdAt : (l.createdAt?.toISOString?.() || ''),
+      createdAt:
+        typeof l.createdAt === 'string'
+          ? l.createdAt
+          : l.createdAt?.toISOString?.() || '',
       source: l.source || '',
     }));
 
@@ -540,10 +535,9 @@ export async function exportLeads(
       message: 'Leads exported successfully',
       data,
     };
-
   } catch (error) {
     console.error('Error exporting leads:', error);
-    
+
     return {
       success: false,
       message: 'Failed to export leads',
@@ -554,9 +548,10 @@ export async function exportLeads(
 /**
  * Get lead analytics (admin only)
  */
-export async function getLeadAnalytics(
-  dateRange?: { from: Date; to: Date }
-): Promise<{
+export async function getLeadAnalytics(dateRange?: {
+  from: Date;
+  to: Date;
+}): Promise<{
   success: boolean;
   data?: {
     totalLeads: number;
@@ -576,7 +571,7 @@ export async function getLeadAnalytics(
 
     // TODO: Implement lead analytics
     // This would calculate various metrics from lead data
-    
+
     return {
       success: true,
       data: {
@@ -588,10 +583,9 @@ export async function getLeadAnalytics(
         averageResponseTime: 0,
       },
     };
-
   } catch (error) {
     console.error('Error getting lead analytics:', error);
-    
+
     return {
       success: false,
     };

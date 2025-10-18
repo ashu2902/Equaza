@@ -16,10 +16,7 @@ export {
 } from './config';
 
 // Legacy Firestore operations (maintained for compatibility)
-export {
-  getPage,
-  getLookbook,
-} from './firestore';
+export { getPage, getLookbook } from './firestore';
 
 // Collections data layer
 export {
@@ -139,4 +136,4 @@ export {
 
 // TODO: Additional Firebase utilities to be implemented
 // export { uploadFile, deleteFile } from './storage';
-// export { sendNotificationEmail } from './functions'; 
+// export { sendNotificationEmail } from './functions';

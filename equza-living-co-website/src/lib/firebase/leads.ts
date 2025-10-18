@@ -22,21 +22,21 @@ import {
   QueryDocumentSnapshot,
 } from 'firebase/firestore';
 
-import type { 
-  Lead, 
-  LeadType, 
-  LeadStatus, 
-  LeadFilters, 
+import type {
+  Lead,
+  LeadType,
+  LeadStatus,
+  LeadFilters,
   LeadNote,
   ContactFormData,
   CustomizeFormData,
   EnquiryFormData,
-  TradeFormData
+  TradeFormData,
 } from '@/types';
 import { db } from './config';
 import { getAdminFirestore } from './server-app';
 import { Timestamp as AdminTimestamp } from 'firebase-admin/firestore';
-import { 
+import {
   LeadCreationInput,
   LeadUpdateInput,
   LeadFilters as SchemaLeadFilters,
@@ -47,23 +47,29 @@ import {
   validateLeadFilters,
   sanitizeInput,
   convertFirestoreDocToLead,
-  getDefaultLeadData
+  getDefaultLeadData,
 } from '@/lib/schemas/lead-schema';
 
 // Helper function to convert Firestore document to typed object with proper serialization
-const convertDoc = <T>(doc: DocumentSnapshot | QueryDocumentSnapshot): T | null => {
+const convertDoc = <T>(
+  doc: DocumentSnapshot | QueryDocumentSnapshot
+): T | null => {
   if (!doc.exists()) return null;
-  
+
   const data = doc.data();
   const convertedData = { ...data };
-  
+
   // Convert Firestore Timestamps to ISO strings for client components
-  Object.keys(convertedData).forEach(key => {
-    if (convertedData[key] && typeof convertedData[key] === 'object' && convertedData[key].toDate) {
+  Object.keys(convertedData).forEach((key) => {
+    if (
+      convertedData[key] &&
+      typeof convertedData[key] === 'object' &&
+      convertedData[key].toDate
+    ) {
       convertedData[key] = convertedData[key].toDate().toISOString();
     }
   });
-  
+
   return { id: doc.id, ...convertedData } as T;
 };
 
@@ -75,42 +81,46 @@ const convertDoc = <T>(doc: DocumentSnapshot | QueryDocumentSnapshot): T | null 
 export const getLeads = async (filters: LeadFilters = {}): Promise<Lead[]> => {
   try {
     const constraints: QueryConstraint[] = [];
-    
+
     // Apply filters
     if (filters.type) {
       constraints.push(where('type', '==', filters.type));
     }
-    
+
     if (filters.status) {
       constraints.push(where('status', '==', filters.status));
     }
-    
+
     if (filters.assignedTo) {
       constraints.push(where('assignedTo', '==', filters.assignedTo));
     }
-    
+
     // Date range filtering (simplified - in production you'd want better date handling)
     if (filters.dateFrom) {
-      constraints.push(where('createdAt', '>=', Timestamp.fromDate(filters.dateFrom)));
+      constraints.push(
+        where('createdAt', '>=', Timestamp.fromDate(filters.dateFrom))
+      );
     }
-    
+
     if (filters.dateTo) {
-      constraints.push(where('createdAt', '<=', Timestamp.fromDate(filters.dateTo)));
+      constraints.push(
+        where('createdAt', '<=', Timestamp.fromDate(filters.dateTo))
+      );
     }
-    
+
     // Default ordering (newest first)
     constraints.push(orderBy('createdAt', 'desc'));
-    
+
     // Pagination
     if (filters.limit) {
       constraints.push(limit(filters.limit));
     }
-    
+
     const q = query(collection(db, 'leads'), ...constraints);
     const snapshot = await getDocs(q);
-    
+
     return snapshot.docs
-      .map(doc => convertDoc<Lead>(doc))
+      .map((doc) => convertDoc<Lead>(doc))
       .filter(Boolean) as Lead[];
   } catch (error) {
     console.error('Error fetching leads:', error);
@@ -125,7 +135,7 @@ export const getLeadById = async (id: string): Promise<Lead | null> => {
   try {
     const docRef = doc(db, 'leads', id);
     const docSnap = await getDoc(docRef);
-    
+
     return convertDoc<Lead>(docSnap);
   } catch (error) {
     console.error('Error fetching lead by ID:', error);
@@ -140,19 +150,23 @@ export const getLeadByIdAdmin = async (id: string): Promise<Lead | null> => {
   try {
     const adminDb = getAdminFirestore();
     const docSnap = await adminDb.collection('leads').doc(id).get();
-    
+
     if (!docSnap.exists) return null;
-    
+
     const data = docSnap.data();
     const convertedData = { ...data };
-    
+
     // Convert Firestore Timestamps to ISO strings for client components
-    Object.keys(convertedData).forEach(key => {
-      if (convertedData[key] && typeof convertedData[key] === 'object' && convertedData[key].toDate) {
+    Object.keys(convertedData).forEach((key) => {
+      if (
+        convertedData[key] &&
+        typeof convertedData[key] === 'object' &&
+        convertedData[key].toDate
+      ) {
         convertedData[key] = convertedData[key].toDate().toISOString();
       }
     });
-    
+
     return { id: docSnap.id, ...convertedData } as Lead;
   } catch (error) {
     console.error('Error fetching lead by ID (admin):', error);
@@ -177,7 +191,9 @@ export const getLeadsByType = async (type: LeadType): Promise<Lead[]> => {
 /**
  * Get recent leads
  */
-export const getRecentLeads = async (limitCount: number = 10): Promise<Lead[]> => {
+export const getRecentLeads = async (
+  limitCount: number = 10
+): Promise<Lead[]> => {
   return getLeads({ limit: limitCount });
 };
 
@@ -194,7 +210,7 @@ export const getLeadsStats = async (): Promise<{
     const allLeads = await getLeads({});
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    
+
     const stats = {
       total: allLeads.length,
       byStatus: {
@@ -212,17 +228,17 @@ export const getLeadsStats = async (): Promise<{
       } as Record<LeadType, number>,
       recent: 0,
     };
-    
-    allLeads.forEach(lead => {
+
+    allLeads.forEach((lead) => {
       stats.byStatus[lead.status]++;
       stats.byType[lead.type]++;
-      
+
       const leadDate = lead.createdAt.toDate();
       if (leadDate >= sevenDaysAgo) {
         stats.recent++;
       }
     });
-    
+
     return stats;
   } catch (error) {
     console.error('Error getting leads stats:', error);
@@ -249,19 +265,19 @@ export const createContactLead = async (
       status: 'new',
       notes: [],
     });
-    
+
     // Validate the complete lead data
     const validatedData = validateLeadCreationInput(leadData);
-    
+
     // Add timestamps
     const docData = {
       ...validatedData,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
     };
-    
+
     const docRef = await addDoc(collection(db, 'leads'), docData);
-    
+
     return docRef.id;
   } catch (error) {
     console.error('Error creating contact lead:', error);
@@ -290,26 +306,27 @@ export const createCustomizeLead = async (
       customizationDetails: {
         preferredSize: sanitizeInput(formData.preferredSize),
         preferredMaterials: formData.preferredMaterials || [],
-        moodboardFiles: formData.moodboardFiles?.map(file => ({
-          filename: file.name,
-          url: '', // Will be populated after upload
-          storageRef: '', // Will be populated after upload
-        })) || [],
+        moodboardFiles:
+          formData.moodboardFiles?.map((file) => ({
+            filename: file.name,
+            url: '', // Will be populated after upload
+            storageRef: '', // Will be populated after upload
+          })) || [],
       },
     });
-    
+
     // Validate the complete lead data
     const validatedData = validateLeadCreationInput(leadData);
-    
+
     // Add timestamps
     const docData = {
       ...validatedData,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
     };
-    
+
     const docRef = await addDoc(collection(db, 'leads'), docData);
-    
+
     return docRef.id;
   } catch (error) {
     console.error('Error creating customize lead:', error);
@@ -336,19 +353,19 @@ export const createEnquiryLead = async (
       status: 'new',
       notes: [],
     });
-    
+
     // Validate the complete lead data
     const validatedData = validateLeadCreationInput(leadData);
-    
+
     // Add timestamps
     const docData = {
       ...validatedData,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
     };
-    
+
     const docRef = await addDoc(collection(db, 'leads'), docData);
-    
+
     return docRef.id;
   } catch (error) {
     console.error('Error creating enquiry lead:', error);
@@ -374,20 +391,21 @@ export const createTradeLead = async (
       source: sanitizeInput(source),
       status: 'new',
       notes: [],
+      company: formData.company ? sanitizeInput(formData.company) : undefined,
     });
-    
+
     // Validate the complete lead data
     const validatedData = validateLeadCreationInput(leadData);
-    
+
     // Add timestamps
     const docData = {
       ...validatedData,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
     };
-    
+
     const docRef = await addDoc(collection(db, 'leads'), docData);
-    
+
     return docRef.id;
   } catch (error) {
     console.error('Error creating trade lead:', error);
@@ -409,11 +427,11 @@ export const updateLeadStatus = async (
       status,
       updatedAt: Timestamp.now(),
     };
-    
+
     if (assignedTo !== undefined) {
       updateData.assignedTo = assignedTo;
     }
-    
+
     await updateDoc(docRef, updateData);
   } catch (error) {
     console.error('Error updating lead status:', error);
@@ -435,11 +453,11 @@ export const updateLeadStatusAdmin = async (
       status,
       updatedAt: AdminTimestamp.now(),
     };
-    
+
     if (assignedTo !== undefined) {
       updateData.assignedTo = assignedTo;
     }
-    
+
     await adminDb.collection('leads').doc(id).update(updateData);
   } catch (error) {
     console.error('Error updating lead status (admin):', error);
@@ -458,15 +476,15 @@ export const addLeadNote = async (
   try {
     const lead = await getLeadById(id);
     if (!lead) throw new Error('Lead not found');
-    
+
     const newNote: LeadNote = {
       content: sanitizeInput(noteContent),
       createdBy: sanitizeInput(createdBy),
       createdAt: Timestamp.now(),
     };
-    
+
     const updatedNotes = [...lead.notes, newNote];
-    
+
     const docRef = doc(db, 'leads', id);
     await updateDoc(docRef, {
       notes: updatedNotes,
@@ -489,7 +507,7 @@ export const addLeadNoteAdmin = async (
   try {
     const lead = await getLeadByIdAdmin(id);
     if (!lead) throw new Error('Lead not found');
-    
+
     const adminDb = getAdminFirestore();
     const adminTimestamp = AdminTimestamp.now();
     const newNote: LeadNote = {
@@ -497,9 +515,9 @@ export const addLeadNoteAdmin = async (
       createdBy: sanitizeInput(createdBy),
       createdAt: Timestamp.fromDate(adminTimestamp.toDate()),
     };
-    
+
     const updatedNotes = [...lead.notes, newNote];
-    
+
     await adminDb.collection('leads').doc(id).update({
       notes: updatedNotes,
       updatedAt: AdminTimestamp.now(),
@@ -519,13 +537,13 @@ export const updateLead = async (
 ): Promise<void> => {
   try {
     validateLeadData(updates);
-    
+
     const docRef = doc(db, 'leads', id);
     const updateData = {
       ...updates,
       updatedAt: Timestamp.now(),
     };
-    
+
     await updateDoc(docRef, updateData);
   } catch (error) {
     console.error('Error updating lead:', error);
@@ -542,13 +560,13 @@ export const updateLeadAdmin = async (
 ): Promise<void> => {
   try {
     validateLeadData(updates);
-    
+
     const adminDb = getAdminFirestore();
     const updateData = {
       ...updates,
       updatedAt: AdminTimestamp.now(),
     };
-    
+
     await adminDb.collection('leads').doc(id).update(updateData);
   } catch (error) {
     console.error('Error updating lead (admin):', error);
@@ -591,17 +609,18 @@ export const searchLeads = async (
 ): Promise<Lead[]> => {
   try {
     if (!searchTerm.trim()) return [];
-    
+
     const searchTermLower = searchTerm.toLowerCase();
-    
+
     // Get all leads and filter client-side for better search
     const allLeads = await getLeads({ limit: 100 });
-    
+
     return allLeads
-      .filter(lead => 
-        lead.name.toLowerCase().includes(searchTermLower) ||
-        lead.email.toLowerCase().includes(searchTermLower) ||
-        (lead.message && lead.message.toLowerCase().includes(searchTermLower))
+      .filter(
+        (lead) =>
+          lead.name.toLowerCase().includes(searchTermLower) ||
+          lead.email.toLowerCase().includes(searchTermLower) ||
+          (lead.message && lead.message.toLowerCase().includes(searchTermLower))
       )
       .slice(0, limitCount);
   } catch (error) {

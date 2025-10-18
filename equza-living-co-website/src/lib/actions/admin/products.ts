@@ -7,16 +7,19 @@
 
 import { redirect } from 'next/navigation';
 import type { Product } from '@/types';
-import { 
+import {
   createProduct,
   updateProduct,
   deleteProduct,
   getProductById,
   getProductByIdAdmin,
   isProductSlugAvailable,
-  isProductSlugAvailableAdmin 
+  isProductSlugAvailableAdmin,
 } from '@/lib/firebase/products';
-import { addProductIdToCollection, removeProductIdFromCollection } from '@/lib/firebase/collections';
+import {
+  addProductIdToCollection,
+  removeProductIdFromCollection,
+} from '@/lib/firebase/collections';
 // import { checkAdminStatus } from '@/lib/firebase/auth'; // Not needed in server actions
 import { cookies } from 'next/headers';
 import { getAdminAuth } from '@/lib/firebase/server-app';
@@ -39,22 +42,28 @@ export interface BulkProductResult {
 /**
  * Verify admin authentication
  */
-async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string }> {
+async function verifyAdminAuth(): Promise<{
+  isAdmin: boolean;
+  userId?: string;
+}> {
   try {
     console.log('🔍 Verifying admin authentication...');
     let isAdmin = false;
     let userId: string | undefined = undefined;
-    
+
     // Try server-side session cookie first
     try {
       const cookieStore = await cookies();
       const session = cookieStore.get('__session')?.value;
       console.log('🍪 Session cookie present:', !!session);
-      
+
       if (session) {
         const adminAuth = getAdminAuth();
         const decoded = await adminAuth.verifySessionCookie(session, true);
-        console.log('🔐 Session decoded:', { admin: !!decoded?.admin, uid: decoded?.uid });
+        console.log('🔐 Session decoded:', {
+          admin: !!decoded?.admin,
+          uid: decoded?.uid,
+        });
         isAdmin = !!decoded?.admin;
         userId = decoded?.uid;
       }
@@ -64,7 +73,7 @@ async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string }>
         sessionError instanceof Error ? sessionError.message : sessionError
       );
     }
-    
+
     // Fallback when server-side auth fails
     if (!isAdmin) {
       console.log('🔄 Server-side auth failed, checking if we can proceed...');
@@ -74,7 +83,7 @@ async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string }>
       isAdmin = true; // Bypass for now since client-side auth is working
       userId = userId || 'admin-user';
     }
-    
+
     console.log('✅ Final auth result:', { isAdmin, userId });
     return { isAdmin, userId };
   } catch (error) {
@@ -98,7 +107,8 @@ function validateProductData(data: Partial<Product>): Record<string, string> {
   if (!data.slug || data.slug.trim().length < 1) {
     errors.slug = 'Product slug is required';
   } else if (!/^[a-z0-9-]+$/.test(data.slug)) {
-    errors.slug = 'Slug can only contain lowercase letters, numbers, and hyphens';
+    errors.slug =
+      'Slug can only contain lowercase letters, numbers, and hyphens';
   }
 
   if (!data.description || data.description.trim().length < 1) {
@@ -116,7 +126,7 @@ function validateProductData(data: Partial<Product>): Record<string, string> {
   if (!data.images || data.images.length === 0) {
     errors.images = 'At least one product image is required';
   } else {
-    const hasMainImage = data.images.some(img => img.isMain);
+    const hasMainImage = data.images.some((img) => img.isMain);
     if (!hasMainImage) {
       errors.images = 'At least one image must be marked as main';
     }
@@ -129,7 +139,10 @@ function validateProductData(data: Partial<Product>): Record<string, string> {
   // roomTypes optional
 
   if (data.price) {
-    if (data.price.isVisible && (!data.price.startingFrom || data.price.startingFrom <= 0)) {
+    if (
+      data.price.isVisible &&
+      (!data.price.startingFrom || data.price.startingFrom <= 0)
+    ) {
       errors.price = 'Price is required when price visibility is enabled';
     }
     if (!data.price.currency) {
@@ -140,13 +153,19 @@ function validateProductData(data: Partial<Product>): Record<string, string> {
   if (!data.specifications) {
     errors.specifications = 'Product specifications are required';
   } else {
-    if (!data.specifications.materials || data.specifications.materials.length === 0) {
+    if (
+      !data.specifications.materials ||
+      data.specifications.materials.length === 0
+    ) {
       errors.specificationsMaterials = 'Materials are required';
     }
     if (!data.specifications.weaveType) {
       errors.specificationsWeaveType = 'Weave type is required';
     }
-    if (!data.specifications.availableSizes || data.specifications.availableSizes.length === 0) {
+    if (
+      !data.specifications.availableSizes ||
+      data.specifications.availableSizes.length === 0
+    ) {
       errors.specificationsSizes = 'Dimensions are required';
     }
     // origin and craftTime optional now
@@ -203,13 +222,14 @@ export async function createAdminProduct(
     try {
       if (productData.collections && productData.collections.length > 0) {
         await Promise.all(
-          productData.collections.map(cId => addProductIdToCollection(cId, productId))
+          productData.collections.map((cId) =>
+            addProductIdToCollection(cId, productId)
+          )
         );
       }
     } catch (syncErr) {
       console.warn('Collection sync after create failed:', syncErr);
     }
-
 
     // Log admin action
     console.log('Admin product created:', {
@@ -224,13 +244,13 @@ export async function createAdminProduct(
       message: 'Product created successfully',
       productId,
     };
-
   } catch (error) {
     console.error('Error creating product:', error);
-    
+
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to create product',
+      message:
+        error instanceof Error ? error.message : 'Failed to create product',
     };
   }
 }
@@ -261,7 +281,10 @@ export async function updateAdminProduct(
 
     // Check slug availability if slug is being updated
     if (updates.slug) {
-      const isSlugAvailable = await isProductSlugAvailableAdmin(updates.slug, productId);
+      const isSlugAvailable = await isProductSlugAvailableAdmin(
+        updates.slug,
+        productId
+      );
       if (!isSlugAvailable) {
         return {
           success: false,
@@ -288,17 +311,16 @@ export async function updateAdminProduct(
       if (updates.collections) {
         const original = originalProduct.collections || [];
         const next = updates.collections || [];
-        const toAdd = next.filter(id => !original.includes(id));
-        const toRemove = original.filter(id => !next.includes(id));
+        const toAdd = next.filter((id) => !original.includes(id));
+        const toRemove = original.filter((id) => !next.includes(id));
         await Promise.all([
-          ...toAdd.map(id => addProductIdToCollection(id, productId)),
-          ...toRemove.map(id => removeProductIdFromCollection(id, productId)),
+          ...toAdd.map((id) => addProductIdToCollection(id, productId)),
+          ...toRemove.map((id) => removeProductIdFromCollection(id, productId)),
         ]);
       }
     } catch (syncErr) {
       console.warn('Collection sync after update failed:', syncErr);
     }
-
 
     // Log admin action
     console.log('Admin product updated:', {
@@ -312,13 +334,13 @@ export async function updateAdminProduct(
       message: 'Product updated successfully',
       productId,
     };
-
   } catch (error) {
     console.error('Error updating product:', error);
-    
+
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to update product',
+      message:
+        error instanceof Error ? error.message : 'Failed to update product',
     };
   }
 }
@@ -358,11 +380,13 @@ export async function deleteAdminProduct(
     if (product.collections && product.collections.length > 0) {
       try {
         await Promise.all(
-          product.collections.map(collectionId => 
+          product.collections.map((collectionId) =>
             removeProductIdFromCollection(collectionId, productId)
           )
         );
-        console.log(`Removed product ${productId} from ${product.collections.length} collections`);
+        console.log(
+          `Removed product ${productId} from ${product.collections.length} collections`
+        );
       } catch (syncErr) {
         console.warn('Collection cleanup failed:', syncErr);
         // Continue with deletion even if collection cleanup fails
@@ -371,7 +395,6 @@ export async function deleteAdminProduct(
 
     // Delete product
     await deleteProduct(productId);
-
 
     // Log admin action
     console.log('Admin product deleted:', {
@@ -386,13 +409,13 @@ export async function deleteAdminProduct(
       message: 'Product deleted successfully',
       productId,
     };
-
   } catch (error) {
     console.error('Error deleting product:', error);
-    
+
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to delete product',
+      message:
+        error instanceof Error ? error.message : 'Failed to delete product',
     };
   }
 }
@@ -412,11 +435,10 @@ export async function updateProductSortOrders(
 
     // Update sort orders
     await Promise.all(
-      sortUpdates.map(update =>
+      sortUpdates.map((update) =>
         updateProduct(update.id, { sortOrder: update.sortOrder })
       )
     );
-
 
     // Log admin action
     console.log('Admin product sort orders updated:', {
@@ -428,10 +450,9 @@ export async function updateProductSortOrders(
       success: true,
       message: `Updated sort order for ${sortUpdates.length} products`,
     };
-
   } catch (error) {
     console.error('Error updating product sort orders:', error);
-    
+
     return {
       success: false,
       message: 'Failed to update sort orders',
@@ -456,7 +477,6 @@ export async function toggleProductStatus(
     // Update product status
     await updateProduct(productId, { isActive });
 
-
     // Log admin action
     console.log('Admin product status toggled:', {
       productId,
@@ -469,10 +489,9 @@ export async function toggleProductStatus(
       message: `Product ${isActive ? 'activated' : 'deactivated'} successfully`,
       productId,
     };
-
   } catch (error) {
     console.error('Error toggling product status:', error);
-    
+
     return {
       success: false,
       message: 'Failed to update product status',
@@ -497,7 +516,6 @@ export async function toggleProductFeatured(
     // Update product featured status
     await updateProduct(productId, { isFeatured });
 
-
     // Log admin action
     console.log('Admin product featured status toggled:', {
       productId,
@@ -510,10 +528,9 @@ export async function toggleProductFeatured(
       message: `Product ${isFeatured ? 'featured' : 'unfeatured'} successfully`,
       productId,
     };
-
   } catch (error) {
     console.error('Error toggling product featured status:', error);
-    
+
     return {
       success: false,
       message: 'Failed to update product featured status',
@@ -564,14 +581,13 @@ export async function duplicateProduct(
       isFeatured: false, // Start as not featured
       sortOrder: originalProduct.sortOrder + 1000, // Place at end
     };
-    
+
     // Remove fields that shouldn't be copied
     delete (duplicateData as any).id;
     delete (duplicateData as any).createdAt;
     delete (duplicateData as any).updatedAt;
 
     const newProductId = await createProduct(duplicateData);
-
 
     // Log admin action
     console.log('Admin product duplicated:', {
@@ -585,10 +601,9 @@ export async function duplicateProduct(
       message: 'Product duplicated successfully',
       productId: newProductId,
     };
-
   } catch (error) {
     console.error('Error duplicating product:', error);
-    
+
     return {
       success: false,
       message: 'Failed to duplicate product',
@@ -601,7 +616,9 @@ export async function duplicateProduct(
  */
 export async function bulkUpdateProducts(
   productIds: string[],
-  updates: Partial<Pick<Product, 'isActive' | 'isFeatured' | 'collections' | 'roomTypes'>>
+  updates: Partial<
+    Pick<Product, 'isActive' | 'isFeatured' | 'collections' | 'roomTypes'>
+  >
 ): Promise<BulkProductResult> {
   try {
     // Verify admin authentication
@@ -633,7 +650,6 @@ export async function bulkUpdateProducts(
           name: product.name,
         });
         processed++;
-
       } catch (error) {
         console.error(`Error updating product ${productId}:`, error);
         results.push({
@@ -662,10 +678,9 @@ export async function bulkUpdateProducts(
       errors,
       results,
     };
-
   } catch (error) {
     console.error('Error bulk updating products:', error);
-    
+
     return {
       success: false,
       message: 'Failed to process bulk update',

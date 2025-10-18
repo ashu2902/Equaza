@@ -45,14 +45,14 @@ const Modal: React.FC<ModalProps> = ({ open, onOpenChange, children }) => {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className='fixed inset-0 z-50 flex items-center justify-center'>
       {/* Overlay */}
       <div
-        className="fixed inset-0 bg-black/30 backdrop-blur-sm"
+        className='fixed inset-0 bg-black/30 backdrop-blur-sm'
         onClick={() => onOpenChange(false)}
       />
       {/* Content */}
-      <div className="relative z-50 mx-4 max-h-[90vh] w-full overflow-auto">
+      <div className='relative z-50 mx-4 max-h-[90vh] w-full overflow-auto'>
         {children}
       </div>
     </div>
@@ -72,10 +72,10 @@ const ModalContent = React.forwardRef<HTMLDivElement, ModalContentProps>(
       {showCloseButton && onClose && (
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-stone-950 focus:ring-offset-2 disabled:pointer-events-none dark:ring-offset-stone-950 dark:focus:ring-stone-300"
+          className='absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-stone-950 focus:ring-offset-2 disabled:pointer-events-none dark:ring-offset-stone-950 dark:focus:ring-stone-300'
         >
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
+          <X className='h-4 w-4' />
+          <span className='sr-only'>Close</span>
         </button>
       )}
       {children}
@@ -91,7 +91,10 @@ const ModalHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn('flex flex-col space-y-1.5 text-center sm:text-left', className)}
+    className={cn(
+      'flex flex-col space-y-1.5 text-center sm:text-left',
+      className
+    )}
     {...props}
   />
 ));
@@ -103,7 +106,10 @@ const ModalTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <h3
     ref={ref}
-    className={cn('text-lg font-semibold leading-none tracking-tight', className)}
+    className={cn(
+      'text-lg font-semibold leading-none tracking-tight',
+      className
+    )}
     {...props}
   />
 ));
@@ -127,7 +133,10 @@ const ModalFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2', className)}
+    className={cn(
+      'flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2',
+      className
+    )}
     {...props}
   />
 ));
@@ -140,4 +149,4 @@ export {
   ModalTitle,
   ModalDescription,
   ModalFooter,
-}; 
+};

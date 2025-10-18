@@ -37,23 +37,25 @@ const requiredEnvVars = [
 // Use direct references instead of dynamic property access for Webpack/Turbopack compatibility
 const envValues = {
   NEXT_PUBLIC_FIREBASE_API_KEY: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN:
+    process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
   NEXT_PUBLIC_FIREBASE_PROJECT_ID: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET:
+    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID:
+    process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   NEXT_PUBLIC_FIREBASE_APP_ID: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-const missingEnvVars = requiredEnvVars.filter(
-  (envVar) => {
-    const value = envValues[envVar as keyof typeof envValues];
-    return !value || value.trim() === '';
-  }
-);
+const missingEnvVars = requiredEnvVars.filter((envVar) => {
+  const value = envValues[envVar as keyof typeof envValues];
+  return !value || value.trim() === '';
+});
 
 // Check if we have valid Firebase configuration
-const hasValidConfig = missingEnvVars.length === 0 && 
-  firebaseConfig.apiKey !== '' && 
+const hasValidConfig =
+  missingEnvVars.length === 0 &&
+  firebaseConfig.apiKey !== '' &&
   firebaseConfig.projectId !== '';
 
 // Debug: Log environment variables in development
@@ -78,7 +80,9 @@ if (!hasValidConfig) {
         authDomain: firebaseConfig.authDomain ? '[SET]' : '[MISSING]',
         projectId: firebaseConfig.projectId ? '[SET]' : '[MISSING]',
         storageBucket: firebaseConfig.storageBucket ? '[SET]' : '[MISSING]',
-        messagingSenderId: firebaseConfig.messagingSenderId ? '[SET]' : '[MISSING]',
+        messagingSenderId: firebaseConfig.messagingSenderId
+          ? '[SET]'
+          : '[MISSING]',
         appId: firebaseConfig.appId ? '[SET]' : '[MISSING]',
       }
     );
@@ -103,7 +107,9 @@ if (hasValidConfig) {
 
 // Initialize Firebase services - throw error if not configured properly
 if (!app) {
-  throw new Error('Firebase app not initialized. Check your environment variables.');
+  throw new Error(
+    'Firebase app not initialized. Check your environment variables.'
+  );
 }
 
 export const auth: Auth = getAuth(app);
@@ -127,4 +133,4 @@ export const getProjectId = (): string => {
   return firebaseConfig.projectId;
 };
 
-export default app; 
+export default app;

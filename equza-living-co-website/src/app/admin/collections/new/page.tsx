@@ -15,19 +15,17 @@ export const metadata: Metadata = {
 
 export default async function AdminNewCollectionPage() {
   return (
-    <AdminPageTemplate title="Create New Collection">
-      <div className="space-y-6">
+    <AdminPageTemplate title='Create New Collection'>
+      <div className='space-y-6'>
         <Card>
           <CardHeader>
             <CardTitle>New Collection</CardTitle>
           </CardHeader>
           <CardContent>
-            <CollectionForm mode="create" />
+            <CollectionForm mode='create' />
           </CardContent>
         </Card>
       </div>
     </AdminPageTemplate>
   );
 }
-
-

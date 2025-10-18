@@ -11,13 +11,35 @@ export interface HeroSlide {
 export interface HomePageData {
   hero?: HeroSlide[]; // New: list of slides
   features?: { icon: string; label: string }[];
-  styles?: { name: string; image: { src: string; alt: string }; href: string; sortOrder?: number }[];
-  roomHighlight?: { title: string; description: string; cta: { label: string; href: string }; image: { src: string; alt: string } };
-  techniques?: { title: string; image: { src: string; alt: string }; href?: string }[];
+  styles?: {
+    name: string;
+    image: { src: string; alt: string };
+    href: string;
+    sortOrder?: number;
+  }[];
+  roomHighlight?: {
+    title: string;
+    description: string;
+    cta: { label: string; href: string };
+    image: { src: string; alt: string };
+  };
+  techniques?: {
+    title: string;
+    image: { src: string; alt: string };
+    href?: string;
+  }[];
   primaryCta?: { headline: string; label: string; href: string };
   story?: { title: string; body: string; ctaLabel: string; href: string };
-  craftsmanship?: { title: string; cta: { label: string; href: string }; image: { src: string; alt: string } };
-  lookbook?: { thumbnail: { src: string; alt: string }; pdfStorageRef: string; caption?: string };
+  craftsmanship?: {
+    title: string;
+    cta: { label: string; href: string };
+    image: { src: string; alt: string };
+  };
+  lookbook?: {
+    thumbnail: { src: string; alt: string };
+    pdfStorageRef: string;
+    caption?: string;
+  };
   contact?: { heading: string; subcopy?: string };
   isActive?: boolean;
   updatedAt?: any;
@@ -36,7 +58,6 @@ export async function getHomePageData(): Promise<HomePageData | null> {
     return null;
   }
 }
-
 
 /**
  * Update Home Page Data (admin-only; call via server action)
@@ -70,5 +91,3 @@ export async function setContentPageData(
     throw new Error('Failed to update content page');
   }
 }
-
-

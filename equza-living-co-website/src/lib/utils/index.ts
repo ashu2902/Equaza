@@ -78,4 +78,4 @@ export type {
   LeadFilters,
   ApiResponse,
   SearchData,
-} from './validation'; 
+} from './validation';

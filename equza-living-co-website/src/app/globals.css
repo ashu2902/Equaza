@@ -1,13 +1,13 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   --background: #f1eee9; /* Brand background color from UI guide */
-  --foreground: #1C1917; /* Dark text */
+  --foreground: #1c1917; /* Dark text */
   --primary: #98342d; /* Brand primary color from UI guide */
-  --secondary: #E4C59B; /* Secondary beige */
-  --accent: #A67C4A; /* Accent brown */
-  --muted: #78716C; /* Muted gray */
-  --border: #E7E5E4; /* Light borders */
+  --secondary: #e4c59b; /* Secondary beige */
+  --accent: #a67c4a; /* Accent brown */
+  --muted: #78716c; /* Muted gray */
+  --border: #e7e5e4; /* Light borders */
 }
 
 @theme inline {

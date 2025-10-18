@@ -7,14 +7,14 @@
 
 import { redirect } from 'next/navigation';
 import type { Collection } from '@/types';
-import { 
+import {
   createCollection,
   updateCollection,
   deleteCollection,
   getCollectionById,
   getCollectionByIdAdmin,
   isCollectionSlugAvailable,
-  isCollectionSlugAvailableAdmin 
+  isCollectionSlugAvailableAdmin,
 } from '@/lib/firebase/collections';
 // import { checkAdminStatus } from '@/lib/firebase/auth'; // Not needed in server actions
 import { cookies } from 'next/headers';
@@ -31,7 +31,10 @@ export interface AdminCollectionResult {
 /**
  * Verify admin authentication
  */
-async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string }> {
+async function verifyAdminAuth(): Promise<{
+  isAdmin: boolean;
+  userId?: string;
+}> {
   try {
     console.log('🔍 Verifying admin authentication...');
     // Prefer server session cookie if present
@@ -41,11 +44,14 @@ async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string }>
       const cookieStore = await cookies();
       const session = cookieStore.get('__session')?.value;
       console.log('🍪 Session cookie present:', !!session);
-      
+
       if (session) {
         const adminAuth = getAdminAuth();
         const decoded = await adminAuth.verifySessionCookie(session, true);
-        console.log('🔐 Session decoded:', { admin: !!decoded?.admin, uid: decoded?.uid });
+        console.log('🔐 Session decoded:', {
+          admin: !!decoded?.admin,
+          uid: decoded?.uid,
+        });
         isAdmin = !!decoded?.admin;
         userId = decoded?.uid;
       }
@@ -64,7 +70,7 @@ async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string }>
       isAdmin = true; // Bypass for now since client-side auth is working
       userId = userId || 'admin-user';
     }
-    
+
     console.log('✅ Final auth result:', { isAdmin, userId });
     return {
       isAdmin,
@@ -79,7 +85,9 @@ async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string }>
 /**
  * Validate collection data
  */
-function validateCollectionData(data: Partial<Collection>): Record<string, string> {
+function validateCollectionData(
+  data: Partial<Collection>
+): Record<string, string> {
   const errors: Record<string, string> = {};
 
   if (!data.name || data.name.trim().length < 1) {
@@ -91,7 +99,8 @@ function validateCollectionData(data: Partial<Collection>): Record<string, strin
   if (!data.slug || data.slug.trim().length < 1) {
     errors.slug = 'Collection slug is required';
   } else if (!/^[a-z0-9-]+$/.test(data.slug)) {
-    errors.slug = 'Slug can only contain lowercase letters, numbers, and hyphens';
+    errors.slug =
+      'Slug can only contain lowercase letters, numbers, and hyphens';
   }
 
   if (!data.description || data.description.trim().length < 1) {
@@ -139,7 +148,9 @@ export async function createAdminCollection(
     }
 
     // Check slug availability
-    const isSlugAvailable = await isCollectionSlugAvailableAdmin(collectionData.slug);
+    const isSlugAvailable = await isCollectionSlugAvailableAdmin(
+      collectionData.slug
+    );
     if (!isSlugAvailable) {
       return {
         success: false,
@@ -150,7 +161,6 @@ export async function createAdminCollection(
 
     // Create collection
     const collectionId = await createCollection(collectionData);
-
 
     // Log admin action
     console.log('Admin collection created:', {
@@ -165,13 +175,13 @@ export async function createAdminCollection(
       message: 'Collection created successfully',
       collectionId,
     };
-
   } catch (error) {
     console.error('Error creating collection:', error);
-    
+
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to create collection',
+      message:
+        error instanceof Error ? error.message : 'Failed to create collection',
     };
   }
 }
@@ -202,7 +212,10 @@ export async function updateAdminCollection(
 
     // Check slug availability if slug is being updated
     if (updates.slug) {
-      const isSlugAvailable = await isCollectionSlugAvailableAdmin(updates.slug, collectionId);
+      const isSlugAvailable = await isCollectionSlugAvailableAdmin(
+        updates.slug,
+        collectionId
+      );
       if (!isSlugAvailable) {
         return {
           success: false,
@@ -224,7 +237,6 @@ export async function updateAdminCollection(
     // Update collection
     await updateCollection(collectionId, updates);
 
-
     // Log admin action
     console.log('Admin collection updated:', {
       collectionId,
@@ -237,13 +249,13 @@ export async function updateAdminCollection(
       message: 'Collection updated successfully',
       collectionId,
     };
-
   } catch (error) {
     console.error('Error updating collection:', error);
-    
+
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to update collection',
+      message:
+        error instanceof Error ? error.message : 'Failed to update collection',
     };
   }
 }
@@ -282,7 +294,6 @@ export async function deleteAdminCollection(
     // Delete collection
     await deleteCollection(collectionId);
 
-
     // Log admin action
     console.log('Admin collection deleted:', {
       collectionId,
@@ -296,13 +307,13 @@ export async function deleteAdminCollection(
       message: 'Collection deleted successfully',
       collectionId,
     };
-
   } catch (error) {
     console.error('Error deleting collection:', error);
-    
+
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to delete collection',
+      message:
+        error instanceof Error ? error.message : 'Failed to delete collection',
     };
   }
 }
@@ -322,11 +333,10 @@ export async function updateCollectionSortOrders(
 
     // Update sort orders
     await Promise.all(
-      sortUpdates.map(update =>
+      sortUpdates.map((update) =>
         updateCollection(update.id, { sortOrder: update.sortOrder })
       )
     );
-
 
     // Log admin action
     console.log('Admin collection sort orders updated:', {
@@ -338,10 +348,9 @@ export async function updateCollectionSortOrders(
       success: true,
       message: `Updated sort order for ${sortUpdates.length} collections`,
     };
-
   } catch (error) {
     console.error('Error updating collection sort orders:', error);
-    
+
     return {
       success: false,
       message: 'Failed to update sort orders',
@@ -366,7 +375,6 @@ export async function toggleCollectionStatus(
     // Update collection status
     await updateCollection(collectionId, { isActive });
 
-
     // Log admin action
     console.log('Admin collection status toggled:', {
       collectionId,
@@ -379,10 +387,9 @@ export async function toggleCollectionStatus(
       message: `Collection ${isActive ? 'activated' : 'deactivated'} successfully`,
       collectionId,
     };
-
   } catch (error) {
     console.error('Error toggling collection status:', error);
-    
+
     return {
       success: false,
       message: 'Failed to update collection status',
@@ -432,14 +439,13 @@ export async function duplicateCollection(
       isActive: false, // Start as inactive
       sortOrder: originalCollection.sortOrder + 1000, // Place at end
     };
-    
+
     // Remove fields that shouldn't be copied
     delete (duplicateData as any).id;
     delete (duplicateData as any).createdAt;
     delete (duplicateData as any).updatedAt;
 
     const newCollectionId = await createCollection(duplicateData);
-
 
     // Log admin action
     console.log('Admin collection duplicated:', {
@@ -453,10 +459,9 @@ export async function duplicateCollection(
       message: 'Collection duplicated successfully',
       collectionId: newCollectionId,
     };
-
   } catch (error) {
     console.error('Error duplicating collection:', error);
-    
+
     return {
       success: false,
       message: 'Failed to duplicate collection',

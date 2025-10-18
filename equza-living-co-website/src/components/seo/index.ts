@@ -5,4 +5,4 @@
 
 export { MetaTags } from './MetaTags';
 export { StructuredData } from './StructuredData';
-export { OpenGraph } from './OpenGraph'; 
+export { OpenGraph } from './OpenGraph';

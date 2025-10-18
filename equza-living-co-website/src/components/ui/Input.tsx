@@ -37,18 +37,18 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const inputId = id || `input-${generatedId}`;
 
     return (
-      <div className="w-full">
+      <div className='w-full'>
         {label && (
           <label
             htmlFor={inputId}
-            className="mb-2 block text-sm font-semibold text-neutral-700"
+            className='mb-2 block text-sm font-semibold text-neutral-700'
           >
             {label}
           </label>
         )}
-        <div className="relative">
+        <div className='relative'>
           {leftIcon && (
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-stone-400">
+            <div className='pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-stone-400'>
               {leftIcon}
             </div>
           )}
@@ -68,7 +68,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
           {rightIcon && (
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-stone-400">
+            <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-stone-400'>
               {rightIcon}
             </div>
           )}
@@ -90,4 +90,4 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
 Input.displayName = 'Input';
 
-export { Input }; 
+export { Input };

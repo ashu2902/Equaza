@@ -8,7 +8,8 @@ import { env } from './env';
 export const BRAND = {
   name: 'Equza Living Co.',
   tagline: 'Crafted Calm for Modern Spaces',
-  description: 'Premium handcrafted rugs that bring crafted calm to modern spaces',
+  description:
+    'Premium handcrafted rugs that bring crafted calm to modern spaces',
 } as const;
 
 // Contact Information
@@ -114,7 +115,8 @@ export const FORMS = {
 // SEO Configuration
 export const SEO = {
   defaultTitle: 'Equza Living Co. - Premium Handcrafted Rugs',
-  defaultDescription: 'Discover premium handcrafted rugs that bring crafted calm to modern spaces. Explore our collections of artisan-made rugs from India.',
+  defaultDescription:
+    'Discover premium handcrafted rugs that bring crafted calm to modern spaces. Explore our collections of artisan-made rugs from India.',
   defaultOgImage: '/images/og-default.jpg',
   twitterHandle: '@equzalivingco',
   siteUrl: env.app.siteUrl,
@@ -188,10 +190,12 @@ export const ERROR_MESSAGES = {
 
 // Success Messages
 export const SUCCESS_MESSAGES = {
-  contact: 'Thank you for your message. We\'ll get back to you soon!',
-  customize: 'Your customization request has been submitted. We\'ll contact you shortly.',
-  enquiry: 'Your enquiry has been submitted. We\'ll respond within 24 hours.',
-  trade: 'Your trade partnership request has been received. We\'ll be in touch soon.',
+  contact: "Thank you for your message. We'll get back to you soon!",
+  customize:
+    "Your customization request has been submitted. We'll contact you shortly.",
+  enquiry: "Your enquiry has been submitted. We'll respond within 24 hours.",
+  trade:
+    "Your trade partnership request has been received. We'll be in touch soon.",
   lookbook: 'Lookbook download started successfully.',
 } as const;
 

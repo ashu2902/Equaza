@@ -66,7 +66,7 @@ export function getCurrentUser(): Promise<AuthUser | null> {
       resolve(null);
       return;
     }
-    
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       unsubscribe();
       resolve(mapFirebaseUser(user));
@@ -77,16 +77,22 @@ export function getCurrentUser(): Promise<AuthUser | null> {
 /**
  * Sign in with email and password
  */
-export async function signInWithEmail(credentials: SignInCredentials): Promise<AuthUser> {
+export async function signInWithEmail(
+  credentials: SignInCredentials
+): Promise<AuthUser> {
   try {
     if (!auth) {
       throw new Error('Firebase authentication not configured');
     }
-    
+
     const { email, password } = credentials;
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
     const authUser = mapFirebaseUser(userCredential.user);
-    
+
     if (!authUser) {
       throw new Error('Failed to sign in user');
     }
@@ -101,11 +107,17 @@ export async function signInWithEmail(credentials: SignInCredentials): Promise<A
 /**
  * Sign up with email and password
  */
-export async function signUpWithEmail(signUpData: SignUpData): Promise<AuthUser> {
+export async function signUpWithEmail(
+  signUpData: SignUpData
+): Promise<AuthUser> {
   try {
     const { email, password, displayName } = signUpData;
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
     // Update profile with display name if provided
     if (displayName && userCredential.user) {
       await updateProfile(userCredential.user, { displayName });
@@ -117,7 +129,7 @@ export async function signUpWithEmail(signUpData: SignUpData): Promise<AuthUser>
     }
 
     const authUser = mapFirebaseUser(userCredential.user);
-    
+
     if (!authUser) {
       throw new Error('Failed to create user');
     }
@@ -140,7 +152,7 @@ export async function signInWithGoogle(): Promise<AuthUser> {
 
     const userCredential = await signInWithPopup(auth, provider);
     const authUser = mapFirebaseUser(userCredential.user);
-    
+
     if (!authUser) {
       throw new Error('Failed to sign in with Google');
     }
@@ -182,7 +194,9 @@ export async function sendPasswordReset(email: string): Promise<void> {
 export async function sendVerificationEmail(): Promise<void> {
   try {
     if (!auth || !auth.currentUser) {
-      throw new Error('No user is currently signed in or authentication not configured');
+      throw new Error(
+        'No user is currently signed in or authentication not configured'
+      );
     }
 
     await sendEmailVerification(auth.currentUser);
@@ -201,7 +215,9 @@ export async function updateUserProfile(updates: {
 }): Promise<void> {
   try {
     if (!auth || !auth.currentUser) {
-      throw new Error('No user is currently signed in or authentication not configured');
+      throw new Error(
+        'No user is currently signed in or authentication not configured'
+      );
     }
 
     await updateProfile(auth.currentUser, updates);
@@ -220,7 +236,7 @@ export function onAuthStateChange(callback: (user: AuthUser | null) => void) {
     callback(null);
     return () => {};
   }
-  
+
   return onAuthStateChanged(auth, (user) => {
     callback(mapFirebaseUser(user));
   });
@@ -250,7 +266,7 @@ export async function checkAdminStatus(): Promise<boolean> {
     console.log('🔍 Checking client-side admin status...');
     console.log('👤 Auth object:', !!auth);
     console.log('👤 Current user:', !!auth?.currentUser);
-    
+
     if (!auth || !auth.currentUser) {
       console.log('❌ No auth or current user');
       return false;
@@ -258,11 +274,11 @@ export async function checkAdminStatus(): Promise<boolean> {
 
     console.log('🆔 User UID:', auth.currentUser.uid);
     console.log('📧 User email:', auth.currentUser.email);
-    
+
     const idTokenResult = await auth.currentUser.getIdTokenResult();
     console.log('🎫 Token claims:', idTokenResult.claims);
     console.log('👑 Admin claim:', idTokenResult.claims.admin);
-    
+
     const isAdmin = !!idTokenResult.claims.admin;
     console.log('✅ Admin status result:', isAdmin);
     return isAdmin;
@@ -303,4 +319,4 @@ function getAuthErrorMessage(errorCode: string): string {
 }
 
 // Export types
-export type { User, UserCredential, AuthError }; 
+export type { User, UserCredential, AuthError };

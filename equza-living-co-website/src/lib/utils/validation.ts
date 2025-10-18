@@ -46,7 +46,10 @@ export const contactFormSchema = z.object({
   message: z
     .string()
     .min(10, 'Message must be at least 10 characters')
-    .max(FORMS.contact.maxMessageLength, `Message must be less than ${FORMS.contact.maxMessageLength} characters`)
+    .max(
+      FORMS.contact.maxMessageLength,
+      `Message must be less than ${FORMS.contact.maxMessageLength} characters`
+    )
     .trim(),
 });
 
@@ -55,24 +58,19 @@ export const customizeFormSchema = z.object({
   name: nameSchema,
   email: emailSchema,
   phone: phoneSchema,
-  preferredSize: z
-    .string()
-    .min(1, 'Preferred size is required'),
-  preferredMaterials: z
-    .array(z.string())
-    .optional()
-    .default([]),
+  preferredSize: z.string().min(1, 'Preferred size is required'),
+  preferredMaterials: z.array(z.string()).optional().default([]),
   moodboardFiles: z
     .array(fileSchema)
     .optional()
     .default([])
-    .refine(
-      (files) => files.length <= 5,
-      'Maximum 5 files allowed'
-    ),
+    .refine((files) => files.length <= 5, 'Maximum 5 files allowed'),
   message: z
     .string()
-    .max(FORMS.customize.maxMessageLength, `Message must be less than ${FORMS.customize.maxMessageLength} characters`)
+    .max(
+      FORMS.customize.maxMessageLength,
+      `Message must be less than ${FORMS.customize.maxMessageLength} characters`
+    )
     .optional()
     .transform((val) => val?.trim() || undefined),
 });
@@ -84,11 +82,12 @@ export const enquiryFormSchema = z.object({
   message: z
     .string()
     .min(10, 'Please provide more details about your enquiry')
-    .max(FORMS.enquiry.maxMessageLength, `Message must be less than ${FORMS.enquiry.maxMessageLength} characters`)
+    .max(
+      FORMS.enquiry.maxMessageLength,
+      `Message must be less than ${FORMS.enquiry.maxMessageLength} characters`
+    )
     .trim(),
-  productId: z
-    .string()
-    .min(1, 'Product ID is required'),
+  productId: z.string().min(1, 'Product ID is required'),
 });
 
 // Trade form schema
@@ -104,7 +103,10 @@ export const tradeFormSchema = z.object({
   message: z
     .string()
     .min(10, 'Please provide more details about your business')
-    .max(FORMS.trade.maxMessageLength, `Message must be less than ${FORMS.trade.maxMessageLength} characters`)
+    .max(
+      FORMS.trade.maxMessageLength,
+      `Message must be less than ${FORMS.trade.maxMessageLength} characters`
+    )
     .trim(),
 });
 
@@ -135,7 +137,9 @@ export const collectionFiltersSchema = z.object({
 // Lead filter schema
 export const leadFiltersSchema = z.object({
   type: z.enum(['contact', 'trade', 'customize', 'product-enquiry']).optional(),
-  status: z.enum(['new', 'contacted', 'qualified', 'converted', 'closed']).optional(),
+  status: z
+    .enum(['new', 'contacted', 'qualified', 'converted', 'closed'])
+    .optional(),
   assignedTo: z.string().optional(),
   dateFrom: z.date().optional(),
   dateTo: z.date().optional(),
@@ -161,20 +165,29 @@ export const adminUserSchema = z.object({
 // Product schema (for admin use)
 export const productSchema = z.object({
   name: z.string().min(1, 'Product name is required').max(200),
-  slug: z.string().min(1, 'Slug is required').regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Invalid slug format'),
+  slug: z
+    .string()
+    .min(1, 'Slug is required')
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Invalid slug format'),
   description: z.string().min(1, 'Description is required').max(1000),
   story: z.string().max(2000).optional(),
   specifications: z.object({
     materials: z.array(z.string()).min(1, 'Materials are required'),
     weaveType: z.string().min(1, 'Weave type is required'),
-    availableSizes: z.array(z.object({
-      dimensions: z.string(),
-      isCustom: z.boolean().default(false),
-    })).min(1, 'Dimensions are required'),
+    availableSizes: z
+      .array(
+        z.object({
+          dimensions: z.string(),
+          isCustom: z.boolean().default(false),
+        })
+      )
+      .min(1, 'Dimensions are required'),
     origin: z.string().optional(),
     craftTime: z.string().optional(),
   }),
-  collections: z.array(z.string()).min(1, 'At least one collection is required'),
+  collections: z
+    .array(z.string())
+    .min(1, 'At least one collection is required'),
   price: z.object({
     isVisible: z.boolean().default(false),
     startingFrom: z.number().min(0).optional(),
@@ -190,7 +203,10 @@ export const productSchema = z.object({
 // Collection schema (for admin use)
 export const collectionSchema = z.object({
   name: z.string().min(1, 'Collection name is required').max(100),
-  slug: z.string().min(1, 'Slug is required').regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Invalid slug format'),
+  slug: z
+    .string()
+    .min(1, 'Slug is required')
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Invalid slug format'),
   description: z.string().min(1, 'Description is required').max(500),
   type: z.enum(['style', 'space']),
   seoTitle: z.string().max(60).optional(),
@@ -203,13 +219,18 @@ export const collectionSchema = z.object({
 export const pageSchema = z.object({
   type: z.enum(['our-story', 'craftsmanship', 'trade']),
   title: z.string().min(1, 'Title is required').max(100),
-  slug: z.string().min(1, 'Slug is required').regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Invalid slug format'),
+  slug: z
+    .string()
+    .min(1, 'Slug is required')
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Invalid slug format'),
   content: z.object({
-    sections: z.array(z.object({
-      type: z.enum(['text', 'image', 'quote', 'timeline']),
-      content: z.string(),
-      order: z.number().min(0),
-    })),
+    sections: z.array(
+      z.object({
+        type: z.enum(['text', 'image', 'quote', 'timeline']),
+        content: z.string(),
+        order: z.number().min(0),
+      })
+    ),
   }),
   seoTitle: z.string().max(60).optional(),
   seoDescription: z.string().max(160).optional(),
@@ -265,7 +286,9 @@ export type AdminUserData = z.infer<typeof adminUserSchema>;
 export type ProductData = z.infer<typeof productSchema>;
 export type CollectionData = z.infer<typeof collectionSchema>;
 export type PageData = z.infer<typeof pageSchema>;
-export type ApiResponse<T = any> = z.infer<typeof apiResponseSchema> & { data?: T };
+export type ApiResponse<T = any> = z.infer<typeof apiResponseSchema> & {
+  data?: T;
+};
 export type SearchData = z.infer<typeof searchSchema>;
 
 // Validation helper functions
@@ -282,7 +305,9 @@ export const validateFile = (file: File): boolean => {
 };
 
 export const sanitizeInput = (input: string): string => {
-  return input.trim().replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+  return input
+    .trim()
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
 };
 
 export const slugify = (text: string): string => {
@@ -291,4 +316,4 @@ export const slugify = (text: string): string => {
     .replace(/[^\w\s-]/g, '') // Remove special characters
     .replace(/[\s_-]+/g, '-') // Replace spaces and underscores with hyphens
     .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
-}; 
+};

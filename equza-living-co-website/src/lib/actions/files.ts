@@ -33,7 +33,7 @@ function validateFile(file: File): { valid: boolean; error?: string } {
   if (file.size > FILE_UPLOAD.maxSize) {
     return {
       valid: false,
-      error: `File size must be less than ${Math.round(FILE_UPLOAD.maxSize / 1024 / 1024)}MB`
+      error: `File size must be less than ${Math.round(FILE_UPLOAD.maxSize / 1024 / 1024)}MB`,
     };
   }
 
@@ -41,7 +41,7 @@ function validateFile(file: File): { valid: boolean; error?: string } {
   if (!FILE_UPLOAD.allowedTypes.includes(file.type)) {
     return {
       valid: false,
-      error: `File type not supported. Allowed types: ${FILE_UPLOAD.allowedTypes.join(', ')}`
+      error: `File type not supported. Allowed types: ${FILE_UPLOAD.allowedTypes.join(', ')}`,
     };
   }
 
@@ -59,23 +59,23 @@ function generateFilePath(
 ): string {
   const timestamp = Date.now();
   const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, '_');
-  
+
   switch (context) {
     case 'moodboard':
       return `uploads/temp/${userId || 'anonymous'}/${timestamp}-${sanitizedFilename}`;
-    
+
     case 'product':
       return `images/products/${additionalPath || 'general'}/${timestamp}-${sanitizedFilename}`;
-    
+
     case 'collection':
       return `images/collections/${additionalPath || 'general'}/${timestamp}-${sanitizedFilename}`;
-    
+
     case 'admin':
       return `uploads/admin/${additionalPath || 'uploads'}/${timestamp}-${sanitizedFilename}`;
-    
+
     case 'temp':
       return `uploads/temp/${timestamp}-${sanitizedFilename}`;
-    
+
     default:
       return `uploads/general/${timestamp}-${sanitizedFilename}`;
   }
@@ -102,7 +102,12 @@ export async function uploadSingleFile(
     }
 
     // Generate file path
-    const filePath = generateFilePath(file.name, context, userId, additionalPath);
+    const filePath = generateFilePath(
+      file.name,
+      context,
+      userId,
+      additionalPath
+    );
 
     // Upload file
     const url = await uploadFile({
@@ -124,10 +129,9 @@ export async function uploadSingleFile(
       url: url || undefined,
       filename: file.name,
     };
-
   } catch (error) {
     console.error('Error uploading file:', error);
-    
+
     return {
       success: false,
       message: error instanceof Error ? error.message : 'Upload failed',
@@ -161,7 +165,9 @@ export async function uploadMultipleFileAction(
     files.forEach((file, index) => {
       const validation = validateFile(file);
       if (!validation.valid) {
-        validationErrors.push(`File ${index + 1} (${file.name}): ${validation.error}`);
+        validationErrors.push(
+          `File ${index + 1} (${file.name}): ${validation.error}`
+        );
       }
     });
 
@@ -169,7 +175,7 @@ export async function uploadMultipleFileAction(
       return {
         success: false,
         message: 'Some files failed validation',
-        results: validationErrors.map(error => ({
+        results: validationErrors.map((error) => ({
           success: false,
           message: error,
           error,
@@ -180,14 +186,15 @@ export async function uploadMultipleFileAction(
     }
 
     // Generate file paths
-    const filePaths = files.map(file => 
+    const filePaths = files.map((file) =>
       generateFilePath(file.name, context, userId, additionalPath)
     );
 
     // Upload files
     const uploadResults = await uploadMultipleFiles(
       files,
-      (file, index) => filePaths[index] || `uploads/temp/${Date.now()}-${file.name}`
+      (file, index) =>
+        filePaths[index] || `uploads/temp/${Date.now()}-${file.name}`
     );
 
     // Process results
@@ -199,22 +206,22 @@ export async function uploadMultipleFileAction(
       error: url ? undefined : 'Upload failed',
     }));
 
-    const successCount = results.filter(r => r.success).length;
-    const errorCount = results.filter(r => !r.success).length;
+    const successCount = results.filter((r) => r.success).length;
+    const errorCount = results.filter((r) => !r.success).length;
 
     return {
       success: successCount > 0,
-      message: successCount === files.length 
-        ? 'All files uploaded successfully'
-        : `${successCount} of ${files.length} files uploaded successfully`,
+      message:
+        successCount === files.length
+          ? 'All files uploaded successfully'
+          : `${successCount} of ${files.length} files uploaded successfully`,
       results,
       successCount,
       errorCount,
     };
-
   } catch (error) {
     console.error('Error uploading multiple files:', error);
-    
+
     return {
       success: false,
       message: error instanceof Error ? error.message : 'Upload failed',
@@ -272,14 +279,15 @@ export async function deleteFileAction(
 ): Promise<{ success: boolean; message: string }> {
   try {
     let filePath: string;
-    
+
     // Check if the input is a full URL or just a file path
     if (fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
       // It's a full URL - extract the file path from Firebase Storage URL
       const url = new URL(fileUrl);
       const pathMatch = url.pathname.match(/\/o\/(.+?)\?/);
-      filePath = pathMatch && pathMatch[1] ? decodeURIComponent(pathMatch[1]) : '';
-      
+      filePath =
+        pathMatch && pathMatch[1] ? decodeURIComponent(pathMatch[1]) : '';
+
       if (!filePath) {
         throw new Error('Could not extract file path from URL');
       }
@@ -287,33 +295,38 @@ export async function deleteFileAction(
       // It's already a file path - use it directly
       filePath = fileUrl;
     }
-    
+
     await deleteFileAdmin(filePath);
-    
+
     return {
       success: true,
       message: 'File deleted successfully',
     };
-
   } catch (error) {
     console.error('Error deleting file:', error);
-    
+
     // Check for Firebase Storage error codes
     const firebaseError = error as any;
     let errorMessage = 'Failed to delete file';
-    
-    if (firebaseError.code === 'storage/object-not-found' || firebaseError.message?.includes('not found')) {
+
+    if (
+      firebaseError.code === 'storage/object-not-found' ||
+      firebaseError.message?.includes('not found')
+    ) {
       errorMessage = 'File not found in storage. Clearing local reference.';
       // Treat as success if file is not found, as the goal is to clear the reference
       return { success: true, message: errorMessage };
     }
-    
-    if (firebaseError.code === 'storage/unauthorized' || firebaseError.message?.includes('permission')) {
+
+    if (
+      firebaseError.code === 'storage/unauthorized' ||
+      firebaseError.message?.includes('permission')
+    ) {
       errorMessage = 'Permission denied. Check Firebase Storage rules.';
     } else if (error instanceof Error) {
       errorMessage = error.message;
     }
-    
+
     return {
       success: false,
       message: errorMessage,
@@ -324,9 +337,7 @@ export async function deleteFileAction(
 /**
  * Get upload progress (placeholder for future implementation)
  */
-export async function getUploadProgress(
-  uploadId: string
-): Promise<{
+export async function getUploadProgress(uploadId: string): Promise<{
   progress: number;
   completed: boolean;
   error?: string;
@@ -334,14 +345,14 @@ export async function getUploadProgress(
   try {
     // TODO: Implement upload progress tracking
     // This could track long-running uploads and provide real-time progress
-    
+
     return {
       progress: 100,
       completed: true,
     };
   } catch (error) {
     console.error('Error getting upload progress:', error);
-    
+
     return {
       progress: 0,
       completed: false,
@@ -371,7 +382,7 @@ export async function processImageOptimization(
   try {
     // TODO: Implement image optimization
     // This could use a service like Cloudinary or implement custom optimization
-    
+
     return {
       success: true,
       optimizedUrl: imageUrl,
@@ -380,7 +391,7 @@ export async function processImageOptimization(
     };
   } catch (error) {
     console.error('Error processing image optimization:', error);
-    
+
     return {
       success: false,
       error: 'Failed to optimize image',

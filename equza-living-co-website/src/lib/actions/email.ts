@@ -5,12 +5,12 @@
 
 'use server';
 
-import type { 
-  ContactFormData, 
-  CustomizeFormData, 
-  EnquiryFormData, 
+import type {
+  ContactFormData,
+  CustomizeFormData,
+  EnquiryFormData,
   TradeFormData,
-  Product 
+  Product,
 } from '@/types';
 
 import { getSiteSettingsWithDefaults } from '@/lib/firebase/settings';
@@ -28,7 +28,7 @@ export interface EmailResult {
 const EMAIL_TEMPLATES = {
   // Admin notification templates
   CONTACT_NOTIFICATION: 'contact-notification',
-  CUSTOMIZE_NOTIFICATION: 'customize-notification', 
+  CUSTOMIZE_NOTIFICATION: 'customize-notification',
   ENQUIRY_NOTIFICATION: 'enquiry-notification',
   TRADE_NOTIFICATION: 'trade-notification',
 
@@ -65,7 +65,7 @@ async function sendEmail(
 ): Promise<EmailResult> {
   try {
     const config = getEmailConfig();
-    
+
     // TODO: Implement actual email sending
     // Example with SendGrid:
     // const msg = {
@@ -77,7 +77,7 @@ async function sendEmail(
     //   replyTo: replyTo || config.replyToEmail,
     // };
     // const result = await sgMail.send(msg);
-    
+
     // Placeholder implementation
     console.log('Email would be sent:', {
       to,
@@ -91,10 +91,9 @@ async function sendEmail(
       message: 'Email sent successfully',
       messageId: `mock-${Date.now()}`,
     };
-
   } catch (error) {
     console.error('Error sending email:', error);
-    
+
     return {
       success: false,
       message: 'Failed to send email',
@@ -111,7 +110,7 @@ function generateEmailTemplate(
   data: Record<string, any>
 ): { subject: string; html: string; text: string } {
   const config = getEmailConfig();
-  
+
   switch (template) {
     case EMAIL_TEMPLATES.CONTACT_NOTIFICATION:
       return {
@@ -230,12 +229,7 @@ export async function sendContactAutoReplyEmail(
       calendlyUrl: settings.calendlyUrl,
     });
 
-    return sendEmail(
-      email,
-      template.subject,
-      template.html,
-      template.text
-    );
+    return sendEmail(email, template.subject, template.html, template.text);
   } catch (error) {
     console.error('Error sending contact auto-reply email:', error);
     return {
@@ -256,12 +250,15 @@ export async function sendCustomizeNotificationEmail(
   source: string = 'customize-form'
 ): Promise<EmailResult> {
   const config = getEmailConfig();
-  const template = generateEmailTemplate(EMAIL_TEMPLATES.CUSTOMIZE_NOTIFICATION, {
-    ...formData,
-    leadId,
-    source,
-    uploadedFiles,
-  });
+  const template = generateEmailTemplate(
+    EMAIL_TEMPLATES.CUSTOMIZE_NOTIFICATION,
+    {
+      ...formData,
+      leadId,
+      source,
+      uploadedFiles,
+    }
+  );
 
   return sendEmail(
     config.adminEmail,
@@ -337,13 +334,13 @@ export async function sendBulkNotificationEmail(
 }> {
   try {
     const results = await Promise.all(
-      recipients.map(email => 
+      recipients.map((email) =>
         sendEmail(email, subject, htmlContent, textContent)
       )
     );
 
-    const successCount = results.filter(r => r.success).length;
-    const errorCount = results.filter(r => !r.success).length;
+    const successCount = results.filter((r) => r.success).length;
+    const errorCount = results.filter((r) => !r.success).length;
 
     return {
       success: successCount > 0,
@@ -351,10 +348,9 @@ export async function sendBulkNotificationEmail(
       successCount,
       errorCount,
     };
-
   } catch (error) {
     console.error('Error sending bulk notification email:', error);
-    
+
     return {
       success: false,
       results: [],

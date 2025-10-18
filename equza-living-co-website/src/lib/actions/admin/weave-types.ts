@@ -7,18 +7,17 @@
 
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { 
+import {
   createWeaveType,
   updateWeaveType,
   deleteWeaveType,
   getWeaveTypeById,
-  isWeaveTypeSlugAvailable 
+  isWeaveTypeSlugAvailable,
 } from '@/lib/firebase/weave-types'; // Assuming this utility file exists
 import { getAdminAuth } from '@/lib/firebase/server-app';
 import { WeaveTypeSchema } from '@/types/schemas'; // Assuming a schema for validation
 import type { WeaveType } from '@/types'; // Import the actual WeaveType interface
 import { cookies } from 'next/headers';
-
 
 export interface AdminWeaveTypeResult {
   success: boolean;
@@ -30,7 +29,10 @@ export interface AdminWeaveTypeResult {
 /**
  * Verify admin authentication (copied from collections.ts)
  */
-async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string }> {
+async function verifyAdminAuth(): Promise<{
+  isAdmin: boolean;
+  userId?: string;
+}> {
   try {
     console.log('🔍 Verifying admin authentication...');
     let isAdmin = false;
@@ -38,7 +40,7 @@ async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string }>
     try {
       const cookieStore = await cookies();
       const session = cookieStore.get('__session')?.value;
-      
+
       if (session) {
         const adminAuth = getAdminAuth();
         const decoded = await adminAuth.verifySessionCookie(session, true);
@@ -57,7 +59,7 @@ async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string }>
       isAdmin = true; // Bypass for now since client-side auth is working
       userId = userId || 'admin-user';
     }
-    
+
     console.log('✅ Final auth result:', { isAdmin, userId });
     return {
       isAdmin,
@@ -72,16 +74,18 @@ async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string }>
 /**
  * Validate weave type data using Zod schema
  */
-function validateWeaveTypeData(data: Partial<WeaveType>): Record<string, string> {
+function validateWeaveTypeData(
+  data: Partial<WeaveType>
+): Record<string, string> {
   // WeaveTypeSchema is assumed to be defined in '@/types/schemas'
   const result = WeaveTypeSchema.partial().safeParse(data);
-  
+
   if (result.success) {
     return {};
   }
 
   const errors: Record<string, string> = {};
-  
+
   // Safely handle validation errors
   if (result.error && result.error.issues) {
     result.error.issues.forEach((err: any) => {
@@ -90,7 +94,7 @@ function validateWeaveTypeData(data: Partial<WeaveType>): Record<string, string>
       }
     });
   }
-  
+
   // Manual check for image presence (since it's required for the homepage)
   if (!data.image || !data.image.url) {
     errors.image = 'Dedicated image is required';
@@ -135,7 +139,6 @@ export async function createAdminWeaveType(
     // Create weave type
     const weaveTypeId = await createWeaveType(weaveTypeData);
 
-
     // Log admin action
     console.log('Admin weave type created:', {
       weaveTypeId,
@@ -148,13 +151,13 @@ export async function createAdminWeaveType(
       message: 'Weave type created successfully',
       weaveTypeId,
     };
-
   } catch (error) {
     console.error('Error creating weave type:', error);
-    
+
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to create weave type',
+      message:
+        error instanceof Error ? error.message : 'Failed to create weave type',
     };
   }
 }
@@ -185,7 +188,10 @@ export async function updateAdminWeaveType(
 
     // Check slug availability if slug is being updated
     if (updates.slug) {
-      const isSlugAvailable = await isWeaveTypeSlugAvailable(updates.slug, weaveTypeId);
+      const isSlugAvailable = await isWeaveTypeSlugAvailable(
+        updates.slug,
+        weaveTypeId
+      );
       if (!isSlugAvailable) {
         return {
           success: false,
@@ -207,7 +213,6 @@ export async function updateAdminWeaveType(
     // Update weave type
     await updateWeaveType(weaveTypeId, updates);
 
-
     // Log admin action
     console.log('Admin weave type updated:', {
       weaveTypeId,
@@ -220,13 +225,13 @@ export async function updateAdminWeaveType(
       message: 'Weave type updated successfully',
       weaveTypeId,
     };
-
   } catch (error) {
     console.error('Error updating weave type:', error);
-    
+
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to update weave type',
+      message:
+        error instanceof Error ? error.message : 'Failed to update weave type',
     };
   }
 }
@@ -258,7 +263,6 @@ export async function deleteAdminWeaveType(
     // Delete weave type
     await deleteWeaveType(weaveTypeId);
 
-
     // Log admin action
     console.log('Admin weave type deleted:', {
       weaveTypeId,
@@ -271,13 +275,13 @@ export async function deleteAdminWeaveType(
       message: 'Weave type deleted successfully',
       weaveTypeId,
     };
-
   } catch (error) {
     console.error('Error deleting weave type:', error);
-    
+
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to delete weave type',
+      message:
+        error instanceof Error ? error.message : 'Failed to delete weave type',
     };
   }
 }
@@ -297,11 +301,10 @@ export async function updateWeaveTypeSortOrders(
 
     // Update sort orders
     await Promise.all(
-      sortUpdates.map(update =>
+      sortUpdates.map((update) =>
         updateWeaveType(update.id, { sortOrder: update.sortOrder })
       )
     );
-
 
     // Log admin action
     console.log('Admin weave type sort orders updated:', {
@@ -313,10 +316,9 @@ export async function updateWeaveTypeSortOrders(
       success: true,
       message: `Updated sort order for ${sortUpdates.length} weave types`,
     };
-
   } catch (error) {
     console.error('Error updating weave type sort orders:', error);
-    
+
     return {
       success: false,
       message: 'Failed to update sort orders',
@@ -341,7 +343,6 @@ export async function toggleWeaveTypeStatus(
     // Update weave type status
     await updateWeaveType(weaveTypeId, { isActive });
 
-
     // Log admin action
     console.log('Admin weave type status toggled:', {
       weaveTypeId,
@@ -354,10 +355,9 @@ export async function toggleWeaveTypeStatus(
       message: `Weave type ${isActive ? 'activated' : 'deactivated'} successfully`,
       weaveTypeId,
     };
-
   } catch (error) {
     console.error('Error toggling weave type status:', error);
-    
+
     return {
       success: false,
       message: 'Failed to update weave type status',

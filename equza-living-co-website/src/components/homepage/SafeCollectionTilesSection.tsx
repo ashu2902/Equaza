@@ -1,6 +1,6 @@
 /**
  * Safe Collection Tiles Section
- * 
+ *
  * Uses SafeCollection data contract for bulletproof rendering.
  * Handles loading and error states gracefully.
  */
@@ -28,34 +28,38 @@ export function SafeCollectionTilesSection({
   collections,
   loading = false,
   error = null,
-  type
+  type,
 }: SafeCollectionTilesSectionProps) {
-  
   // Loading State
   if (loading) {
     return (
-      <section className="py-16 lg:py-24 bg-white">
-        <Container>        
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {Array.from({ length: type === 'space' ? 3 : 6 }).map((_, index) => (
-              <CollectionTileSkeleton key={index} />
-            ))}
+      <section className='py-16 lg:py-24 bg-white'>
+        <Container>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8'>
+            {Array.from({ length: type === 'space' ? 3 : 6 }).map(
+              (_, index) => (
+                <CollectionTileSkeleton key={index} />
+              )
+            )}
           </div>
         </Container>
       </section>
     );
   }
-  
+
   // Error State
   if (error) {
     return (
-      <section className="py-16 lg:py-24 bg-white">
+      <section className='py-16 lg:py-24 bg-white'>
         <Container>
-          <div className="text-center space-y-4">
-            <Typography variant="h2" className="font-serif">
+          <div className='text-center space-y-4'>
+            <Typography variant='h2' className='font-serif'>
               {title}
             </Typography>
-            <Typography variant="body" className="text-gray-600 max-w-md mx-auto">
+            <Typography
+              variant='body'
+              className='text-gray-600 max-w-md mx-auto'
+            >
               Unable to load collections: {error}
             </Typography>
           </div>
@@ -63,17 +67,20 @@ export function SafeCollectionTilesSection({
       </section>
     );
   }
-  
+
   // Empty State
   if (collections.length === 0) {
     return (
-      <section className="py-16 lg:py-24 bg-white">
+      <section className='py-16 lg:py-24 bg-white'>
         <Container>
-          <div className="text-center space-y-4">
-            <Typography variant="h2" className="font-serif">
+          <div className='text-center space-y-4'>
+            <Typography variant='h2' className='font-serif'>
               {title}
             </Typography>
-            <Typography variant="body" className="text-gray-600 max-w-md mx-auto">
+            <Typography
+              variant='body'
+              className='text-gray-600 max-w-md mx-auto'
+            >
               No collections available at the moment. Please check back soon.
             </Typography>
           </div>
@@ -81,14 +88,12 @@ export function SafeCollectionTilesSection({
       </section>
     );
   }
-  
+
   // Success State with Collections
   return (
-    <section className="py-16 lg:py-24" style={{backgroundColor: '#f1eee9'}}>
-      <Container size="xl">
-        
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+    <section className='py-16 lg:py-24' style={{ backgroundColor: '#f1eee9' }}>
+      <Container size='xl'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8'>
           {collections.map((collection, index) => (
             <SafeCollectionTile
               key={collection.id}
@@ -108,13 +113,13 @@ export function SafeCollectionTilesSection({
  */
 function CollectionTileSkeleton() {
   return (
-    <div className="relative bg-white rounded-xl overflow-hidden shadow-lg">
-      <div className="relative h-64 sm:h-72 lg:h-80 bg-gray-200 animate-pulse" />
-      <div className="absolute inset-0 p-6 flex flex-col justify-end">
-        <div className="space-y-3">
-          <div className="h-8 bg-gray-300 rounded w-3/4 animate-pulse" />
-          <div className="h-4 bg-gray-300 rounded w-full animate-pulse" />
-          <div className="h-4 bg-gray-300 rounded w-1/3 animate-pulse" />
+    <div className='relative bg-white rounded-xl overflow-hidden shadow-lg'>
+      <div className='relative h-64 sm:h-72 lg:h-80 bg-gray-200 animate-pulse' />
+      <div className='absolute inset-0 p-6 flex flex-col justify-end'>
+        <div className='space-y-3'>
+          <div className='h-8 bg-gray-300 rounded w-3/4 animate-pulse' />
+          <div className='h-4 bg-gray-300 rounded w-full animate-pulse' />
+          <div className='h-4 bg-gray-300 rounded w-1/3 animate-pulse' />
         </div>
       </div>
     </div>

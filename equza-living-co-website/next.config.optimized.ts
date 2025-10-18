@@ -1,4 +1,4 @@
-import type { NextConfig } from 'next'
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   // Image optimization configuration
@@ -36,10 +36,10 @@ const nextConfig: NextConfig = {
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
-  
+
   // External packages for server components
   serverExternalPackages: ['firebase-admin'],
-  
+
   // Experimental features for optimization
   experimental: {
     optimizeCss: true,
@@ -53,25 +53,25 @@ const nextConfig: NextConfig = {
       },
     },
   },
-  
+
   // Compiler optimizations
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
-  
+
   // Webpack optimizations
   webpack: (config, { dev, isServer }) => {
     // Bundle analyzer (only in development)
     if (dev && !isServer) {
-      const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
+      const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
       config.plugins.push(
         new BundleAnalyzerPlugin({
           analyzerMode: 'server',
           openAnalyzer: false,
         })
-      )
+      );
     }
-    
+
     // Optimize chunks
     if (!dev) {
       config.optimization = {
@@ -99,12 +99,12 @@ const nextConfig: NextConfig = {
             },
           },
         },
-      }
+      };
     }
-    
-    return config
+
+    return config;
   },
-  
+
   // Security headers
   async headers() {
     return [
@@ -147,32 +147,32 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-    ]
+    ];
   },
-  
+
   // Redirects
   async redirects() {
     return [
       // Add any redirects here
-    ]
+    ];
   },
-  
+
   // TypeScript configuration
   typescript: {
     ignoreBuildErrors: false,
   },
-  
+
   // ESLint configuration
   eslint: {
     ignoreDuringBuilds: false,
   },
-  
+
   // Performance optimizations
   poweredByHeader: false,
   compress: true,
-  
+
   // Output configuration
   output: 'standalone', // For better deployment optimization
-}
+};
 
-export default nextConfig
+export default nextConfig;

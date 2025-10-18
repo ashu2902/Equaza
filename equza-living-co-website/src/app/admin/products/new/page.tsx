@@ -1,13 +1,13 @@
 /**
  * Admin Add Product Page
- * 
+ *
  * Complete form for creating new products with validation, file upload, and server actions
  * Following UI_UX_Development_Guide.md brand guidelines
  */
 
 import { Metadata } from 'next';
 
-// Components  
+// Components
 import { AdminPageTemplate } from '@/components/templates/AdminPageTemplate';
 import { AddProductForm } from '@/components/admin/AddProductForm';
 
@@ -46,14 +46,14 @@ async function getFormData() {
     // Get collections from database
     const collectionsResult = await getSafeCollections();
     const safeCollections = collectionsResult.data || [];
-    
+
     // Convert to minimal, serializable client shape
     const collections = safeCollections.map(toPlainClientCollection);
-    
+
     // Separate style and space collections
-    const styleCollections = collections.filter(c => c.type === 'style');
-    const spaceCollections = collections.filter(c => c.type === 'space');
-    
+    const styleCollections = collections.filter((c) => c.type === 'style');
+    const spaceCollections = collections.filter((c) => c.type === 'space');
+
     return {
       collections,
       styleCollections,
@@ -73,7 +73,7 @@ export default async function AddProductPage() {
   const formData = await getFormData();
 
   return (
-    <AdminPageTemplate title="Add Product">
+    <AdminPageTemplate title='Add Product'>
       <AddProductForm {...formData} />
     </AdminPageTemplate>
   );

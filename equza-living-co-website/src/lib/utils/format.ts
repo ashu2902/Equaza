@@ -142,7 +142,7 @@ export function titleCase(text: string): string {
   return text
     .toLowerCase()
     .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 }
 
@@ -152,7 +152,7 @@ export function titleCase(text: string): string {
 export function camelCaseToText(text: string): string {
   return text
     .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, str => str.toUpperCase())
+    .replace(/^./, (str) => str.toUpperCase())
     .trim();
 }
 
@@ -187,13 +187,14 @@ export function formatPhoneNumber(phone: string): string {
 export function formatEmailForDisplay(email: string): string {
   const parts = email.split('@');
   if (parts.length !== 2) return email;
-  
+
   const [username, domain] = parts;
   if (!username || !domain || username.length <= 2) {
     return email;
   }
 
-  const maskedUsername = username.charAt(0) + '*'.repeat(username.length - 2) + username.slice(-1);
+  const maskedUsername =
+    username.charAt(0) + '*'.repeat(username.length - 2) + username.slice(-1);
   return `${maskedUsername}@${domain}`;
 }
 
@@ -230,9 +231,7 @@ export function formatLeadType(type: string): string {
  * Format dimensions (e.g., "200x300" to "200cm × 300cm")
  */
 export function formatDimensions(dimensions: string, unit = 'cm'): string {
-  return dimensions
-    .replace(/x/gi, ' × ')
-    .replace(/(\d+)/g, `$1${unit}`);
+  return dimensions.replace(/x/gi, ' × ').replace(/(\d+)/g, `$1${unit}`);
 }
 
 /**
@@ -242,7 +241,7 @@ export function formatMaterials(materials: string[]): string {
   if (materials.length === 0) return '';
   if (materials.length === 1) return materials[0] || '';
   if (materials.length === 2) return materials.join(' and ');
-  
+
   const lastItem = materials[materials.length - 1];
   return `${materials.slice(0, -1).join(', ')}, and ${lastItem || ''}`;
 }
@@ -267,7 +266,10 @@ export function formatSearchHighlight(
 ): string {
   if (!searchQuery.trim()) return text;
 
-  const regex = new RegExp(`(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  const regex = new RegExp(
+    `(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`,
+    'gi'
+  );
   return text.replace(regex, `<span class="${highlightClass}">$1</span>`);
 }
 
@@ -289,8 +291,9 @@ export function formatJSON(obj: any, indent = 2): string {
 export function formatList(items: string[], conjunction = 'and'): string {
   if (items.length === 0) return '';
   if (items.length === 1) return items[0] || '';
-  if (items.length === 2) return `${items[0] || ''} ${conjunction} ${items[1] || ''}`;
-  
+  if (items.length === 2)
+    return `${items[0] || ''} ${conjunction} ${items[1] || ''}`;
+
   const lastItem = items[items.length - 1];
   return `${items.slice(0, -1).join(', ')}, ${conjunction} ${lastItem || ''}`;
 }
@@ -314,5 +317,5 @@ export function formatBreadcrumb(path: string): string[] {
   return path
     .split('/')
     .filter(Boolean)
-    .map(segment => titleCase(segment.replace(/-/g, ' ')));
-} 
+    .map((segment) => titleCase(segment.replace(/-/g, ' ')));
+}

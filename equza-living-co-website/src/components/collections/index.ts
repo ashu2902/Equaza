@@ -7,4 +7,4 @@
 export { CollectionGrid } from './CollectionGrid';
 export { CollectionCard } from './CollectionCard';
 export { CollectionHero } from './CollectionHero';
-export { CollectionTabs } from './CollectionTabs'; 
+export { CollectionTabs } from './CollectionTabs';

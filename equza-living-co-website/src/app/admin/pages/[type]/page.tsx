@@ -15,7 +15,11 @@ export const metadata: Metadata = {
   robots: 'noindex,nofollow',
 };
 
-export default async function AdminContentEditorPage({ params }: { params: Promise<{ type: string }> }) {
+export default async function AdminContentEditorPage({
+  params,
+}: {
+  params: Promise<{ type: string }>;
+}) {
   const { type } = await params;
   const allowed = ['our-story', 'craftsmanship', 'trade'];
   if (!allowed.includes(type)) {
@@ -24,14 +28,15 @@ export default async function AdminContentEditorPage({ params }: { params: Promi
 
   return (
     <AdminPageTemplate title={`Edit: ${type}`}>
-      <div className="space-y-6">
+      <div className='space-y-6'>
         <Card>
           <CardHeader>
             <CardTitle>Coming Soon</CardTitle>
           </CardHeader>
           <CardContent>
-            <Typography variant="body" className="text-gray-600">
-              The {type} editor UI will be implemented here as per the approved design.
+            <Typography variant='body' className='text-gray-600'>
+              The {type} editor UI will be implemented here as per the approved
+              design.
             </Typography>
           </CardContent>
         </Card>
@@ -39,5 +44,3 @@ export default async function AdminContentEditorPage({ params }: { params: Promi
     </AdminPageTemplate>
   );
 }
-
-

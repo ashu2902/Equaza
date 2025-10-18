@@ -7,7 +7,14 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Phone, Mail, MessageCircle, Calendar, MapPin, Clock } from 'lucide-react';
+import {
+  Phone,
+  Mail,
+  MessageCircle,
+  Calendar,
+  MapPin,
+  Clock,
+} from 'lucide-react';
 import type { SiteSettings } from '@/types';
 import { CONTACT } from '@/lib/utils/constants';
 import { Container } from '@/components/ui/Container';
@@ -28,7 +35,7 @@ const contactMethods = [
     description: 'Speak directly with our design consultants',
     action: 'Call Now',
     href: `tel:${CONTACT.phone}`,
-    value: CONTACT.phone
+    value: CONTACT.phone,
   },
   {
     icon: Mail,
@@ -36,7 +43,7 @@ const contactMethods = [
     description: 'Get detailed responses to your inquiries',
     action: 'Send Email',
     href: `mailto:${CONTACT.email}`,
-    value: CONTACT.email
+    value: CONTACT.email,
   },
   {
     icon: Calendar,
@@ -44,14 +51,14 @@ const contactMethods = [
     description: 'Schedule a personalized design session',
     action: 'Book Now',
     href: '/book-consultation',
-    value: 'Free 30-min session'
-  }
+    value: 'Free 30-min session',
+  },
 ];
 
 const businessHours = [
   { day: 'Monday - Friday', hours: '9:00 AM - 6:00 PM' },
   { day: 'Saturday', hours: '10:00 AM - 4:00 PM' },
-  { day: 'Sunday', hours: 'Closed' }
+  { day: 'Sunday', hours: 'Closed' },
 ];
 
 export function ContactSection({ siteSettings }: ContactSectionProps) {
@@ -64,32 +71,39 @@ export function ContactSection({ siteSettings }: ContactSectionProps) {
 
   // Updated: heading inside card, full width with consistent padding
   return (
-    <section className="py-16" style={{ backgroundColor: '#f1eee9' }}>
-      <Container size="xl">
-        <div className="w-full bg-white rounded-2xl border border-neutral-200 p-6 md:p-8">
+    <section className='py-16' style={{ backgroundColor: '#f1eee9' }}>
+      <Container size='xl'>
+        <div className='w-full bg-white rounded-2xl border border-neutral-200 p-6 md:p-8'>
           <ContactForm
             onSubmit={async (data) => {
               try {
                 console.log('Contact form data:', data);
                 console.log('Attempting to submit to Firebase...');
-                
+
                 // Actually submit to Firebase
-                const result = await submitContactForm(data, 'homepage-contact');
-                
+                const result = await submitContactForm(
+                  data,
+                  'homepage-contact'
+                );
+
                 console.log('Submit result:', result);
-                
+
                 if (!result.success) {
                   console.error('Submission failed with result:', result);
                   throw new Error(result.message || 'Failed to submit form');
                 }
-                
-                console.log('✅ Contact form successfully submitted to Firebase! Lead ID:', result.leadId);
+
+                console.log(
+                  '✅ Contact form successfully submitted to Firebase! Lead ID:',
+                  result.leadId
+                );
                 handleFormSuccess();
               } catch (error) {
                 console.error('❌ Contact form error details:', {
-                  message: error instanceof Error ? error.message : 'Unknown error',
+                  message:
+                    error instanceof Error ? error.message : 'Unknown error',
                   stack: error instanceof Error ? error.stack : undefined,
-                  fullError: error
+                  fullError: error,
                 });
                 throw error; // Re-throw so the form shows error state
               }
@@ -98,7 +112,7 @@ export function ContactSection({ siteSettings }: ContactSectionProps) {
             description="Whether you're designing a space or sourcing at scale, we'd love to hear from you."
             showCard={false}
             splitName
-            className="space-y-6"
+            className='space-y-6'
           />
         </div>
       </Container>

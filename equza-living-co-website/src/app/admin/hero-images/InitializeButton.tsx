@@ -9,7 +9,11 @@ export function InitializeButton({ onSuccess }: { onSuccess?: () => void }) {
   const [isInitializing, setIsInitializing] = useState(false);
 
   const handleInitialize = async () => {
-    if (!confirm('Initialize hero images with default static images? This will overwrite existing data.')) {
+    if (
+      !confirm(
+        'Initialize hero images with default static images? This will overwrite existing data.'
+      )
+    ) {
       return;
     }
 
@@ -20,7 +24,9 @@ export function InitializeButton({ onSuccess }: { onSuccess?: () => void }) {
       onSuccess?.();
     } catch (error) {
       console.error('Error initializing hero images:', error);
-      alert(`Failed to initialize: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      alert(
+        `Failed to initialize: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     } finally {
       setIsInitializing(false);
     }
@@ -30,13 +36,13 @@ export function InitializeButton({ onSuccess }: { onSuccess?: () => void }) {
     <Button
       onClick={handleInitialize}
       disabled={isInitializing}
-      variant="outline"
-      className="flex items-center"
+      variant='outline'
+      className='flex items-center'
     >
       {isInitializing ? (
-        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+        <RefreshCw className='w-4 h-4 mr-2 animate-spin' />
       ) : (
-        <Database className="w-4 h-4 mr-2" />
+        <Database className='w-4 h-4 mr-2' />
       )}
       {isInitializing ? 'Initializing...' : 'Initialize Default Images'}
     </Button>

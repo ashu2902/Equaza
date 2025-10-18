@@ -23,11 +23,11 @@ const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
       {...props}
     >
       {children}
-      {required && <span className="ml-1 text-red-500 font-bold">*</span>}
+      {required && <span className='ml-1 text-red-500 font-bold'>*</span>}
     </label>
   )
 );
 
 Label.displayName = 'Label';
 
-export { Label }; 
+export { Label };

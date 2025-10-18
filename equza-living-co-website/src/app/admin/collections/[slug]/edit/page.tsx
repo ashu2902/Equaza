@@ -16,7 +16,11 @@ export const metadata: Metadata = {
   robots: 'noindex,nofollow',
 };
 
-export default async function AdminEditCollectionPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function AdminEditCollectionPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   if (!slug) {
     notFound();
@@ -31,30 +35,31 @@ export default async function AdminEditCollectionPage({ params }: { params: Prom
 
   return (
     <AdminPageTemplate title={`Edit Collection: ${slug}`}>
-      <div className="space-y-6">
+      <div className='space-y-6'>
         <Card>
           <CardHeader>
             <CardTitle>Edit Collection</CardTitle>
           </CardHeader>
           <CardContent>
-            <CollectionForm mode="edit" initial={{
-              id: collection.id,
-              name: collection.name,
-              slug: collection.slug,
-              description: collection.description,
-              type: collection.type,
-              heroImage: { 
-                url: collection.heroImage?.url || '', 
-                alt: collection.heroImage?.alt || '',
-                storageRef: collection.heroImage?.storageRef || ''
-              },
-              isActive: collection.isActive !== false,
-            }} />
+            <CollectionForm
+              mode='edit'
+              initial={{
+                id: collection.id,
+                name: collection.name,
+                slug: collection.slug,
+                description: collection.description,
+                type: collection.type,
+                heroImage: {
+                  url: collection.heroImage?.url || '',
+                  alt: collection.heroImage?.alt || '',
+                  storageRef: collection.heroImage?.storageRef || '',
+                },
+                isActive: collection.isActive !== false,
+              }}
+            />
           </CardContent>
         </Card>
       </div>
     </AdminPageTemplate>
   );
 }
-
-

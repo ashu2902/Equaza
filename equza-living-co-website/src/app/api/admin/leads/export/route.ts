@@ -26,10 +26,24 @@ export async function GET(request: Request) {
     const dateFrom = dateFromStr ? new Date(dateFromStr) : undefined;
     const dateTo = dateToStr ? new Date(dateToStr) : undefined;
 
-    const leads = await getLeads({ type: type as any, status: status as any, dateFrom, dateTo } as any);
+    const leads = await getLeads({
+      type: type as any,
+      status: status as any,
+      dateFrom,
+      dateTo,
+    } as any);
 
     const header = [
-      'id','type','name','email','phone','message','status','assignedTo','createdAt','source'
+      'id',
+      'type',
+      'name',
+      'email',
+      'phone',
+      'message',
+      'status',
+      'assignedTo',
+      'createdAt',
+      'source',
     ];
     const rows = (leads || []).map((l: any) => [
       l.id,
@@ -40,25 +54,28 @@ export async function GET(request: Request) {
       l.message || '',
       l.status || '',
       l.assignedTo || '',
-      typeof l.createdAt === 'string' ? l.createdAt : (l.createdAt?.toDate?.()?.toISOString?.() || ''),
+      typeof l.createdAt === 'string'
+        ? l.createdAt
+        : l.createdAt?.toDate?.()?.toISOString?.() || '',
       l.source || '',
     ]);
 
     const csv = [header, ...rows]
-      .map(cols => cols.map(toCsvValue).join(','))
+      .map((cols) => cols.map(toCsvValue).join(','))
       .join('\n');
 
     return new NextResponse(csv, {
       status: 200,
       headers: {
         'Content-Type': 'text/csv; charset=utf-8',
-        'Content-Disposition': 'attachment; filename="leads.csv"'
+        'Content-Disposition': 'attachment; filename="leads.csv"',
       },
     });
   } catch (error) {
     console.error('Export leads error:', error);
-    return NextResponse.json({ error: 'Failed to export leads' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to export leads' },
+      { status: 500 }
+    );
   }
 }
-
-

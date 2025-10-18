@@ -101,4 +101,4 @@ export function useLazyLoad<T>(
   }, [isIntersecting, data, loading, loadFunction]);
 
   return { elementRef, data, loading, error };
-} 
+}

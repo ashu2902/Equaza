@@ -36,12 +36,12 @@ export const SearchBar: FC<SearchBarProps> = ({
   className = '',
   showSuggestions = true,
   onSuggestionClick,
-  debounceMs = 300
+  debounceMs = 300,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [showSuggestionsList, setShowSuggestionsList] = useState(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
-  
+
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
@@ -58,19 +58,19 @@ export const SearchBar: FC<SearchBarProps> = ({
   // Show suggestions when focused and has value
   useEffect(() => {
     setShowSuggestionsList(
-      isFocused && 
-      showSuggestions && 
-      value.length > 0 && 
-      suggestions.length > 0
+      isFocused && showSuggestions && value.length > 0 && suggestions.length > 0
     );
   }, [isFocused, showSuggestions, value, suggestions]);
 
   // Handle input change
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    onChange(newValue);
-    setSelectedSuggestionIndex(-1);
-  }, [onChange]);
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.value;
+      onChange(newValue);
+      setSelectedSuggestionIndex(-1);
+    },
+    [onChange]
+  );
 
   // Handle input focus
   const handleFocus = useCallback(() => {
@@ -99,63 +99,72 @@ export const SearchBar: FC<SearchBarProps> = ({
   }, [onChange, onSearch]);
 
   // Handle enter key
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (!showSuggestionsList) {
-      if (e.key === 'Enter' && onSearch) {
-        onSearch(value);
-      }
-      return;
-    }
-
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        setSelectedSuggestionIndex(prev => 
-          prev < suggestions.length - 1 ? prev + 1 : 0
-        );
-        break;
-      
-      case 'ArrowUp':
-        e.preventDefault();
-        setSelectedSuggestionIndex(prev => 
-          prev > 0 ? prev - 1 : suggestions.length - 1
-        );
-        break;
-      
-      case 'Enter':
-        e.preventDefault();
-        if (selectedSuggestionIndex >= 0 && selectedSuggestionIndex < suggestions.length) {
-          const suggestion = suggestions[selectedSuggestionIndex];
-          if (suggestion) {
-            handleSuggestionClick(suggestion);
-          }
-        } else if (onSearch) {
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (!showSuggestionsList) {
+        if (e.key === 'Enter' && onSearch) {
           onSearch(value);
         }
-        break;
-      
-      case 'Escape':
-        e.preventDefault();
-        setShowSuggestionsList(false);
-        setSelectedSuggestionIndex(-1);
-        inputRef.current?.blur();
-        break;
-    }
-  }, [showSuggestionsList, suggestions, selectedSuggestionIndex, value, onSearch]);
+        return;
+      }
+
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          setSelectedSuggestionIndex((prev) =>
+            prev < suggestions.length - 1 ? prev + 1 : 0
+          );
+          break;
+
+        case 'ArrowUp':
+          e.preventDefault();
+          setSelectedSuggestionIndex((prev) =>
+            prev > 0 ? prev - 1 : suggestions.length - 1
+          );
+          break;
+
+        case 'Enter':
+          e.preventDefault();
+          if (
+            selectedSuggestionIndex >= 0 &&
+            selectedSuggestionIndex < suggestions.length
+          ) {
+            const suggestion = suggestions[selectedSuggestionIndex];
+            if (suggestion) {
+              handleSuggestionClick(suggestion);
+            }
+          } else if (onSearch) {
+            onSearch(value);
+          }
+          break;
+
+        case 'Escape':
+          e.preventDefault();
+          setShowSuggestionsList(false);
+          setSelectedSuggestionIndex(-1);
+          inputRef.current?.blur();
+          break;
+      }
+    },
+    [showSuggestionsList, suggestions, selectedSuggestionIndex, value, onSearch]
+  );
 
   // Handle suggestion click
-  const handleSuggestionClick = useCallback((suggestion: SearchSuggestion) => {
-    onChange(suggestion.text);
-    setShowSuggestionsList(false);
-    setSelectedSuggestionIndex(-1);
-    inputRef.current?.blur();
-    
-    if (onSuggestionClick) {
-      onSuggestionClick(suggestion);
-    } else if (onSearch) {
-      onSearch(suggestion.text);
-    }
-  }, [onChange, onSuggestionClick, onSearch]);
+  const handleSuggestionClick = useCallback(
+    (suggestion: SearchSuggestion) => {
+      onChange(suggestion.text);
+      setShowSuggestionsList(false);
+      setSelectedSuggestionIndex(-1);
+      inputRef.current?.blur();
+
+      if (onSuggestionClick) {
+        onSuggestionClick(suggestion);
+      } else if (onSearch) {
+        onSearch(suggestion.text);
+      }
+    },
+    [onChange, onSuggestionClick, onSearch]
+  );
 
   // Get suggestion type icon
   const getSuggestionIcon = (type: SearchSuggestion['type']) => {
@@ -174,37 +183,37 @@ export const SearchBar: FC<SearchBarProps> = ({
   return (
     <div className={`relative ${className}`}>
       {/* Search Input */}
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+      <div className='relative'>
+        <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
           {loading ? (
-            <Loader2 className="w-5 h-5 text-stone-400 animate-spin" />
+            <Loader2 className='w-5 h-5 text-stone-400 animate-spin' />
           ) : (
-            <Search className="w-5 h-5 text-stone-400" />
+            <Search className='w-5 h-5 text-stone-400' />
           )}
         </div>
-        
+
         <Input
           ref={inputRef}
-          type="text"
+          type='text'
           value={value}
           onChange={handleInputChange}
           onFocus={handleFocus}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="pl-10 pr-10 h-12 text-lg"
+          className='pl-10 pr-10 h-12 text-lg'
         />
-        
+
         {value && (
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+          <div className='absolute inset-y-0 right-0 pr-3 flex items-center'>
             <Button
-              variant="ghost"
-              size="sm"
+              variant='ghost'
+              size='sm'
               onClick={handleClear}
-              className="h-auto p-1 hover:bg-stone-100"
-              aria-label="Clear search"
+              className='h-auto p-1 hover:bg-stone-100'
+              aria-label='Clear search'
             >
-              <X className="w-4 h-4 text-stone-400 hover:text-stone-600" />
+              <X className='w-4 h-4 text-stone-400 hover:text-stone-600' />
             </Button>
           </div>
         )}
@@ -214,7 +223,7 @@ export const SearchBar: FC<SearchBarProps> = ({
       {showSuggestionsList && (
         <div
           ref={suggestionsRef}
-          className="absolute top-full left-0 right-0 mt-1 bg-white border border-stone-200 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto"
+          className='absolute top-full left-0 right-0 mt-1 bg-white border border-stone-200 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto'
         >
           {suggestions.map((suggestion, index) => (
             <button
@@ -227,19 +236,21 @@ export const SearchBar: FC<SearchBarProps> = ({
                 ${index === suggestions.length - 1 ? 'rounded-b-lg' : 'border-b border-stone-100'}
               `}
             >
-              <div className="flex items-center gap-3">
-                <span className="text-lg">{getSuggestionIcon(suggestion.type)}</span>
+              <div className='flex items-center gap-3'>
+                <span className='text-lg'>
+                  {getSuggestionIcon(suggestion.type)}
+                </span>
                 <div>
-                  <div className="font-medium text-stone-900">
+                  <div className='font-medium text-stone-900'>
                     {suggestion.text}
                   </div>
-                  <div className="text-sm text-stone-500 capitalize">
+                  <div className='text-sm text-stone-500 capitalize'>
                     {suggestion.type}
                   </div>
                 </div>
               </div>
               {suggestion.count !== undefined && (
-                <span className="text-sm text-stone-400">
+                <span className='text-sm text-stone-400'>
                   {suggestion.count} {suggestion.count === 1 ? 'item' : 'items'}
                 </span>
               )}

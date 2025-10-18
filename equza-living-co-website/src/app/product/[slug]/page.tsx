@@ -12,7 +12,10 @@ import Link from 'next/link';
 import { ChevronRight, ArrowLeft, Star } from 'lucide-react';
 
 // Firebase and Types
-import { getSafeProductBySlug, getSafeRelatedProducts } from '@/lib/firebase/safe-firestore';
+import {
+  getSafeProductBySlug,
+  getSafeRelatedProducts,
+} from '@/lib/firebase/safe-firestore';
 import { isDataResult, ErrorResult } from '@/types/safe';
 
 // Components
@@ -24,7 +27,10 @@ import { ProductSpecs } from '@/components/product/ProductSpecs';
 import { ImageGallery } from '@/components/product/ImageGallery';
 import { SafeProductGrid } from '@/components/product/SafeProductGrid';
 import { ProductEnquirySection } from '@/components/product/ProductEnquirySection';
-import { ErrorBoundary, SectionErrorBoundary } from '@/components/ui/ErrorBoundary';
+import {
+  ErrorBoundary,
+  SectionErrorBoundary,
+} from '@/components/ui/ErrorBoundary';
 import { FadeIn, SlideUp } from '@/components/ui/MotionWrapper';
 
 // Loading components
@@ -37,10 +43,12 @@ interface ProductPageProps {
 /**
  * Generate Metadata for Product Page
  */
-export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
   const productResult = await getSafeProductBySlug(slug);
-  
+
   if (!isDataResult(productResult) || !productResult.data) {
     return {
       title: 'Product Not Found | Equza Living Co.',
@@ -49,11 +57,14 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   }
 
   const product = productResult.data;
-  const mainImage = product.images.find(img => img.isMain) || product.images[0];
-  
+  const mainImage =
+    product.images.find((img) => img.isMain) || product.images[0];
+
   return {
     title: `${product.name} | Equza Living Co. - Handcrafted Rug`,
-    description: product.description || `Discover the ${product.name}, a handcrafted rug featuring premium materials and exceptional craftsmanship.`,
+    description:
+      product.description ||
+      `Discover the ${product.name}, a handcrafted rug featuring premium materials and exceptional craftsmanship.`,
     openGraph: {
       title: `${product.name} | Equza Living Co.`,
       description: product.description || `Handcrafted ${product.name} rug`,
@@ -78,10 +89,18 @@ async function getProductPageData(slug: string) {
     };
   } catch (error) {
     console.error('Failed to fetch product page data:', error);
-    
+
     return {
-      product: { data: null, error: 'Failed to load product', loading: false } as ErrorResult,
-      relatedProducts: { data: null, error: 'Failed to load related products', loading: false } as ErrorResult,
+      product: {
+        data: null,
+        error: 'Failed to load product',
+        loading: false,
+      } as ErrorResult,
+      relatedProducts: {
+        data: null,
+        error: 'Failed to load related products',
+        loading: false,
+      } as ErrorResult,
     };
   }
 }
@@ -99,41 +118,44 @@ export default async function ProductPage({ params }: ProductPageProps) {
   }
 
   const product = data.product.data;
-  const relatedProducts = isDataResult(data.relatedProducts) ? data.relatedProducts.data : [];
-  const mainImage = product.images.find(img => img.isMain) || product.images[0];
+  const relatedProducts = isDataResult(data.relatedProducts)
+    ? data.relatedProducts.data
+    : [];
+  const mainImage =
+    product.images.find((img) => img.isMain) || product.images[0];
 
   // Create enquiry handler for client component
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen" style={{ backgroundColor: '#f1eee9' }}>
+      <div className='min-h-screen' style={{ backgroundColor: '#f1eee9' }}>
         {/* Breadcrumb Navigation */}
-        <SectionErrorBoundary sectionName="breadcrumb">
-          <section className="py-6 border-b border-gray-200">
-            <Container size="lg">
+        <SectionErrorBoundary sectionName='breadcrumb'>
+          <section className='py-6 border-b border-gray-200'>
+            <Container size='lg'>
               <FadeIn>
-                <nav className="flex items-center space-x-2 text-sm">
-                  <Link 
-                    href="/" 
-                    className="text-gray-500 hover:text-gray-900 transition-colors"
+                <nav className='flex items-center space-x-2 text-sm'>
+                  <Link
+                    href='/'
+                    className='text-gray-500 hover:text-gray-900 transition-colors'
                     style={{ fontFamily: 'Poppins' }}
                   >
                     Home
                   </Link>
-                  <ChevronRight className="w-4 h-4 text-gray-400" />
-                  <Link 
-                    href="/collections" 
-                    className="text-gray-500 hover:text-gray-900 transition-colors"
+                  <ChevronRight className='w-4 h-4 text-gray-400' />
+                  <Link
+                    href='/collections'
+                    className='text-gray-500 hover:text-gray-900 transition-colors'
                     style={{ fontFamily: 'Poppins' }}
                   >
                     Collections
                   </Link>
-                  <ChevronRight className="w-4 h-4 text-gray-400" />
-                  <span 
-                    className="font-medium"
-                    style={{ 
+                  <ChevronRight className='w-4 h-4 text-gray-400' />
+                  <span
+                    className='font-medium'
+                    style={{
                       color: '#98342d',
-                      fontFamily: 'Poppins'
+                      fontFamily: 'Poppins',
                     }}
                   >
                     {product.name}
@@ -145,18 +167,22 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </SectionErrorBoundary>
 
         {/* Product Main Section */}
-        <SectionErrorBoundary sectionName="product main">
-          <section className="py-16 md:py-24">
-            <Container size="lg">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+        <SectionErrorBoundary sectionName='product main'>
+          <section className='py-16 md:py-24'>
+            <Container size='lg'>
+              <div className='grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16'>
                 {/* Product Image Gallery */}
                 <SlideUp delay={0.1}>
-                  <div className="space-y-4">
-                    <Suspense fallback={<div className="aspect-square bg-gray-200 rounded animate-pulse"></div>}>
-                      <ImageGallery 
+                  <div className='space-y-4'>
+                    <Suspense
+                      fallback={
+                        <div className='aspect-square bg-gray-200 rounded animate-pulse'></div>
+                      }
+                    >
+                      <ImageGallery
                         images={product.images}
                         productName={product.name}
-                        className="rounded-lg overflow-hidden"
+                        className='rounded-lg overflow-hidden'
                       />
                     </Suspense>
                   </div>
@@ -164,42 +190,44 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
                 {/* Product Information */}
                 <SlideUp delay={0.2}>
-                  <div className="space-y-8">
+                  <div className='space-y-8'>
                     {/* Product Title and Basic Info */}
                     <div>
-                      <Typography 
-                        variant="h1" 
-                        className="text-4xl md:text-5xl font-bold mb-4"
-                        style={{ 
+                      <Typography
+                        variant='h1'
+                        className='text-4xl md:text-5xl font-bold mb-4'
+                        style={{
                           fontFamily: 'Libre Baskerville',
-                          color: '#98342d'
+                          color: '#98342d',
                         }}
                       >
                         {product.name}
                       </Typography>
-                      
 
                       {/* Price */}
                       {product.price?.isVisible && (
-                        <Typography 
-                          variant="h2" 
-                          className="text-3xl font-bold mb-6"
-                          style={{ 
+                        <Typography
+                          variant='h2'
+                          className='text-3xl font-bold mb-6'
+                          style={{
                             fontFamily: 'Libre Baskerville',
-                            color: '#98342d'
+                            color: '#98342d',
                           }}
                         >
-                          ₹{product.price.startingFrom ? `${product.price.startingFrom.toLocaleString('en-IN')}+` : 'XXX'}
+                          ₹
+                          {product.price.startingFrom
+                            ? `${product.price.startingFrom.toLocaleString('en-IN')}+`
+                            : 'XXX'}
                         </Typography>
                       )}
                     </div>
 
                     {/* Product Description (without title) */}
                     {product.description && (
-                      <div className="border-t border-gray-200 pt-6">
+                      <div className='border-t border-gray-200 pt-6'>
                         <Typography
-                          variant="body"
-                          className="text-lg leading-relaxed text-gray-700"
+                          variant='body'
+                          className='text-lg leading-relaxed text-gray-700'
                           style={{ fontFamily: 'Poppins' }}
                         >
                           {product.description}
@@ -208,10 +236,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
                     )}
 
                     {/* Product Specifications */}
-                    <Suspense fallback={<div className="h-32 bg-gray-100 rounded animate-pulse"></div>}>
+                    <Suspense
+                      fallback={
+                        <div className='h-32 bg-gray-100 rounded animate-pulse'></div>
+                      }
+                    >
                       <ProductSpecs
                         specifications={product.specifications}
-                        className="border-t border-b border-gray-200 py-6"
+                        className='border-t border-b border-gray-200 py-6'
                       />
                     </Suspense>
 
@@ -225,28 +257,30 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </SectionErrorBoundary>
 
         {/* Product Story Section */}
-        <SectionErrorBoundary sectionName="product story">
-          <section className="py-4 md:py-4">
-            <Container size="lg">
+        <SectionErrorBoundary sectionName='product story'>
+          <section className='py-4 md:py-4'>
+            <Container size='lg'>
               <SlideUp delay={0.3}>
                 <div>
-                  <Typography 
-                    variant="h2" 
-                    className="text-3xl md:text-4xl font-bold mb-8"
-                    style={{ 
+                  <Typography
+                    variant='h2'
+                    className='text-3xl md:text-4xl font-bold mb-8'
+                    style={{
                       fontFamily: 'Libre Baskerville',
-                      color: '#98342d'
+                      color: '#98342d',
                     }}
                   >
                     The Story Behind This Rug
                   </Typography>
-                  
+
                   <Typography
-                    variant="body"
-                    className="text-lg leading-relaxed text-gray-700"
+                    variant='body'
+                    className='text-lg leading-relaxed text-gray-700'
                     style={{ fontFamily: 'Poppins' }}
                   >
-                    {product.story || product.description || `This exquisite rug is a testament to the artistry of traditional rug making. Inspired by the natural world, its design incorporates subtle patterns and textures that evoke a sense of calm and sophistication. Handcrafted by skilled artisans using time-honored techniques, this rug is not just a floor covering but a piece of art that adds warmth and character to any space.`}
+                    {product.story ||
+                      product.description ||
+                      `This exquisite rug is a testament to the artistry of traditional rug making. Inspired by the natural world, its design incorporates subtle patterns and textures that evoke a sense of calm and sophistication. Handcrafted by skilled artisans using time-honored techniques, this rug is not just a floor covering but a piece of art that adds warmth and character to any space.`}
                   </Typography>
                 </div>
               </SlideUp>
@@ -256,41 +290,41 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
-          <SectionErrorBoundary sectionName="related products">
-            <section className="py-16 md:py-24">
-              <Container size="lg">
+          <SectionErrorBoundary sectionName='related products'>
+            <section className='py-16 md:py-24'>
+              <Container size='lg'>
                 <SlideUp delay={0.4}>
-                  <div className="space-y-12">
+                  <div className='space-y-12'>
                     <div>
-                      <Typography 
-                        variant="h2" 
-                        className="text-3xl md:text-4xl font-bold mb-4"
-                        style={{ 
+                      <Typography
+                        variant='h2'
+                        className='text-3xl md:text-4xl font-bold mb-4'
+                        style={{
                           fontFamily: 'Libre Baskerville',
-                          color: '#98342d'
+                          color: '#98342d',
                         }}
                       >
                         You Might Also Like
                       </Typography>
-                      <Typography 
-                        variant="body" 
-                        className="text-gray-600"
+                      <Typography
+                        variant='body'
+                        className='text-gray-600'
                         style={{ fontFamily: 'Poppins' }}
                       >
                         Discover more handcrafted rugs from our collection
                       </Typography>
                     </div>
 
-                    <Suspense fallback={<LoadingSkeleton variant="tiles" />}>
-                      <SafeProductGrid 
+                    <Suspense fallback={<LoadingSkeleton variant='tiles' />}>
+                      <SafeProductGrid
                         products={relatedProducts}
-                        className="gap-6"
-                        gridCols={{ 
-                          default: 1, 
-                          sm: 2, 
-                          md: 3, 
-                          lg: 4, 
-                          xl: 4 
+                        className='gap-6'
+                        gridCols={{
+                          default: 1,
+                          sm: 2,
+                          md: 3,
+                          lg: 4,
+                          xl: 4,
                         }}
                       />
                     </Suspense>
@@ -313,4 +347,3 @@ export async function generateStaticParams() {
   // For now, return empty array to allow dynamic generation
   return [];
 }
-

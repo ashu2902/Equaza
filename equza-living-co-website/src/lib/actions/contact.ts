@@ -26,14 +26,14 @@ export async function submitContactForm(
   try {
     // Validate form data
     const validationResult = contactFormSchema.safeParse(formData);
-    
+
     if (!validationResult.success) {
       const errors: Record<string, string> = {};
       validationResult.error.issues.forEach((error) => {
         const field = error.path[0] as string;
         errors[field] = error.message;
       });
-      
+
       return {
         success: false,
         message: 'Please check the form for errors',
@@ -46,25 +46,25 @@ export async function submitContactForm(
     // Create lead in Firestore
     const leadId = await createContactLead(validatedData, source);
 
-
     // TODO: Send email notifications (Phase 6.2 email integration)
     // await sendContactNotificationEmail(validatedData, leadId);
     // await sendContactAutoReplyEmail(validatedData.email, validatedData.name);
 
     return {
       success: true,
-      message: 'Thank you for your message! We\'ll get back to you within 24 hours.',
+      message:
+        "Thank you for your message! We'll get back to you within 24 hours.",
       leadId,
     };
-
   } catch (error) {
     console.error('Error submitting contact form:', error);
-    
+
     return {
       success: false,
-      message: error instanceof Error 
-        ? error.message 
-        : 'Something went wrong. Please try again.',
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Something went wrong. Please try again.',
     };
   }
 }

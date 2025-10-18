@@ -13,7 +13,7 @@ export async function deleteFileAdmin(path: string): Promise<void> {
     const storage = getAdminStorage();
     const bucket = storage.bucket();
     const file = bucket.file(path);
-    
+
     await file.delete();
     console.log(`✅ Admin Storage: Successfully deleted file: ${path}`);
   } catch (error) {
@@ -29,13 +29,13 @@ export async function deleteMultipleFilesAdmin(paths: string[]): Promise<void> {
   try {
     const storage = getAdminStorage();
     const bucket = storage.bucket();
-    
+
     const deletePromises = paths.map(async (path) => {
       const file = bucket.file(path);
       await file.delete();
       console.log(`✅ Admin Storage: Successfully deleted file: ${path}`);
     });
-    
+
     await Promise.all(deletePromises);
   } catch (error) {
     console.error('❌ Admin Storage: Failed to delete multiple files:', error);
@@ -51,15 +51,18 @@ export async function getFileURLAdmin(path: string): Promise<string> {
     const storage = getAdminStorage();
     const bucket = storage.bucket();
     const file = bucket.file(path);
-    
+
     const [url] = await file.getSignedUrl({
       action: 'read',
       expires: Date.now() + 1000 * 60 * 60 * 24, // 24 hours
     });
-    
+
     return url;
   } catch (error) {
-    console.error(`❌ Admin Storage: Failed to get file URL for ${path}:`, error);
+    console.error(
+      `❌ Admin Storage: Failed to get file URL for ${path}:`,
+      error
+    );
     throw new Error('Failed to get file URL');
   }
 }
@@ -72,11 +75,14 @@ export async function fileExistsAdmin(path: string): Promise<boolean> {
     const storage = getAdminStorage();
     const bucket = storage.bucket();
     const file = bucket.file(path);
-    
+
     const [exists] = await file.exists();
     return exists;
   } catch (error) {
-    console.error(`❌ Admin Storage: Failed to check if file exists ${path}:`, error);
+    console.error(
+      `❌ Admin Storage: Failed to check if file exists ${path}:`,
+      error
+    );
     return false;
   }
 }
@@ -89,11 +95,14 @@ export async function getFileMetadataAdmin(path: string): Promise<any> {
     const storage = getAdminStorage();
     const bucket = storage.bucket();
     const file = bucket.file(path);
-    
+
     const [metadata] = await file.getMetadata();
     return metadata;
   } catch (error) {
-    console.error(`❌ Admin Storage: Failed to get file metadata for ${path}:`, error);
+    console.error(
+      `❌ Admin Storage: Failed to get file metadata for ${path}:`,
+      error
+    );
     throw new Error('Failed to get file metadata');
   }
 }
@@ -105,12 +114,12 @@ export async function listFilesAdmin(path: string): Promise<string[]> {
   try {
     const storage = getAdminStorage();
     const bucket = storage.bucket();
-    
+
     const [files] = await bucket.getFiles({
       prefix: path,
     });
-    
-    return files.map(file => file.name);
+
+    return files.map((file) => file.name);
   } catch (error) {
     console.error(`❌ Admin Storage: Failed to list files in ${path}:`, error);
     throw new Error('Failed to list files');
@@ -133,7 +142,7 @@ export async function uploadFileFromBufferAdmin(
     const storage = getAdminStorage();
     const bucket = storage.bucket();
     const file = bucket.file(path);
-    
+
     await file.save(buffer, {
       metadata: {
         contentType: metadata?.contentType,
@@ -141,13 +150,13 @@ export async function uploadFileFromBufferAdmin(
         metadata: metadata?.customMetadata,
       },
     });
-    
+
     // Get download URL
     const [url] = await file.getSignedUrl({
       action: 'read',
       expires: Date.now() + 1000 * 60 * 60 * 24, // 24 hours
     });
-    
+
     console.log(`✅ Admin Storage: Successfully uploaded file: ${path}`);
     return url;
   } catch (error) {

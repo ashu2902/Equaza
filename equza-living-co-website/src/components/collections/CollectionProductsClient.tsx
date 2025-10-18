@@ -18,9 +18,9 @@ interface CollectionProductsClientProps {
   productsError?: string | null;
 }
 
-export function CollectionProductsClient({ 
-  products, 
-  productsError 
+export function CollectionProductsClient({
+  products,
+  productsError,
 }: CollectionProductsClientProps) {
   const [sortOption, setSortOption] = useState<SortOption>('name-asc');
 
@@ -40,7 +40,9 @@ export function CollectionProductsClient({
       case 'price-desc':
         return (b.price?.startingFrom || 0) - (a.price?.startingFrom || 0);
       case 'newest':
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
       default:
         return 0;
     }
@@ -48,8 +50,8 @@ export function CollectionProductsClient({
 
   if (productsError) {
     return (
-      <div className="text-center py-16">
-        <Typography variant="body" className="text-red-600">
+      <div className='text-center py-16'>
+        <Typography variant='body' className='text-red-600'>
           {productsError}
         </Typography>
       </div>
@@ -58,10 +60,10 @@ export function CollectionProductsClient({
 
   if (products.length === 0) {
     return (
-      <div className="text-center py-16">
-        <Typography 
-          variant="body" 
-          className="text-gray-600"
+      <div className='text-center py-16'>
+        <Typography
+          variant='body'
+          className='text-gray-600'
           style={{ fontFamily: 'Poppins' }}
         >
           No rugs found in this collection.
@@ -72,49 +74,53 @@ export function CollectionProductsClient({
 
   return (
     <SlideUp delay={0.3}>
-      <div className="space-y-6">
+      <div className='space-y-6'>
         {/* Products Content */}
         {/* Sort Options */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <Typography 
-            variant="body" 
-            className="text-gray-600"
+        <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4'>
+          <Typography
+            variant='body'
+            className='text-gray-600'
             style={{ fontFamily: 'Poppins' }}
           >
             Showing {sortedProducts.length} of {products.length} rugs
           </Typography>
-          
-          <Suspense fallback={<div className="h-10 w-48 bg-gray-100 rounded animate-pulse"></div>}>
-                          <SortOptions
+
+          <Suspense
+            fallback={
+              <div className='h-10 w-48 bg-gray-100 rounded animate-pulse'></div>
+            }
+          >
+            <SortOptions
               value={sortOption}
               onChange={handleSortChange}
-              className="w-full sm:w-auto"
+              className='w-full sm:w-auto'
             />
           </Suspense>
         </div>
 
         {/* Product Grid */}
         {sortedProducts.length === 0 ? (
-          <div className="text-center py-16">
-            <Typography 
-              variant="body" 
-              className="text-gray-600"
+          <div className='text-center py-16'>
+            <Typography
+              variant='body'
+              className='text-gray-600'
               style={{ fontFamily: 'Poppins' }}
             >
               No rugs match your current filters.
             </Typography>
           </div>
         ) : (
-          <Suspense fallback={<LoadingSkeleton variant="tiles" />}>
-            <SafeProductGrid 
+          <Suspense fallback={<LoadingSkeleton variant='tiles' />}>
+            <SafeProductGrid
               products={sortedProducts}
-              className="gap-6"
-              gridCols={{ 
-                default: 1, 
-                sm: 2, 
-                md: 3, 
-                lg: 4, 
-                xl: 4 
+              className='gap-6'
+              gridCols={{
+                default: 1,
+                sm: 2,
+                md: 3,
+                lg: 4,
+                xl: 4,
               }}
             />
           </Suspense>

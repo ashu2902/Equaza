@@ -11,11 +11,11 @@ interface AdminPageTemplateProps {
   showHeader?: boolean;
 }
 
-export function AdminPageTemplate({ 
-  children, 
+export function AdminPageTemplate({
+  children,
   title = 'Admin Dashboard',
   className = '',
-  showHeader = true
+  showHeader = true,
 }: AdminPageTemplateProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -34,7 +34,7 @@ export function AdminPageTemplate({
 
   return (
     <AdminAuthGuard>
-      <div className="min-h-screen bg-[#f1eee9]">
+      <div className='min-h-screen bg-[#f1eee9]'>
         {/* Admin Sidebar */}
         <AdminSidebar
           isCollapsed={isSidebarCollapsed}
@@ -44,7 +44,7 @@ export function AdminPageTemplate({
         />
 
         {/* Main Content Area */}
-        <div 
+        <div
           className={`flex flex-col min-h-screen transition-all duration-300 ease-in-out ${
             isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'
           }`}
@@ -61,8 +61,8 @@ export function AdminPageTemplate({
           <main className={`flex-1 p-4 lg:p-6 ${className}`}>
             {/* Page Title */}
             {title && (
-              <div className="mb-6">
-                <h1 className="text-2xl lg:text-3xl font-bold text-[#98342d]">
+              <div className='mb-6'>
+                <h1 className='text-2xl lg:text-3xl font-bold text-[#98342d]'>
                   {title}
                 </h1>
               </div>
@@ -75,4 +75,4 @@ export function AdminPageTemplate({
       </div>
     </AdminAuthGuard>
   );
-} 
+}

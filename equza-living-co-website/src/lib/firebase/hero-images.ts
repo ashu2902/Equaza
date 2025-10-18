@@ -3,13 +3,7 @@
  * Firestore operations for page hero images with caching
  */
 
-import {
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  Timestamp,
-} from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, Timestamp } from 'firebase/firestore';
 
 import { db } from './config';
 
@@ -23,9 +17,9 @@ export interface HeroImageData {
 
 export interface AllHeroImages {
   'our-story': HeroImageData;
-  'craftsmanship': HeroImageData;
-  'trade': HeroImageData;
-  'customize': HeroImageData;
+  craftsmanship: HeroImageData;
+  trade: HeroImageData;
+  customize: HeroImageData;
   updatedAt?: any;
 }
 
@@ -39,23 +33,28 @@ export const getHeroImages = async (): Promise<AllHeroImages | null> => {
   try {
     const docRef = doc(db, 'settings', HERO_IMAGES_DOC_ID);
     const docSnap = await getDoc(docRef);
-    
+
     if (!docSnap.exists()) {
       return null;
     }
-    
+
     const data = docSnap.data();
     const convertedData = { ...data };
-    
+
     // Convert Firestore Timestamps to ISO strings for client components
-    Object.keys(convertedData).forEach(key => {
+    Object.keys(convertedData).forEach((key) => {
       if (convertedData[key] && typeof convertedData[key] === 'object') {
-        if (convertedData[key].uploadedAt && convertedData[key].uploadedAt.toDate) {
-          convertedData[key].uploadedAt = convertedData[key].uploadedAt.toDate().toISOString();
+        if (
+          convertedData[key].uploadedAt &&
+          convertedData[key].uploadedAt.toDate
+        ) {
+          convertedData[key].uploadedAt = convertedData[key].uploadedAt
+            .toDate()
+            .toISOString();
         }
       }
     });
-    
+
     return convertedData as AllHeroImages;
   } catch (error) {
     console.error('Error fetching hero images:', error);
@@ -69,11 +68,11 @@ export const getHeroImages = async (): Promise<AllHeroImages | null> => {
 export const getHeroImagesWithDefaults = async (): Promise<AllHeroImages> => {
   try {
     const heroImages = await getHeroImages();
-    
+
     if (heroImages) {
       return heroImages;
     }
-    
+
     // Auto-initialize if no data exists
     return getStaticDefaults();
   } catch (error) {
@@ -94,21 +93,21 @@ function getStaticDefaults(): AllHeroImages {
       uploadedAt: new Date().toISOString(),
       uploadedBy: 'static-fallback',
     },
-    'craftsmanship': {
+    craftsmanship: {
       imageUrl: '/images/craftsmanship-hero.jpg',
       altText: 'Master artisan weaving traditional rug',
       isActive: true,
       uploadedAt: new Date().toISOString(),
       uploadedBy: 'static-fallback',
     },
-    'trade': {
+    trade: {
       imageUrl: '/images/trade-hero.jpg',
       altText: 'Business partnership handshake with rugs in background',
       isActive: true,
       uploadedAt: new Date().toISOString(),
       uploadedBy: 'static-fallback',
     },
-    'customize': {
+    customize: {
       imageUrl: '/images/craftsmanship-hero.jpg',
       altText: 'Traditional rug weaving background',
       isActive: true,
@@ -122,7 +121,9 @@ function getStaticDefaults(): AllHeroImages {
 /**
  * Get hero image for a specific page
  */
-export const getPageHeroImage = async (pageType: keyof Omit<AllHeroImages, 'updatedAt'>): Promise<HeroImageData | null> => {
+export const getPageHeroImage = async (
+  pageType: keyof Omit<AllHeroImages, 'updatedAt'>
+): Promise<HeroImageData | null> => {
   try {
     const heroImages = await getHeroImagesWithDefaults();
     return heroImages[pageType] || null;
@@ -142,10 +143,10 @@ export const updatePageHeroImage = async (
 ): Promise<void> => {
   try {
     const docRef = doc(db, 'settings', HERO_IMAGES_DOC_ID);
-    
+
     // Get current data first
     const currentData = await getHeroImagesWithDefaults();
-    
+
     const updateData = {
       ...currentData,
       [pageType]: {
@@ -155,11 +156,13 @@ export const updatePageHeroImage = async (
       },
       updatedAt: Timestamp.now(),
     };
-    
+
     await setDoc(docRef, updateData);
   } catch (error) {
     console.error(`Error updating hero image for page ${pageType}:`, error);
-    throw new Error(`Failed to update hero image for ${pageType}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to update hero image for ${pageType}: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
   }
 };
 
@@ -172,26 +175,29 @@ export const updateMultipleHeroImages = async (
 ): Promise<void> => {
   try {
     const docRef = doc(db, 'settings', HERO_IMAGES_DOC_ID);
-    
+
     // Get current data first
     const currentData = await getHeroImagesWithDefaults();
-    
+
     // Update each page's data with timestamp
     const updateData = { ...currentData };
-    Object.keys(updates).forEach(pageType => {
-      if (pageType !== 'updatedAt' && updates[pageType as keyof typeof updates]) {
+    Object.keys(updates).forEach((pageType) => {
+      if (
+        pageType !== 'updatedAt' &&
+        updates[pageType as keyof typeof updates]
+      ) {
         updateData[pageType as keyof AllHeroImages] = {
-          ...updates[pageType as keyof typeof updates] as HeroImageData,
+          ...(updates[pageType as keyof typeof updates] as HeroImageData),
           uploadedAt: Timestamp.now(),
           uploadedBy: updatedBy,
         };
       }
     });
-    
+
     updateData.updatedAt = Timestamp.now();
-    
+
     await setDoc(docRef, updateData);
-    
+
     console.log('Updated multiple hero images:', Object.keys(updates));
   } catch (error) {
     console.error('Error updating multiple hero images:', error);
@@ -202,11 +208,13 @@ export const updateMultipleHeroImages = async (
 /**
  * Initialize hero images with defaults (creates if doesn't exist)
  */
-export const initializeHeroImages = async (updatedBy: string = 'system'): Promise<void> => {
+export const initializeHeroImages = async (
+  updatedBy: string = 'system'
+): Promise<void> => {
   try {
     const docRef = doc(db, 'settings', HERO_IMAGES_DOC_ID);
     const docSnap = await getDoc(docRef);
-    
+
     // Only initialize if document doesn't exist
     if (!docSnap.exists()) {
       const defaultData = await getHeroImagesWithDefaults();
@@ -214,7 +222,7 @@ export const initializeHeroImages = async (updatedBy: string = 'system'): Promis
         ...defaultData,
         updatedAt: Timestamp.now(),
       });
-      
+
       console.log('Initialized hero images with defaults');
     }
   } catch (error) {

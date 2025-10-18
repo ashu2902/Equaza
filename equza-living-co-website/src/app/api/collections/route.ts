@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSafeStyleCollections, getSafeSpaceCollections } from '@/lib/firebase/safe-firestore';
+import {
+  getSafeStyleCollections,
+  getSafeSpaceCollections,
+} from '@/lib/firebase/safe-firestore';
 import { isDataResult } from '@/types/safe';
 
 export async function GET(request: NextRequest) {
@@ -13,13 +16,13 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({
           success: true,
           data: result.data,
-          error: result.error
+          error: result.error,
         });
       } else {
         return NextResponse.json({
           success: false,
           data: [],
-          error: result?.error || 'Failed to fetch style collections'
+          error: result?.error || 'Failed to fetch style collections',
         });
       }
     } else if (type === 'space') {
@@ -28,13 +31,13 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({
           success: true,
           data: result.data,
-          error: result.error
+          error: result.error,
         });
       } else {
         return NextResponse.json({
           success: false,
           data: [],
-          error: result?.error || 'Failed to fetch space collections'
+          error: result?.error || 'Failed to fetch space collections',
         });
       }
     } else {
@@ -51,17 +54,24 @@ export async function GET(request: NextRequest) {
           space: isDataResult(spaceResult) ? spaceResult.data : [],
         },
         error: {
-          style: isDataResult(styleResult) ? styleResult.error : styleResult?.error,
-          space: isDataResult(spaceResult) ? spaceResult.error : spaceResult?.error,
-        }
+          style: isDataResult(styleResult)
+            ? styleResult.error
+            : styleResult?.error,
+          space: isDataResult(spaceResult)
+            ? spaceResult.error
+            : spaceResult?.error,
+        },
       });
     }
   } catch (error) {
     console.error('Collections API error:', error);
-    return NextResponse.json({
-      success: false,
-      data: { style: [], space: [] },
-      error: 'Internal server error'
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        data: { style: [], space: [] },
+        error: 'Internal server error',
+      },
+      { status: 500 }
+    );
   }
 }

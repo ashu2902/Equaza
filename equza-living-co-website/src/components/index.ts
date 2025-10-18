@@ -16,4 +16,4 @@ export * from './forms';
 export * from './homepage';
 
 // This approach allows for clean imports like:
-// import { Button, Card, ContactForm } from '@/components'; 
+// import { Button, Card, ContactForm } from '@/components';

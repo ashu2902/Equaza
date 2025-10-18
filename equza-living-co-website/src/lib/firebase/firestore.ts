@@ -29,45 +29,55 @@ import type {
 import { db } from './config';
 
 // Helper function to convert Firestore document to typed object with proper serialization
-const convertDoc = <T>(doc: DocumentSnapshot | QueryDocumentSnapshot): T | null => {
+const convertDoc = <T>(
+  doc: DocumentSnapshot | QueryDocumentSnapshot
+): T | null => {
   if (!doc.exists()) return null;
-  
+
   const data = doc.data();
   const convertedData = { ...data };
-  
+
   // Convert Firestore Timestamps to ISO strings for client components
-  Object.keys(convertedData).forEach(key => {
-    if (convertedData[key] && typeof convertedData[key] === 'object' && convertedData[key].toDate) {
+  Object.keys(convertedData).forEach((key) => {
+    if (
+      convertedData[key] &&
+      typeof convertedData[key] === 'object' &&
+      convertedData[key].toDate
+    ) {
       convertedData[key] = convertedData[key].toDate().toISOString();
     }
   });
-  
+
   return { id: doc.id, ...convertedData } as T;
 };
 
 // Collections CRUD operations
-export const getCollections = async (filters: CollectionFilters = {}): Promise<Collection[]> => {
+export const getCollections = async (
+  filters: CollectionFilters = {}
+): Promise<Collection[]> => {
   try {
     const constraints: QueryConstraint[] = [];
-    
+
     if (filters.type) {
       constraints.push(where('type', '==', filters.type));
     }
-    
+
     if (filters.isActive !== undefined) {
       constraints.push(where('isActive', '==', filters.isActive));
     }
-    
+
     constraints.push(orderBy('sortOrder', 'asc'));
-    
+
     if (filters.limit) {
       constraints.push(limit(filters.limit));
     }
-    
+
     const q = query(collection(db, 'collections'), ...constraints);
     const snapshot = await getDocs(q);
-    
-    return snapshot.docs.map(doc => convertDoc<Collection>(doc)).filter(Boolean) as Collection[];
+
+    return snapshot.docs
+      .map((doc) => convertDoc<Collection>(doc))
+      .filter(Boolean) as Collection[];
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error fetching collections:', error);
@@ -75,7 +85,9 @@ export const getCollections = async (filters: CollectionFilters = {}): Promise<C
   }
 };
 
-export const getCollection = async (slug: string): Promise<Collection | null> => {
+export const getCollection = async (
+  slug: string
+): Promise<Collection | null> => {
   try {
     const q = query(
       collection(db, 'collections'),
@@ -83,9 +95,9 @@ export const getCollection = async (slug: string): Promise<Collection | null> =>
       where('isActive', '==', true)
     );
     const snapshot = await getDocs(q);
-    
+
     if (snapshot.empty) return null;
-    
+
     return convertDoc<Collection>(snapshot.docs[0]!);
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -95,34 +107,40 @@ export const getCollection = async (slug: string): Promise<Collection | null> =>
 };
 
 // Products CRUD operations
-export const getProducts = async (filters: ProductFilters = {}): Promise<Product[]> => {
+export const getProducts = async (
+  filters: ProductFilters = {}
+): Promise<Product[]> => {
   try {
     const constraints: QueryConstraint[] = [];
-    
+
     if (filters.collectionId) {
-      constraints.push(where('collections', 'array-contains', filters.collectionId));
+      constraints.push(
+        where('collections', 'array-contains', filters.collectionId)
+      );
     }
-    
+
     // roomTypes removed
-    
+
     if (filters.isActive !== undefined) {
       constraints.push(where('isActive', '==', filters.isActive));
     }
-    
+
     if (filters.isFeatured !== undefined) {
       constraints.push(where('isFeatured', '==', filters.isFeatured));
     }
-    
+
     constraints.push(orderBy('sortOrder', 'asc'));
-    
+
     if (filters.limit) {
       constraints.push(limit(filters.limit));
     }
-    
+
     const q = query(collection(db, 'products'), ...constraints);
     const snapshot = await getDocs(q);
-    
-    return snapshot.docs.map(doc => convertDoc<Product>(doc)).filter(Boolean) as Product[];
+
+    return snapshot.docs
+      .map((doc) => convertDoc<Product>(doc))
+      .filter(Boolean) as Product[];
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error fetching products:', error);
@@ -138,9 +156,9 @@ export const getProduct = async (slug: string): Promise<Product | null> => {
       where('isActive', '==', true)
     );
     const snapshot = await getDocs(q);
-    
+
     if (snapshot.empty) return null;
-    
+
     return convertDoc<Product>(snapshot.docs[0]!);
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -149,7 +167,9 @@ export const getProduct = async (slug: string): Promise<Product | null> => {
   }
 };
 
-export const getFeaturedProducts = async (limitCount: number = 8): Promise<Product[]> => {
+export const getFeaturedProducts = async (
+  limitCount: number = 8
+): Promise<Product[]> => {
   try {
     const q = query(
       collection(db, 'products'),
@@ -159,8 +179,10 @@ export const getFeaturedProducts = async (limitCount: number = 8): Promise<Produ
       limit(limitCount)
     );
     const snapshot = await getDocs(q);
-    
-    return snapshot.docs.map(doc => convertDoc<Product>(doc)).filter(Boolean) as Product[];
+
+    return snapshot.docs
+      .map((doc) => convertDoc<Product>(doc))
+      .filter(Boolean) as Product[];
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error fetching featured products:', error);
@@ -168,15 +190,17 @@ export const getFeaturedProducts = async (limitCount: number = 8): Promise<Produ
   }
 };
 
-export const getProductsByCollection = async (collectionSlug: string): Promise<Product[]> => {
+export const getProductsByCollection = async (
+  collectionSlug: string
+): Promise<Product[]> => {
   try {
     // First get the collection ID from slug
     const collectionDoc = await getCollection(collectionSlug);
     if (!collectionDoc) return [];
-    
-    return getProducts({ 
-      collectionId: collectionDoc.id, 
-      isActive: true 
+
+    return getProducts({
+      collectionId: collectionDoc.id,
+      isActive: true,
     });
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -194,9 +218,9 @@ export const getPage = async (slug: string): Promise<Page | null> => {
       where('isActive', '==', true)
     );
     const snapshot = await getDocs(q);
-    
+
     if (snapshot.empty) return null;
-    
+
     return convertDoc<Page>(snapshot.docs[0]!);
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -214,7 +238,7 @@ export const getSiteSettings = async () => {
   try {
     const docRef = doc(db, 'settings', 'global');
     const docSnap = await getDoc(docRef);
-    
+
     if (docSnap.exists()) {
       return docSnap.data();
     } else {
@@ -231,7 +255,8 @@ export const getSiteSettings = async () => {
         },
         seoDefaults: {
           defaultTitle: 'Equza Living Co. - Premium Handcrafted Rugs',
-          defaultDescription: 'Discover premium handcrafted rugs that bring crafted calm to modern spaces. Explore our collections of artisan-made rugs from India.',
+          defaultDescription:
+            'Discover premium handcrafted rugs that bring crafted calm to modern spaces. Explore our collections of artisan-made rugs from India.',
           ogImage: '/images/og-default.jpg',
         },
       };
@@ -248,7 +273,7 @@ export const getLookbook = async () => {
   try {
     const docRef = doc(db, 'lookbook', 'current');
     const docSnap = await getDoc(docRef);
-    
+
     if (docSnap.exists() && docSnap.data().isActive) {
       return docSnap.data();
     }
@@ -258,4 +283,4 @@ export const getLookbook = async () => {
     console.error('Error fetching lookbook:', error);
     throw new Error('Failed to fetch lookbook');
   }
-}; 
+};

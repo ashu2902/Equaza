@@ -6,18 +6,22 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { 
-  initializeHeroImages, 
-  updatePageHeroImage, 
+import {
+  initializeHeroImages,
+  updatePageHeroImage,
   updateMultipleHeroImages,
   type HeroImageData,
-  type AllHeroImages
+  type AllHeroImages,
 } from '@/lib/firebase/hero-images';
 import { checkAdminStatus } from '@/lib/firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { revalidatePath } from 'next/cache';
 
-async function verifyAdminAuth(): Promise<{ isAdmin: boolean; userId?: string; email?: string }> {
+async function verifyAdminAuth(): Promise<{
+  isAdmin: boolean;
+  userId?: string;
+  email?: string;
+}> {
   try {
     const isAdmin = await checkAdminStatus();
     const user = auth?.currentUser;
@@ -66,7 +70,10 @@ export async function initializeHeroImagesAction(): Promise<HeroImageActionResul
     console.error('Error initializing hero images:', error);
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to initialize hero images',
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Failed to initialize hero images',
     };
   }
 }
@@ -99,7 +106,8 @@ export async function updatePageHeroImageAction(
     console.error(`Error updating hero image for ${pageType}:`, error);
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to update hero image',
+      message:
+        error instanceof Error ? error.message : 'Failed to update hero image',
     };
   }
 }
@@ -108,7 +116,12 @@ export async function updatePageHeroImageAction(
  * Update multiple hero images at once
  */
 export async function updateMultipleHeroImagesAction(
-  updates: Partial<Record<'our-story' | 'craftsmanship' | 'trade' | 'customize', Omit<HeroImageData, 'uploadedAt' | 'uploadedBy'>>>
+  updates: Partial<
+    Record<
+      'our-story' | 'craftsmanship' | 'trade' | 'customize',
+      Omit<HeroImageData, 'uploadedAt' | 'uploadedBy'>
+    >
+  >
 ): Promise<HeroImageActionResult> {
   try {
     // Validate admin authentication
@@ -133,7 +146,7 @@ export async function updateMultipleHeroImagesAction(
 
     // Revalidate affected paths
     revalidatePath('/admin/hero-images');
-    Object.keys(updates).forEach(pageType => {
+    Object.keys(updates).forEach((pageType) => {
       revalidatePath(`/${pageType}`);
     });
 
@@ -145,7 +158,8 @@ export async function updateMultipleHeroImagesAction(
     console.error('Error updating multiple hero images:', error);
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to update hero images',
+      message:
+        error instanceof Error ? error.message : 'Failed to update hero images',
     };
   }
 }

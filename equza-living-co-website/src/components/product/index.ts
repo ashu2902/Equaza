@@ -16,4 +16,4 @@ export { SearchBar } from './SearchBar';
 export { SortOptions } from './SortOptions';
 
 // Type exports for SortOptions
-export type { SortOption } from './SortOptions'; 
+export type { SortOption } from './SortOptions';

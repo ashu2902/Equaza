@@ -111,7 +111,8 @@ const Typography = React.forwardRef<HTMLElement, TypographyProps>(
       overline: 'span',
     };
 
-    const Component = as || (defaultElements[variant] as React.ElementType) || 'p';
+    const Component =
+      as || (defaultElements[variant] as React.ElementType) || 'p';
 
     return (
       <Component
@@ -139,13 +140,7 @@ const Heading = React.forwardRef<
   Omit<TypographyProps, 'variant'> & { level?: 1 | 2 | 3 | 4 | 5 | 6 }
 >(({ level = 1, ...props }, ref) => {
   const variant = `h${level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
-  return (
-    <Typography
-      ref={ref}
-      variant={variant}
-      {...props}
-    />
-  );
+  return <Typography ref={ref} variant={variant} {...props} />;
 });
 Heading.displayName = 'Heading';
 
@@ -153,7 +148,8 @@ const Text = React.forwardRef<
   HTMLParagraphElement,
   Omit<TypographyProps, 'variant'> & { size?: 'sm' | 'base' | 'lg' }
 >(({ size = 'base', ...props }, ref) => {
-  const variant = size === 'sm' ? 'body2' : size === 'lg' ? 'subtitle1' : 'body1';
+  const variant =
+    size === 'sm' ? 'body2' : size === 'lg' ? 'subtitle1' : 'body1';
   return <Typography ref={ref} variant={variant} {...props} />;
 });
 Text.displayName = 'Text';
@@ -162,9 +158,9 @@ const Caption = React.forwardRef<
   HTMLSpanElement,
   Omit<TypographyProps, 'variant'>
 >((props, ref) => (
-  <Typography ref={ref} variant="caption" color="muted" {...props} />
+  <Typography ref={ref} variant='caption' color='muted' {...props} />
 ));
 Caption.displayName = 'Caption';
 
 export { Typography, Heading, Text, Caption };
-export type { TypographyProps }; 
+export type { TypographyProps };
