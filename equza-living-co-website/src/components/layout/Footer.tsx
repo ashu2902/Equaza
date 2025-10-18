@@ -62,10 +62,10 @@ export function Footer() {
           {/* Brand section */}
           <div className='lg:col-span-1'>
             <div className='flex items-center mb-4'>
-              <div className='w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center mr-3'>
+              <div className='w-8 h-8 bg-primary-800 rounded-full flex items-center justify-center mr-3'>
                 <span className='text-cream-50 font-bold text-sm'>E</span>
               </div>
-              <span className='font-display text-xl text-cream-50 tracking-wide'>
+              <span className='font-baskerville text-xl text-primary-800 tracking-wide'>
                 Equza Living Co.
               </span>
             </div>

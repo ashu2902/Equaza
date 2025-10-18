@@ -46,6 +46,7 @@ export default function RootLayout({
     <html lang='en'>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${libreBaskerville.variable} antialiased`}
+        suppressHydrationWarning={true}
       >
         {/* Public Site Header (reveals after hero scroll) */}
         <Header />

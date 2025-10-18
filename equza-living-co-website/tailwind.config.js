@@ -62,6 +62,7 @@ module.exports = {
         serif: ['Playfair Display', 'Georgia', 'serif'],
         display: ['Playfair Display', 'Georgia', 'serif'], // For headings
         body: ['Inter', 'system-ui', 'sans-serif'], // For body text
+        baskerville: ['Libre Baskerville', 'Georgia', 'serif'], // For brand name
       },
       spacing: {
         18: '4.5rem',

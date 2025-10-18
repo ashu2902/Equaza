@@ -45,9 +45,9 @@ export function MinimalFooter() {
       <div className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center'>
         {/* Company Branding */}
         <div className='mb-6'>
-          <h3
-            className='text-2xl font-bold text-gray-900 mb-2'
-            style={{ fontFamily: 'Poppins' }}
+          <h3 
+            className='text-2xl font-bold mb-2 font-libre-baskerville'
+            style={{ color: '#98342d' }}
           >
             EQUZA LIVING CO.
           </h3>

@@ -777,6 +777,81 @@ export async function getSafeAdminStats(): Promise<SafeResult<AdminStats>> {
 /**
  * Get all leads for admin management
  */
+export async function getSafeLeadById(leadId: string): Promise<SafeResult<any>> {
+  try {
+    const adminDb = getAdminFirestore();
+    const docSnap = await adminDb.collection('leads').doc(leadId).get();
+
+    if (!docSnap.exists) {
+      return {
+        data: null,
+        error: 'Lead not found',
+        loading: false,
+      };
+    }
+
+    const data = docSnap.data();
+    if (!data) {
+      return {
+        data: null,
+        error: 'Lead data is empty',
+        loading: false,
+      };
+    }
+
+    // Handle both old nested structure and new flat structure
+    const normalizedLead = {
+      id: docSnap.id,
+      // Core fields
+      name: data.name || '',
+      email: data.email || '',
+      phone: data.phone || data.notes?.phone || null,
+      message: data.message || '',
+      company: data.company || '',
+
+      // Lead classification - handle both structures
+      type: data.type || data.notes?.type || 'contact',
+      status: data.status || data.notes?.status || 'new',
+      source: data.source || data.notes?.source || 'unknown',
+
+      // Product references
+      productId: data.productId || '',
+      productRef: data.productRef || '',
+      collectionId: data.collectionId || '',
+
+      // Customization details
+      customizationDetails: data.customizationDetails || undefined,
+
+      // Management fields
+      assignedTo: data.assignedTo || '',
+      priority: data.priority || false,
+      notes: data.notes || [],
+
+      // Timestamps
+      createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
+      updatedAt: data.updatedAt?.toDate?.()?.toISOString() || null,
+
+      // Response tracking
+      responseTime: data.responseTime || 'No response yet',
+      lastContactedAt:
+        data.lastContactedAt?.toDate?.()?.toISOString() || null,
+    };
+
+    return {
+      data: normalizedLead,
+      error: null,
+      loading: false,
+    };
+  } catch (error) {
+    console.error('Error fetching lead by ID:', error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : 'Failed to fetch lead',
+      loading: false,
+    };
+  }
+}
+
 export async function getSafeLeads(): Promise<SafeResult<any[]>> {
   try {
     const adminDb = getAdminFirestore();

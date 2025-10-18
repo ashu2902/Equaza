@@ -33,6 +33,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Grid } from '@/components/ui/Grid';
 import { FadeIn, SlideUp } from '@/components/ui/MotionWrapper';
 
+// Lead Components
+import { LeadStatusBadge, LeadTypeBadge } from '@/components/admin/leads';
+
 // Firebase
 import { getSafeLeads } from '@/lib/firebase/safe-firestore';
 import { isDataResult } from '@/types/safe';
@@ -63,75 +66,6 @@ async function getLeadsData() {
   }
 }
 
-/**
- * Lead Status Badge
- */
-function LeadStatusBadge({ status }: { status: string }) {
-  const statusConfig = {
-    new: { color: 'bg-blue-100 text-blue-800', label: 'New' },
-    contacted: { color: 'bg-yellow-100 text-yellow-800', label: 'Contacted' },
-    qualified: { color: 'bg-green-100 text-green-800', label: 'Qualified' },
-    proposal: {
-      color: 'bg-purple-100 text-purple-800',
-      label: 'Proposal Sent',
-    },
-    'closed-won': { color: 'bg-green-100 text-green-800', label: 'Closed Won' },
-    'closed-lost': { color: 'bg-red-100 text-red-800', label: 'Closed Lost' },
-    'on-hold': { color: 'bg-gray-100 text-gray-800', label: 'On Hold' },
-  };
-
-  const config =
-    statusConfig[status as keyof typeof statusConfig] || statusConfig['new'];
-
-  return (
-    <span
-      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.color}`}
-    >
-      {config.label}
-    </span>
-  );
-}
-
-/**
- * Lead Type Badge
- */
-function LeadTypeBadge({ type }: { type: string }) {
-  const typeConfig = {
-    contact: {
-      color: 'bg-blue-100 text-blue-800',
-      label: 'Contact',
-      icon: MessageSquare,
-    },
-    customize: {
-      color: 'bg-purple-100 text-purple-800',
-      label: 'Custom Rug',
-      icon: Tag,
-    },
-    enquiry: {
-      color: 'bg-green-100 text-green-800',
-      label: 'Product Enquiry',
-      icon: Eye,
-    },
-    trade: {
-      color: 'bg-orange-100 text-orange-800',
-      label: 'Trade Partnership',
-      icon: ArrowUpRight,
-    },
-  };
-
-  const config =
-    typeConfig[type as keyof typeof typeConfig] || typeConfig['contact'];
-  const IconComponent = config.icon;
-
-  return (
-    <span
-      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.color}`}
-    >
-      <IconComponent className='h-3 w-3 mr-1' />
-      {config.label}
-    </span>
-  );
-}
 
 /**
  * Lead Card Component
@@ -150,10 +84,10 @@ function LeadCard({ lead }: { lead: any }) {
               <h3 className='font-semibold text-gray-900 truncate'>
                 {lead.name || 'Unknown Contact'}
               </h3>
-              <LeadStatusBadge status={lead.status || 'new'} />
+              <LeadStatusBadge status={lead.status || 'new'} size='sm' />
             </div>
             <div className='flex items-center gap-2 mb-2'>
-              <LeadTypeBadge type={lead.type || 'contact'} />
+              <LeadTypeBadge type={lead.type || 'contact'} size='sm' />
               {lead.priority && (
                 <span className='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800'>
                   High Priority
