@@ -7,6 +7,9 @@
  * - Consistent error handling patterns
  */
 
+import 'server-only';
+import fs from 'fs/promises';
+import path from 'path';
 import {
   collection,
   getDocs,
@@ -34,6 +37,29 @@ import {
   SafeWeaveType,
   SafeResult,
 } from '@/types/safe';
+
+// --- Static Build Configuration ---
+const IS_STATIC_BUILD = process.env.NEXT_PUBLIC_STATIC_BUILD === 'true';
+const STATIC_DATA_PATH = path.join(
+  process.cwd(),
+  'src',
+  'data',
+  'static-data.json'
+);
+
+/**
+ * Reads the entire static data file.
+ */
+async function getStaticData() {
+  if (!IS_STATIC_BUILD) return null;
+  try {
+    const fileContent = await fs.readFile(STATIC_DATA_PATH, 'utf-8');
+    return JSON.parse(fileContent);
+  } catch (error) {
+    console.error('Failed to read static data file:', error);
+    return null;
+  }
+}
 
 /**
  * Convert Admin Firestore QueryDocumentSnapshot to DocumentSnapshot format
@@ -106,6 +132,39 @@ export async function getSafeProducts(
   filters: ProductFilters = {}
 ): Promise<SafeResult<SafeProduct[]>> {
   try {
+    if (IS_STATIC_BUILD) {
+      const staticData = await getStaticData();
+      let products = (staticData?.products || []) as SafeProduct[];
+
+      // Apply filters to static data
+      if (filters.isActive !== false) {
+        products = products.filter((p) => p.isActive !== false);
+      }
+      if (filters.collectionId) {
+        products = products.filter((p) =>
+          p.collections.includes(filters.collectionId!)
+        );
+      }
+      if (filters.weaveType) {
+        products = products.filter(
+          (p) => p.specifications.weaveType === filters.weaveType
+        );
+      }
+      if (filters.isFeatured !== undefined) {
+        products = products.filter(
+          (p) => p.isFeatured === filters.isFeatured
+        );
+      }
+
+      // Simple limit application
+      if (filters.limit && filters.limit > 0) {
+        products = products.slice(0, filters.limit);
+      }
+
+      return { data: products, error: null, loading: false };
+    }
+
+    // --- Live Firebase Fetch ---
     const constraints: QueryConstraint[] = [];
 
     // Always filter for active products unless explicitly specified
@@ -165,6 +224,18 @@ export async function getSafeProduct(
       };
     }
 
+    if (IS_STATIC_BUILD) {
+      const staticData = await getStaticData();
+      const product = (staticData?.products as SafeProduct[] || [])
+        .find((p) => p.slug === slug.trim() && p.isActive !== false);
+
+      if (!product) {
+        return { data: null, error: 'Product not found', loading: false };
+      }
+      return { data: product, error: null, loading: false };
+    }
+
+    // --- Live Firebase Fetch ---
     const q = query(
       collection(db, 'products'),
       where('slug', '==', slug.trim()),
@@ -247,6 +318,18 @@ export async function getSafeWeaveTypes(): Promise<
   SafeResult<SafeWeaveType[]>
 > {
   try {
+    if (IS_STATIC_BUILD) {
+      const staticData = await getStaticData();
+      let weaveTypes = (staticData?.weaveTypes || []) as SafeWeaveType[];
+
+      // Apply filters to static data
+      weaveTypes = weaveTypes.filter((wt) => wt.isActive !== false);
+      // Assuming static data is already sorted
+
+      return { data: weaveTypes, error: null, loading: false };
+    }
+
+    // --- Live Firebase Fetch ---
     const q = query(
       collection(db, 'weaveTypes'),
       where('isActive', '==', true),
@@ -344,6 +427,27 @@ export async function getSafeCollections(
   filters: CollectionFilters = {}
 ): Promise<SafeResult<SafeCollection[]>> {
   try {
+    if (IS_STATIC_BUILD) {
+      const staticData = await getStaticData();
+      let collections = (staticData?.collections || []) as SafeCollection[];
+
+      // Apply filters to static data
+      if (filters.isActive !== false) {
+        collections = collections.filter((c) => c.isActive !== false);
+      }
+      if (filters.type) {
+        collections = collections.filter((c) => c.type === filters.type);
+      }
+      
+      // Simple limit application
+      if (filters.limit && filters.limit > 0) {
+        collections = collections.slice(0, filters.limit);
+      }
+
+      return { data: collections, error: null, loading: false };
+    }
+
+    // --- Live Firebase Fetch ---
     const constraints: QueryConstraint[] = [];
 
     // Always filter for active collections unless explicitly specified
@@ -389,6 +493,18 @@ export async function getSafeCollection(
       };
     }
 
+    if (IS_STATIC_BUILD) {
+      const staticData = await getStaticData();
+      const collection = (staticData?.collections as SafeCollection[] || [])
+        .find((c) => c.slug === slug.trim() && c.isActive !== false);
+
+      if (!collection) {
+        return { data: null, error: 'Collection not found', loading: false };
+      }
+      return { data: collection, error: null, loading: false };
+    }
+
+    // --- Live Firebase Fetch ---
     const q = query(
       collection(db, 'collections'),
       where('slug', '==', slug.trim()),

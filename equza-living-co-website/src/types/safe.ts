@@ -11,6 +11,7 @@ export interface SafeImage {
   storageRef: string;
   isMain: boolean;
   sortOrder: number;
+  staticSrc?: string;
 }
 
 export interface SafeProductSize {

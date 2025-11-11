@@ -25,6 +25,7 @@ export function SafeCollectionTileCompact({
         <div className='relative aspect-square'>
           <SafeImage
             src={collection.heroImage.url}
+            staticSrc={collection.heroImage.staticSrc}
             alt={collection.heroImage.alt}
             fill
             priority={priority}

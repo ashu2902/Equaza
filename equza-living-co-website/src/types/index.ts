@@ -7,6 +7,7 @@ export interface ProductImage {
   storageRef: string;
   isMain: boolean;
   sortOrder: number;
+  staticSrc?: string;
 }
 
 export interface ProductSize {
@@ -54,6 +55,7 @@ export interface CollectionImage {
   url: string;
   alt: string;
   storageRef: string;
+  staticSrc?: string;
 }
 
 export interface Collection {

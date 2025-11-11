@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 interface LookbookCompactProps {
-  thumbnail?: { src?: string; alt?: string } | null;
+  thumbnail?: { src?: string; alt?: string; staticSrc?: string } | null;
   caption?: string | null;
   pdfUrl?: string | null;
 }
@@ -21,7 +21,7 @@ export function LookbookCompact({
           <div className='relative w-full md:w-1/2 aspect-[4/3] overflow-hidden rounded-lg'>
             {thumbnail?.src ? (
               <Image
-                src={thumbnail.src}
+                src={thumbnail.staticSrc || thumbnail.src}
                 alt={thumbnail.alt || 'Lookbook'}
                 fill
                 className='object-cover'

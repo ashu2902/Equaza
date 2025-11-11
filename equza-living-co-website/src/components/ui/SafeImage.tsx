@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 
 interface SafeImageProps {
   src: string;
+  staticSrc?: string;
   alt: string;
   width?: number;
   height?: number;
@@ -26,6 +27,7 @@ interface SafeImageProps {
 
 export function SafeImage({
   src,
+  staticSrc,
   alt,
   width,
   height,
@@ -39,7 +41,9 @@ export function SafeImage({
   onError,
   ...props
 }: SafeImageProps) {
-  const [imgSrc, setImgSrc] = useState(src);
+  // Use staticSrc if available, otherwise use src
+  const initialSrc = staticSrc || src;
+  const [imgSrc, setImgSrc] = useState(initialSrc);
   const [hasError, setHasError] = useState(false);
 
   const handleError = useCallback(() => {
