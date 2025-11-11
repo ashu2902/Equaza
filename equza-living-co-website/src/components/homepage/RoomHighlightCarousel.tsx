@@ -37,6 +37,7 @@ function RoomCard({ collection }: { collection: SafeCollection }) {
         <div className='relative aspect-[2.5/1]'>
           <SafeImage
             src={collection.heroImage.url}
+            staticSrc={collection.heroImage.staticSrc}
             alt={collection.heroImage.alt}
             fill
             className='object-cover transition-transform duration-700 group-hover:scale-105'

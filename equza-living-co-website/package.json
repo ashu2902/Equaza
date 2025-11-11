@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "prebuild": "node scripts/fetch-static-data.mjs && node scripts/optimize-static-images.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -16,9 +17,9 @@
     "seed:home": "node ./scripts/seed-homepage.mjs"
   },
   "dependencies": {
-    "@vercel/speed-insights": "^1.1.0",
     "@hookform/resolvers": "^5.2.0",
     "@tailwindcss/line-clamp": "^0.4.4",
+    "@vercel/speed-insights": "^1.1.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "critters": "^0.0.25",
@@ -49,6 +50,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.3",
     "prettier": "^3.6.2",
+    "sharp": "^0.34.4",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

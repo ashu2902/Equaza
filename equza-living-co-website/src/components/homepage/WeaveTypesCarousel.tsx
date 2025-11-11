@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils/cn';
 
 export interface WeaveTypeItem {
   weaveType: string;
-  image?: { src: string; alt: string };
+  image?: { src: string; alt: string; staticSrc?: string };
   href: string;
 }
 
@@ -159,6 +159,7 @@ export function WeaveTypesCarousel({
                                 {item.image?.src ? (
                                   <SafeImage
                                     src={item.image.src}
+                                    staticSrc={item.image.staticSrc}
                                     alt={item.image.alt || item.weaveType}
                                     fill
                                     className='object-cover'
@@ -213,6 +214,7 @@ export function WeaveTypesCarousel({
                       {item.image?.src ? (
                         <SafeImage
                           src={item.image.src}
+                          staticSrc={item.image.staticSrc}
                           alt={item.image.alt || item.weaveType}
                           fill
                           className='object-cover'

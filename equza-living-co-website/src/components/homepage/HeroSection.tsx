@@ -15,7 +15,7 @@ interface HeroSlide {
   title?: string;
   subtitle?: string;
   cta?: { label: string; href: string };
-  image?: { src: string; alt: string };
+  image?: { src: string; alt: string; staticSrc?: string };
 }
 
 interface HeroSectionProps {
@@ -95,10 +95,10 @@ export function HeroSection({ heroCms }: HeroSectionProps) {
       onTouchEnd={handleTouchEnd}
     >
       {/* Hero Background Image */}
-      {currentCmsSlide?.image?.src && (
+      {(currentCmsSlide?.image?.staticSrc || currentCmsSlide?.image?.src) && (
         <div className='absolute inset-0'>
           <Image
-            src={currentCmsSlide.image.src}
+            src={currentCmsSlide.image.staticSrc || currentCmsSlide.image.src}
             alt={currentCmsSlide.image.alt || 'Hero background'}
             fill
             className='object-cover'
