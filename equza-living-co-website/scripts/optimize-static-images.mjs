@@ -22,8 +22,24 @@ const STATIC_DATA_FILE = path.join(PROJECT_ROOT, 'src', 'data', 'static-data.jso
  */
 async function extractImageUrls() {
   try {
+    // Check if file exists first
+    try {
+      await fs.access(STATIC_DATA_FILE);
+    } catch {
+      // File doesn't exist - this is expected if fetch-static-data.mjs didn't run
+      console.log('ℹ️  Static data file not found. Skipping image optimization (this is optional).');
+      return [];
+    }
+    
     const fileContent = await fs.readFile(STATIC_DATA_FILE, 'utf-8');
     const data = JSON.parse(fileContent);
+    
+    // Check if data is empty or invalid
+    if (!data || Object.keys(data).length === 0 || Object.keys(data).every(key => key.startsWith('_'))) {
+      console.log('ℹ️  Static data file is empty or contains no image data.');
+      return [];
+    }
+    
     const urls = [];
 
     // 1. Homepage Data (Hero, Room Highlight, Craftsmanship, Lookbook)
@@ -66,7 +82,8 @@ async function extractImageUrls() {
 
     return urls;
   } catch (error) {
-    console.error('❌ Error extracting image URLs from static data. Did you run fetch-static-data.mjs?', error.message);
+    // This is expected if static-data.json doesn't exist or is invalid
+    console.log('ℹ️  Could not extract image URLs from static data. Skipping image optimization.');
     return [];
   }
 }
@@ -142,6 +159,19 @@ async function main() {
 
     // 2. Process all remote images
     const remoteImageUrls = await extractImageUrls();
+    
+    if (remoteImageUrls.length === 0) {
+      console.log('No images to optimize. Skipping image optimization step.');
+      // Create empty static image map file
+      await fs.writeFile(
+        STATIC_DATA_PATH,
+        JSON.stringify({}, null, 2),
+        'utf-8'
+      );
+      console.log('\n--- Static Image Optimization Complete (no images found) ---');
+      return;
+    }
+    
     console.log(`Found ${remoteImageUrls.length} remote images to optimize.`);
 
     for (const { id, url, filename } of remoteImageUrls) {
