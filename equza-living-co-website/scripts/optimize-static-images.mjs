@@ -30,16 +30,16 @@ async function extractImageUrls() {
       console.log('ℹ️  Static data file not found. Skipping image optimization (this is optional).');
       return [];
     }
-    
+
     const fileContent = await fs.readFile(STATIC_DATA_FILE, 'utf-8');
     const data = JSON.parse(fileContent);
-    
+
     // Check if data is empty or invalid
     if (!data || Object.keys(data).length === 0 || Object.keys(data).every(key => key.startsWith('_'))) {
       console.log('ℹ️  Static data file is empty or contains no image data.');
       return [];
     }
-    
+
     const urls = [];
 
     // 1. Homepage Data (Hero, Room Highlight, Craftsmanship, Lookbook)
@@ -94,11 +94,38 @@ async function extractImageUrls() {
  * @returns {Promise<Buffer>} The image buffer.
  */
 async function downloadImage(url) {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      },
+      timeout: 10000 // 10 seconds timeout
+    });
+
+    if (!response.ok) {
+      const errorMsg = `HTTP Error ${response.status}: ${response.statusText}`;
+      console.error(`  [Fetch Fail] ${url}`);
+      console.error(`  [Status] ${response.status} ${response.statusText}`);
+
+      // Log headers for debugging if it's a 412 or other interesting error
+      if (response.status === 412 || response.status === 403) {
+        const headers = {};
+        response.headers.forEach((v, k) => { headers[k] = v; });
+        console.error(`  [Headers]`, JSON.stringify(headers, null, 2));
+      }
+
+      throw new Error(errorMsg);
+    }
+    return Buffer.from(await response.arrayBuffer());
+  } catch (err) {
+    if (err.name === 'AbortError' || err.code === 'ETIMEDOUT') {
+      throw new Error(`Timeout fetching ${url}`);
+    }
+    throw err;
   }
-  return Buffer.from(await response.arrayBuffer());
 }
 
 /**
@@ -159,7 +186,7 @@ async function main() {
 
     // 2. Process all remote images
     const remoteImageUrls = await extractImageUrls();
-    
+
     if (remoteImageUrls.length === 0) {
       console.log('No images to optimize. Skipping image optimization step.');
       // Create empty static image map file
@@ -171,7 +198,7 @@ async function main() {
       console.log('\n--- Static Image Optimization Complete (no images found) ---');
       return;
     }
-    
+
     console.log(`Found ${remoteImageUrls.length} remote images to optimize.`);
 
     for (const { id, url, filename } of remoteImageUrls) {
@@ -179,7 +206,7 @@ async function main() {
         console.log(`\n[${id}] Downloading image from: ${url}`);
         const buffer = await downloadImage(url);
         const staticPath = await optimizeImage(buffer, filename);
-        
+
         if (staticPath) {
           staticImageMap[id] = staticPath;
         }

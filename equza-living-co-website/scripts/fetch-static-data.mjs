@@ -27,7 +27,7 @@ function initializeFirebase() {
   try {
     let credential;
     const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-    
+
     // Try environment variables first (for Vercel/production)
     if (process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
       const privateKey = process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n');
@@ -37,7 +37,7 @@ function initializeFirebase() {
         privateKey: privateKey,
       });
       console.log('✅ Using Firebase Admin credentials from environment variables');
-    } 
+    }
     // Fallback to service account file (for local development)
     else {
       const SERVICE_ACCOUNT_PATH = process.env.FIREBASE_SERVICE_ACCOUNT_KEY_PATH || join(PROJECT_ROOT, 'firebase-service-account.json');
@@ -52,16 +52,16 @@ function initializeFirebase() {
         throw new Error(`Service account file not found at ${SERVICE_ACCOUNT_PATH}`);
       }
     }
-    
+
     if (!projectId) {
       throw new Error('NEXT_PUBLIC_FIREBASE_PROJECT_ID is required');
     }
-    
+
     initializeApp({
       credential,
       projectId: projectId,
     });
-    
+
     return getFirestore();
   } catch (e) {
     console.warn('⚠️  Could not initialize Firebase Admin:', e.message);
@@ -171,10 +171,10 @@ async function compareWithExisting(newData) {
   try {
     const existingContent = await fs.readFile(STATIC_DATA_PATH, 'utf-8');
     const existingData = JSON.parse(existingContent);
-    
+
     const existingHash = existingData._metadata?.dataHash;
     const newHash = generateDataHash(newData);
-    
+
     if (existingHash && existingHash === newHash) {
       return {
         hasChanged: false,
@@ -183,7 +183,7 @@ async function compareWithExisting(newData) {
         newHash,
       };
     }
-    
+
     // Count changes
     const changes = {
       collections: {
@@ -199,7 +199,7 @@ async function compareWithExisting(newData) {
         new: newData.weaveTypes?.length || 0,
       },
     };
-    
+
     return {
       hasChanged: true,
       message: 'Data has changed since last build',
@@ -223,7 +223,7 @@ async function main() {
 
   // Try to initialize Firebase
   const db = initializeFirebase();
-  
+
   if (!db) {
     console.log('ℹ️  Firebase credentials not available. Skipping static data pre-fetch.');
     console.log('   The app will fetch data from Firestore at runtime.');
@@ -234,7 +234,7 @@ async function main() {
 
   try {
     console.log('📥 Fetching data from Firestore...');
-    
+
     // 1. Fetch all required data concurrently
     const [
       homePageData,
@@ -259,16 +259,20 @@ async function main() {
       siteSettings,
     };
 
+    if (!siteSettings) {
+      console.warn('⚠️  Site settings document "settings/site" not found in Firestore.');
+    }
+
     // 3. Validate the data
     console.log('🔍 Validating fetched data...');
     const validation = validateData(staticData);
-    
+
     if (validation.errors.length > 0) {
       console.error('❌ Data validation errors:');
       validation.errors.forEach(error => console.error(`   - ${error}`));
       throw new Error('Data validation failed');
     }
-    
+
     if (validation.warnings.length > 0) {
       console.warn('⚠️  Data validation warnings:');
       validation.warnings.forEach(warning => console.warn(`   - ${warning}`));
@@ -295,7 +299,7 @@ async function main() {
 
     // 5. Generate data hash for change detection
     const dataHash = generateDataHash(staticData);
-    
+
     // 6. Add metadata about when this was generated
     staticData._metadata = {
       generatedAt: new Date().toISOString(),
